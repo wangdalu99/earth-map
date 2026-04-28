@@ -1,0 +1,4512 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DAPENG BAY - Home Preview</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --frame-w: 2085px;
+      --frame-h: 1132px;
+      --scale: 1;
+      --page: #1f1f1f;
+      --ink: #010205;
+      --text: #f4f6f8;
+      --text-soft: #daddE2;
+      --muted: #a9afb8;
+      --muted-2: #858d98;
+      --gold: #e8c48e;
+      --gold-hot: #f2d69b;
+      --glass: rgba(14, 16, 20, 0.58);
+      --glass-2: rgba(23, 25, 30, 0.78);
+      --stroke: rgba(255, 255, 255, 0.14);
+      --stroke-strong: rgba(255, 255, 255, 0.22);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+      --blur: blur(22px) saturate(1.28);
+      --eco-glass-stop-1: #191e26;
+      --eco-glass-stop-2: rgba(232, 196, 142, 0.6);
+      --eco-glass-stop-3: #cf502d;
+      --eco-glass-gradient: linear-gradient(100deg, var(--eco-glass-stop-1) 3%, var(--eco-glass-stop-2) 45%, var(--eco-glass-stop-3) 82%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      overflow: hidden;
+      background: #010205;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    .page {
+      width: 100vw;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      overflow: hidden;
+      background: #010205;
+    }
+
+    .viewport {
+      position: relative;
+      width: calc(var(--frame-w) * var(--scale));
+      height: calc(var(--frame-h) * var(--scale));
+    }
+
+    .frame {
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: var(--frame-w);
+      height: var(--frame-h);
+      overflow: hidden;
+      transform: scale(var(--scale));
+      transform-origin: top left;
+      background:
+        radial-gradient(circle at 67% 33%, rgba(85, 129, 155, 0.2), transparent 22%),
+        radial-gradient(circle at 66% 45%, rgba(13, 41, 64, 0.44), transparent 38%),
+        radial-gradient(circle at 48% 68%, rgba(15, 45, 66, 0.18), transparent 34%),
+        #010205;
+      box-shadow: 0 30px 100px rgba(0, 0, 0, 0.55);
+      isolation: isolate;
+    }
+
+    .frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 62% 11%, rgba(255, 255, 255, 0.7) 0 1px, transparent 1.4px),
+        radial-gradient(circle at 70% 23%, rgba(255, 255, 255, 0.45) 0 1px, transparent 1.4px),
+        radial-gradient(circle at 86% 32%, rgba(255, 255, 255, 0.35) 0 1px, transparent 1.4px),
+        radial-gradient(circle at 54% 36%, rgba(255, 255, 255, 0.32) 0 1px, transparent 1.4px),
+        radial-gradient(circle at 78% 65%, rgba(255, 255, 255, 0.34) 0 1px, transparent 1.4px),
+        radial-gradient(circle at 92% 75%, rgba(255, 255, 255, 0.32) 0 1px, transparent 1.4px);
+      opacity: 0.56;
+      pointer-events: none;
+    }
+
+    .layer {
+      position: absolute;
+      z-index: 5;
+    }
+
+    .glass {
+      border: 1px solid var(--stroke);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025)),
+        rgba(9, 10, 13, 0.54);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        0 18px 58px rgba(0, 0, 0, 0.38);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+    }
+
+    .brand {
+      left: 49px;
+      top: 48px;
+      display: flex;
+      align-items: center;
+      gap: 17px;
+      z-index: 8;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      filter: drop-shadow(0 8px 14px rgba(255, 255, 255, 0.12));
+    }
+
+    .brand-mark i {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px 999px 999px 4px;
+      background: #fff;
+    }
+
+    .brand-mark i:nth-child(1) {
+      left: 0;
+      top: 0;
+      transform: rotate(-45deg);
+    }
+
+    .brand-mark i:nth-child(2) {
+      right: 0;
+      top: 0;
+      transform: rotate(45deg);
+    }
+
+    .brand-mark i:nth-child(3) {
+      left: 0;
+      bottom: 0;
+      transform: rotate(-135deg);
+    }
+
+    .brand-mark i:nth-child(4) {
+      right: 0;
+      bottom: 0;
+      transform: rotate(135deg);
+    }
+
+    .brand-title {
+      margin: 0;
+      color: #f8f9fa;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 29.3px;
+      line-height: 29.3px;
+      font-weight: 700;
+      letter-spacing: -0.6px;
+    }
+
+    .brand-subtitle {
+      margin-top: 6px;
+      color: #aeb4bc;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 14.7px;
+      line-height: 17.3px;
+      font-weight: 500;
+    }
+
+    .top-nav-bg {
+      left: 611px;
+      top: 50px;
+      width: 655px;
+      height: 66px;
+      border-radius: 34px;
+      z-index: 7;
+    }
+
+    .top-nav {
+      left: 620px;
+      top: 54px;
+      width: 637px;
+      height: 57px;
+      display: flex;
+      align-items: center;
+      position: absolute;
+      overflow: hidden;
+      border-radius: 30px;
+      --nav-x: 0px;
+      --nav-w: 186px;
+      z-index: 8;
+    }
+
+    .nav-glider {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: var(--nav-w);
+      height: 57px;
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at 28% 46%, rgba(232, 196, 142, 0.42), transparent 50%),
+        linear-gradient(90deg, rgba(232, 196, 142, 0.31), rgba(255, 255, 255, 0.055));
+      box-shadow:
+        0 0 34px rgba(232, 196, 142, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -16px 36px rgba(0, 0, 0, 0.16);
+      transform: translateX(var(--nav-x));
+      transition:
+        transform 560ms cubic-bezier(.16, 1, .3, 1),
+        width 560ms cubic-bezier(.16, 1, .3, 1),
+        filter 260ms ease;
+      backdrop-filter: blur(20px) saturate(1.35);
+      -webkit-backdrop-filter: blur(20px) saturate(1.35);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .nav-item {
+      position: relative;
+      height: 57px;
+      display: grid;
+      place-items: center;
+      color: #dadedf;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 18px;
+      letter-spacing: 0.24px;
+      text-transform: uppercase;
+      border-radius: 25px;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+      transition:
+        color 260ms ease,
+        text-shadow 260ms ease,
+        transform 220ms ease;
+      z-index: 2;
+    }
+
+    .nav-item.active {
+      color: var(--gold);
+      text-shadow: 0 0 14px rgba(232, 196, 142, 0.42);
+    }
+
+    .nav-item:hover {
+      color: #f3dec0;
+    }
+
+    .nav-item:active {
+      transform: scale(0.985);
+    }
+
+    .nav-item:nth-of-type(1) { width: 186px; }
+    .nav-item:nth-of-type(2) { width: 244px; }
+    .nav-item:nth-of-type(3) { width: 207px; }
+
+    .bell-bg,
+    .bell-button {
+      left: 1713px;
+      top: 46px;
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      z-index: 8;
+    }
+
+    .user-bg,
+    .user-button {
+      left: 1812px;
+      top: 46px;
+      width: 213px;
+      height: 66px;
+      border-radius: 34px;
+      z-index: 8;
+    }
+
+    .bell-button,
+    .user-button,
+    .side-control,
+    .zoom-button,
+    .play,
+    .calendar-bg {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .bell-button,
+    .user-button {
+      border: 1px solid var(--stroke);
+      color: #f4f6f8;
+      margin: 0;
+      font: inherit;
+      transition:
+        transform 220ms ease,
+        border-color 220ms ease,
+        box-shadow 220ms ease,
+        filter 220ms ease;
+    }
+
+    .bell-button:hover,
+    .user-button:hover,
+    .side-control:hover,
+    .zoom-button:hover,
+    .play:hover,
+    .calendar-bg:hover,
+    .cta:hover {
+      border-color: rgba(232, 196, 142, 0.42);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 0 30px rgba(232, 196, 142, 0.16),
+        0 18px 58px rgba(0, 0, 0, 0.38);
+    }
+
+    .bell-button:active,
+    .user-button:active,
+    .side-control:active,
+    .zoom-button:active,
+    .play:active,
+    .calendar-bg:active,
+    .cta:active {
+      transform: scale(0.965);
+    }
+
+    .bell {
+      left: 1732px;
+      top: 65px;
+      width: 28px;
+      height: 28px;
+      z-index: 9;
+    }
+
+    .bell svg,
+    .bell-button svg,
+    .side-control svg,
+    .calendar svg,
+    .arrow svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .bell {
+      color: #f4f6f8;
+    }
+
+    .bell-button svg {
+      width: 28px;
+      height: 28px;
+      margin: auto;
+      stroke-width: 1.8;
+    }
+
+    .bell-button {
+      display: grid;
+      place-items: center;
+      padding: 0;
+    }
+
+    .user,
+    .user-button {
+      left: 1852px;
+      top: 57px;
+      width: 129px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 9;
+    }
+
+    .user-button {
+      left: 1812px;
+      top: 46px;
+      width: 213px;
+      height: 66px;
+      justify-content: flex-start;
+      padding: 0 30px 0 40px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025)),
+        rgba(9, 10, 13, 0.54);
+      text-align: left;
+    }
+
+    .avatar {
+      flex: 0 0 44px;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      aspect-ratio: 1 / 1;
+      display: grid;
+      place-items: center;
+      border-radius: 9999px;
+      overflow: hidden;
+      color: #f7f2ea;
+      font-size: 18px;
+      line-height: 22px;
+      font-weight: 700;
+      background:
+        radial-gradient(circle at 42% 32%, rgba(232, 196, 142, 0.86), rgba(86, 60, 29, 0.88) 72%),
+        #73552c;
+      border: 1px solid rgba(232, 196, 142, 0.32);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 0 0 1px rgba(0, 0, 0, 0.08);
+    }
+
+    .user-name {
+      display: block;
+      color: #f3f4f6;
+      font-size: 14px;
+      line-height: 16px;
+      font-weight: 700;
+    }
+
+    .user-role {
+      display: block;
+      margin-top: 4px;
+      color: #a9b0b9;
+      font-size: 11px;
+      line-height: 13px;
+    }
+
+    .meta {
+      left: 53px;
+      top: 236px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 9;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted-2);
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 18px;
+      font-weight: 700;
+      letter-spacing: 0.33px;
+      text-transform: uppercase;
+    }
+
+    .meta-item.live {
+      color: var(--gold);
+      text-transform: none;
+    }
+
+    .dot {
+      width: 9.3px;
+      height: 9.3px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 12px rgba(232, 196, 142, 0.72);
+    }
+
+    .hero {
+      left: 49px;
+      top: 285.7px;
+      width: 720px;
+      z-index: 10;
+    }
+
+    .hero h1,
+    .hero h2 {
+      margin: 0;
+      width: 720px;
+      max-width: 720px;
+      color: #f4f6f8;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 72px;
+      line-height: 79px;
+      font-weight: 700;
+      letter-spacing: -1.93px;
+    }
+
+    .hero .gradient {
+      display: inline-block;
+      color: transparent;
+      background: linear-gradient(90deg, #f0cf93 0%, #efc4ae 44%, #7ea6e8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .description {
+      left: 53px;
+      top: 459px;
+      width: 716px;
+      z-index: 10;
+      color: #a9afb8;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 25px;
+      line-height: 35px;
+      letter-spacing: -0.09px;
+      font-weight: 400;
+    }
+
+    .cta {
+      top: 633px;
+      width: 232px;
+      height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px 0 39px;
+      border-radius: 35px;
+      color: #f0f2f5;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 19px;
+      font-weight: 700;
+      text-decoration: none;
+      z-index: 11;
+      transition:
+        transform 220ms ease,
+        border-color 220ms ease,
+        box-shadow 220ms ease;
+    }
+
+    .cta.one {
+      left: 49px;
+    }
+
+    .cta.two {
+      left: 311px;
+    }
+
+    .arrow {
+      width: 22px;
+      height: 22px;
+      color: #f0f2f5;
+    }
+
+    .earth-slot {
+      left: 540px;
+      top: -105px;
+      width: 1500px;
+      height: 1300px;
+      z-index: 3;
+      overflow: visible;
+      cursor: default;
+      pointer-events: none;
+      --earth-scale: 1.1;
+      --earth-x: 0px;
+      --earth-y: 0px;
+      --globe-size: 1400px;
+      --globe-left: 20px;
+      --globe-top: -5px;
+    }
+
+    .earth-photo {
+      position: absolute;
+      left: var(--globe-left);
+      top: var(--globe-top);
+      width: var(--globe-size);
+      height: var(--globe-size);
+      border-radius: 50%;
+      clip-path: circle(50% at 50% 50%);
+      background-image: url("./assets/earth-source.png");
+      background-size: var(--globe-size) var(--globe-size);
+      background-position: center;
+      transform: translate(var(--earth-x), var(--earth-y)) scale(var(--earth-scale));
+      filter: saturate(0.9) contrast(1.07) brightness(0.82);
+      box-shadow:
+        inset 58px 0 145px rgba(0, 0, 0, 0.92),
+        inset -28px 0 58px rgba(120, 186, 241, 0.38),
+        0 0 64px rgba(71, 145, 214, 0.28);
+    }
+
+    .earth-photo::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background:
+        radial-gradient(circle at 34% 48%, rgba(8, 20, 34, 0.18), transparent 40%),
+        radial-gradient(circle at 50% 50%, transparent 55%, rgba(1, 2, 5, 0.42) 100%);
+      pointer-events: none;
+    }
+
+    .dynamic-radio-globe {
+      position: absolute;
+      left: var(--globe-left);
+      top: var(--globe-top);
+      z-index: 1;
+      width: var(--globe-size);
+      height: var(--globe-size);
+      border-radius: 50%;
+      clip-path: circle(50% at 50% 50%);
+      border: 0;
+      background: transparent;
+      filter: none;
+      cursor: grab;
+      opacity: 0;
+      pointer-events: auto;
+      transition: opacity 700ms ease;
+    }
+
+    .earth-slot.globe-ready .dynamic-radio-globe {
+      opacity: 1;
+    }
+
+    .earth-slot.globe-ready .earth-photo {
+      opacity: 0;
+    }
+
+    .earth-slot::before {
+      content: "";
+      position: absolute;
+      left: -35px;
+      top: 35px;
+      width: 1012px;
+      height: 1012px;
+      z-index: 2;
+      border-radius: 50%;
+      display: none;
+      background:
+        radial-gradient(circle at 48% 43%, transparent 51%, rgba(0, 0, 0, 0.22) 78%, rgba(0, 0, 0, 0.42) 100%),
+        radial-gradient(circle at 52% 34%, rgba(255, 255, 255, 0.12), transparent 16%);
+      pointer-events: none;
+    }
+
+    .earth-slot::after {
+      content: "";
+      position: absolute;
+      left: -15px;
+      top: 24px;
+      width: 984px;
+      height: 984px;
+      z-index: 3;
+      border-radius: 50%;
+      display: none;
+      border: 1px solid rgba(94, 169, 236, 0.28);
+      box-shadow:
+        inset -18px 6px 35px rgba(144, 201, 255, 0.42),
+        0 0 52px rgba(95, 172, 243, 0.22);
+      pointer-events: none;
+    }
+
+    .google-map {
+      position: absolute;
+      left: var(--globe-left);
+      top: var(--globe-top);
+      z-index: 4;
+      width: var(--globe-size);
+      height: var(--globe-size);
+      overflow: hidden;
+      border-radius: 50%;
+      display: none;
+      filter: saturate(0.82) contrast(1.08) brightness(0.68);
+      pointer-events: auto;
+    }
+
+    .google-map gmp-map-3d {
+      width: 100%;
+      height: 100%;
+    }
+
+    .earth-slot.google-ready .earth-photo {
+      opacity: 0;
+    }
+
+    .earth-slot.dragging .dynamic-radio-globe {
+      cursor: grabbing;
+    }
+
+    .earth-slot.google-ready .dynamic-radio-globe {
+      display: none;
+    }
+
+    .earth-slot.google-ready .google-map {
+      display: block;
+    }
+
+    .pin {
+      position: absolute;
+      z-index: 8;
+      display: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #f0ce88;
+      box-shadow:
+        0 0 0 5px rgba(99, 221, 137, 0.24),
+        0 0 24px rgba(99, 221, 137, 0.9);
+    }
+
+    .pin.p1 { left: 317px; top: 369px; }
+    .pin.p2 { left: 613px; top: 350px; }
+    .pin.p3 { left: 449px; top: 513px; }
+    .pin.p4 { left: 557px; top: 551px; }
+    .pin.p5 { left: 861px; top: 744px; }
+    .pin.p6 { left: 97px; top: 536px; }
+
+    .tooltip {
+      left: 984px;
+      top: 621px;
+      width: 355px;
+      height: 64px;
+      z-index: 12;
+      padding: 13px 32px;
+      border-radius: 11px;
+      border: 1px solid rgba(232, 238, 246, 0.58);
+      background:
+        linear-gradient(180deg, rgba(31, 36, 44, 0.78), rgba(9, 11, 15, 0.72)),
+        rgba(2, 4, 8, 0.55);
+      box-shadow:
+        0 14px 38px rgba(0, 0, 0, 0.46),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition:
+        opacity 180ms ease,
+        transform 180ms ease,
+        left 120ms ease,
+        top 120ms ease;
+    }
+
+    .tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .tooltip small {
+      display: block;
+      margin-bottom: 3px;
+      color: #f0f2f5;
+      font-size: 10px;
+      line-height: 12px;
+      font-weight: 600;
+    }
+
+    .tooltip strong {
+      display: block;
+      color: #f0f2f5;
+      font-size: 14px;
+      line-height: 17px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .side-control {
+      right: 60px;
+      width: 64px;
+      height: 64px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #f2f4f5;
+      z-index: 13;
+      border-color: rgba(242, 244, 245, 0.28);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015)),
+        rgba(5, 7, 10, 0.72);
+      transition:
+        transform 220ms ease,
+        border-color 220ms ease,
+        box-shadow 220ms ease;
+    }
+
+    .side-control.cross { top: 164px; }
+    .side-control.globe { top: 244px; }
+    .side-control.layers { top: 324px; }
+
+    .side-control svg {
+      width: 28px;
+      height: 28px;
+      stroke-width: 2.2;
+    }
+
+    .side-control.is-active {
+      color: var(--gold);
+      border-color: rgba(232, 196, 142, 0.52);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 0 28px rgba(232, 196, 142, 0.2);
+    }
+
+    .zoom {
+      right: 60px;
+      top: 404px;
+      width: 64px;
+      height: 115px;
+      display: grid;
+      grid-template-rows: 56px 1px 58px;
+      place-items: center;
+      border-radius: 32px;
+      z-index: 13;
+      color: #f2f4f5;
+      font-size: 29.3px;
+      line-height: 29.3px;
+      font-weight: 300;
+      border-color: rgba(242, 244, 245, 0.28);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015)),
+        rgba(5, 7, 10, 0.72);
+    }
+
+    .zoom-button {
+      width: 64px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      line-height: 1;
+      transition:
+        transform 220ms ease,
+        color 220ms ease,
+        text-shadow 220ms ease;
+    }
+
+    .zoom-button:hover {
+      color: #f3dec0;
+      text-shadow: 0 0 14px rgba(232, 196, 142, 0.46);
+    }
+
+    .zoom-line {
+      width: 46px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .timeline-bg {
+      left: 164px;
+      top: 995px;
+      width: 1783px;
+      height: 87px;
+      border-radius: 44px;
+      z-index: 14;
+    }
+
+    .play {
+      left: 207px;
+      top: 1017px;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      z-index: 15;
+      color: #f2eee6;
+      background:
+        radial-gradient(circle at 35% 35%, rgba(232, 196, 142, 0.36), rgba(27, 25, 23, 0.78) 68%);
+      border: 1px solid rgba(232, 196, 142, 0.25);
+      transition:
+        transform 220ms ease,
+        border-color 220ms ease,
+        box-shadow 220ms ease;
+    }
+
+    .play svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .play.is-playing {
+      color: var(--gold);
+      box-shadow:
+        0 0 26px rgba(232, 196, 142, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .timeline-label {
+      left: 275px;
+      top: 1028px;
+      z-index: 15;
+      color: #e6e8eb;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 19px;
+      font-weight: 700;
+      letter-spacing: -0.15px;
+    }
+
+    .timeline-line {
+      left: 375px;
+      top: 1038px;
+      width: 1461px;
+      height: 2px;
+      z-index: 15;
+      background: linear-gradient(90deg, rgba(232, 196, 142, 0.18), rgba(232, 196, 142, 0.76), rgba(232, 196, 142, 0.18));
+    }
+
+    .timeline-hit {
+      left: 375px;
+      top: 1015px;
+      width: 1461px;
+      height: 54px;
+      z-index: 18;
+      cursor: grab;
+      background: transparent;
+      touch-action: none;
+    }
+
+    .timeline-hit:active {
+      cursor: grabbing;
+    }
+
+    .timeline-hit:focus {
+      outline: none;
+    }
+
+    .timeline-hit:focus-visible {
+      border-radius: 999px;
+      box-shadow: 0 0 0 1px rgba(232, 196, 142, 0.22);
+    }
+
+    .tick {
+      position: absolute;
+      top: 1034px;
+      width: 1px;
+      height: 10px;
+      z-index: 16;
+      background: rgba(232, 196, 142, 0.72);
+    }
+
+    .tick.now {
+      top: 1032px;
+      height: 14px;
+      background: var(--gold);
+      box-shadow: 0 0 18px rgba(232, 196, 142, 0.72);
+      transition: left 120ms linear;
+    }
+
+    .now-dot {
+      left: 1114px;
+      top: 1032px;
+      width: 12px;
+      height: 12px;
+      z-index: 17;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 22px rgba(232, 196, 142, 0.86);
+      pointer-events: none;
+      transition:
+        left 120ms linear,
+        box-shadow 180ms ease;
+    }
+
+    .time {
+      position: absolute;
+      z-index: 16;
+      color: #bdc4cd;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 17px;
+      font-weight: 400;
+    }
+
+    .time.now-text {
+      color: #f3e6d4;
+      font-size: 18px;
+      line-height: 22px;
+      pointer-events: none;
+    }
+
+    .now-title {
+      left: 1102px;
+      top: 1008px;
+      color: #f1e8d7;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 18px;
+      font-weight: 700;
+      z-index: 17;
+      pointer-events: none;
+    }
+
+    .calendar-bg {
+      left: 1869px;
+      top: 1017px;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      z-index: 15;
+      color: #f2eee6;
+      background:
+        radial-gradient(circle at 35% 35%, rgba(232, 196, 142, 0.33), rgba(27, 25, 23, 0.78) 68%);
+      border: 1px solid rgba(232, 196, 142, 0.23);
+      transition:
+        transform 220ms ease,
+        border-color 220ms ease,
+        box-shadow 220ms ease;
+    }
+
+    .calendar {
+      width: 20px;
+      height: 20px;
+      color: #f2eee6;
+    }
+
+    .api-note {
+      display: none;
+    }
+
+    .interaction-toast {
+      right: 46px;
+      bottom: 34px;
+      min-width: 220px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      color: #f3e6d4;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.1px;
+      opacity: 0;
+      transform: translateY(14px);
+      transition:
+        opacity 220ms ease,
+        transform 220ms ease;
+      pointer-events: none;
+      z-index: 40;
+    }
+
+    .interaction-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .meta,
+    .hero,
+    .description,
+    .cta,
+    .side-control,
+    .zoom,
+    .timeline-bg,
+    .play,
+    .timeline-label,
+    .timeline-line,
+    .timeline-hit,
+    .tick,
+    .now-dot,
+    .time,
+    .now-title,
+    .calendar-bg {
+      transition:
+        opacity 420ms ease,
+        transform 520ms cubic-bezier(.16, 1, .3, 1),
+        filter 420ms ease;
+    }
+
+    .frame.chat-mode .side-control,
+    .frame.chat-mode .zoom,
+    .frame.chat-mode .timeline-bg,
+    .frame.chat-mode .play,
+    .frame.chat-mode .timeline-label,
+    .frame.chat-mode .timeline-line,
+    .frame.chat-mode .timeline-hit,
+    .frame.chat-mode .tick,
+    .frame.chat-mode .now-dot,
+    .frame.chat-mode .time,
+    .frame.chat-mode .now-title,
+    .frame.chat-mode .calendar-bg {
+      opacity: 0;
+      transform: translateY(18px) scale(0.985);
+      filter: blur(3px);
+      pointer-events: none;
+    }
+
+    .frame.chat-mode .cta.two {
+      color: var(--gold);
+      border-color: rgba(232, 196, 142, 0.46);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 0 32px rgba(232, 196, 142, 0.18),
+        0 18px 58px rgba(0, 0, 0, 0.38);
+    }
+
+    .frame.chat-mode .tooltip {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .chat-view {
+      left: 0;
+      top: 0;
+      width: 2085px;
+      height: 1132px;
+      z-index: 30;
+      opacity: 0;
+      transform: translateY(28px);
+      pointer-events: none;
+      transition:
+        opacity 520ms ease,
+        transform 620ms cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .frame.chat-mode .chat-view {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: none;
+    }
+
+    .frame.chat-mode .chat-stream,
+    .frame.chat-mode .chat-input-shell,
+    .frame.chat-mode .chat-close {
+      pointer-events: auto;
+    }
+
+    .monitoring-view {
+      left: 0;
+      top: 0;
+      width: 2085px;
+      height: 1132px;
+      z-index: 6;
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      transition:
+        opacity 420ms ease,
+        transform 520ms cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .monitoring-view img {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 2085px;
+      height: 1132px;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .monitoring-view::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2085px;
+      height: 130px;
+      background: #000;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .frame.monitoring-mode .monitoring-view {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .monitoring-hit {
+      position: absolute;
+      z-index: 2;
+      border: 0;
+      border-radius: 14px;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .monitoring-hit:hover,
+    .monitoring-hit:focus-visible,
+    .monitoring-hit.is-active {
+      outline: none;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .monitoring-hit:active {
+      transform: none;
+    }
+
+    .monitoring-hit.round {
+      border-radius: 999px;
+    }
+
+    .monitoring-hit.soft {
+      border-radius: 24px;
+    }
+
+    .frame.monitoring-mode .meta,
+    .frame.monitoring-mode .hero,
+    .frame.monitoring-mode .description,
+    .frame.monitoring-mode .cta,
+    .frame.monitoring-mode .earth-slot,
+    .frame.monitoring-mode .tooltip,
+    .frame.monitoring-mode .side-control,
+    .frame.monitoring-mode .zoom,
+    .frame.monitoring-mode .timeline-bg,
+    .frame.monitoring-mode .play,
+    .frame.monitoring-mode .timeline-label,
+    .frame.monitoring-mode .timeline-line,
+    .frame.monitoring-mode .timeline-hit,
+    .frame.monitoring-mode .tick,
+    .frame.monitoring-mode .now-dot,
+    .frame.monitoring-mode .time,
+    .frame.monitoring-mode .now-title,
+    .frame.monitoring-mode .calendar-bg,
+    .frame.monitoring-mode .chat-view,
+    .frame.monitoring-mode .ecosystem-view {
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    .chat-stream {
+      position: absolute;
+      left: 850px;
+      top: 236px;
+      width: 1120px;
+      height: 766px;
+      overflow: auto;
+      padding: 0 0 38px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(232, 196, 142, 0.26) transparent;
+    }
+
+    .chat-stream::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .chat-stream::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(232, 196, 142, 0.28);
+    }
+
+    .chat-user {
+      width: 600px;
+      min-height: 74px;
+      margin-left: auto;
+      margin-right: 0;
+      margin-bottom: 44px;
+      padding: 22px 34px;
+      border-radius: 24px;
+      color: #f1f3f6;
+      font-size: 22px;
+      line-height: 29px;
+      font-weight: 500;
+      letter-spacing: -0.18px;
+      background:
+        linear-gradient(90deg, rgba(37, 43, 54, 0.72), rgba(12, 14, 18, 0.76) 72%);
+      border: 1px solid rgba(225, 232, 242, 0.28);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 18px 56px rgba(0, 0, 0, 0.34);
+      backdrop-filter: blur(20px) saturate(1.2);
+      -webkit-backdrop-filter: blur(20px) saturate(1.2);
+    }
+
+    .chat-card {
+      width: 1120px;
+      min-height: 452px;
+      margin-left: 0;
+      margin-bottom: 50px;
+      padding: 38px 58px 32px;
+      border-radius: 24px;
+      color: #eef1f4;
+      border: 1px solid rgba(226, 234, 244, 0.34);
+      background:
+        radial-gradient(circle at 33% 8%, rgba(232, 196, 142, 0.18), transparent 12%),
+        radial-gradient(circle at 58% 62%, rgba(232, 196, 142, 0.13), transparent 11%),
+        radial-gradient(circle at 83% 7%, rgba(105, 161, 205, 0.18), transparent 20%),
+        linear-gradient(110deg, rgba(13, 18, 24, 0.88), rgba(23, 30, 34, 0.72) 58%, rgba(16, 20, 26, 0.84));
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 30px 85px rgba(0, 0, 0, 0.42);
+      backdrop-filter: blur(28px) saturate(1.25);
+      -webkit-backdrop-filter: blur(28px) saturate(1.25);
+    }
+
+    .chat-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .deepseek-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: #eef2f7;
+      font-size: 23px;
+      line-height: 30px;
+      font-weight: 700;
+    }
+
+    .deepseek-mark {
+      width: 46px;
+      height: 46px;
+      color: #5f7cff;
+      filter: drop-shadow(0 0 16px rgba(95, 124, 255, 0.26));
+    }
+
+    .deepseek-brand .chevron {
+      color: #c8ced7;
+      font-size: 18px;
+      transform: translateY(1px);
+    }
+
+    .chat-sound,
+    .chat-close,
+    .chat-action,
+    .chat-mic {
+      appearance: none;
+      -webkit-appearance: none;
+      border: 0;
+      background: transparent;
+      color: #dce3eb;
+      cursor: pointer;
+      transition:
+        color 180ms ease,
+        transform 180ms ease,
+        opacity 180ms ease;
+    }
+
+    .chat-sound:hover,
+    .chat-close:hover,
+    .chat-action:hover,
+    .chat-mic:hover {
+      color: var(--gold);
+      transform: translateY(-1px);
+    }
+
+    .chat-sound svg,
+    .chat-action svg,
+    .chat-mic svg {
+      display: block;
+      width: 30px;
+      height: 30px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .chat-answer {
+      max-width: 990px;
+      margin: 0 0 22px;
+      color: #f0f2f5;
+      font-size: 22px;
+      line-height: 29px;
+      letter-spacing: -0.18px;
+      font-weight: 500;
+    }
+
+    .chat-thumbs {
+      display: flex;
+      gap: 18px;
+      margin: 0 0 22px;
+    }
+
+    .chat-thumb {
+      width: 132px;
+      height: 132px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28);
+    }
+
+    .chat-thumb.map {
+      background:
+        radial-gradient(circle at 34% 42%, rgba(255, 255, 255, 0.5), transparent 8%),
+        linear-gradient(135deg, transparent 0 38%, rgba(232, 84, 52, 0.95) 38% 40%, transparent 40% 100%),
+        linear-gradient(25deg, transparent 0 58%, rgba(232, 84, 52, 0.9) 58% 60%, transparent 60% 100%),
+        linear-gradient(135deg, #1f5f7a 0 47%, #2e7b5d 47% 60%, #d0b36a 60% 63%, #113c55 63% 100%);
+      background-size: cover;
+    }
+
+    .chat-thumb.bay {
+      background:
+        radial-gradient(circle at 28% 25%, rgba(255, 255, 255, 0.92), transparent 13%),
+        linear-gradient(150deg, #6aa7d6 0 42%, #d6c889 42% 55%, #4b8c65 55% 100%);
+    }
+
+    .chat-thumb.coral {
+      background:
+        radial-gradient(circle at 28% 68%, #a8a078 0 10px, transparent 11px),
+        radial-gradient(circle at 57% 44%, #a99d79 0 12px, transparent 13px),
+        radial-gradient(circle at 74% 72%, #b5aa83 0 11px, transparent 12px),
+        linear-gradient(145deg, #225b70, #7b846f);
+      background-size: 58px 58px, 70px 70px, 62px 62px, cover;
+    }
+
+    .chat-thumb.harbor {
+      background:
+        linear-gradient(155deg, rgba(255, 255, 255, 0.45), transparent 22%),
+        linear-gradient(38deg, #5b788a 0 45%, #d0d6dc 45% 54%, #7e9876 54% 100%);
+    }
+
+    .chat-actions {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-bottom: 18px;
+    }
+
+    .chat-action {
+      padding: 0;
+      color: rgba(221, 228, 236, 0.64);
+    }
+
+    .chat-disclaimer {
+      margin: 0;
+      color: rgba(169, 175, 184, 0.46);
+      font-size: 17px;
+      line-height: 22px;
+    }
+
+    .chat-input-shell {
+      position: absolute;
+      left: 850px;
+      top: 960px;
+      width: 1120px;
+      height: 92px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      padding: 0 26px 0 92px;
+      border-radius: 48px;
+      border: 1px solid rgba(225, 233, 242, 0.18);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02)),
+        rgba(7, 9, 12, 0.72);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 26px 72px rgba(0, 0, 0, 0.42);
+      backdrop-filter: blur(24px) saturate(1.16);
+      -webkit-backdrop-filter: blur(24px) saturate(1.16);
+    }
+
+    .chat-search-icon {
+      position: absolute;
+      left: 36px;
+      width: 28px;
+      height: 28px;
+      color: #f4f6f8;
+    }
+
+    .chat-search-icon svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+    }
+
+    .chat-input {
+      flex: 1;
+      height: 70px;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #f4f6f8;
+      font: 500 24px/32px Inter, ui-sans-serif, system-ui, sans-serif;
+      letter-spacing: -0.1px;
+    }
+
+    .chat-input::placeholder {
+      color: rgba(206, 212, 221, 0.68);
+    }
+
+    .chat-mic {
+      width: 64px;
+      height: 64px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 64px;
+      border-radius: 50%;
+      color: #f4f6f8;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .chat-close {
+      position: absolute;
+      display: none;
+      right: 118px;
+      top: 132px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      color: rgba(244, 246, 248, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(5, 7, 10, 0.46);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .ecosystem-view {
+      left: 0;
+      top: 0;
+      width: 2085px;
+      height: 1132px;
+      z-index: 4;
+      --eco-visual-brightness: 1;
+      --eco-map-brightness: 0.72;
+      --eco-visual-scale: 1;
+      --eco-visual-x: 0px;
+      --eco-visual-y: 0px;
+      --eco-brightness-progress: 0.61;
+      opacity: 0;
+      transform: translateY(26px) scale(1.012);
+      filter: blur(6px);
+      pointer-events: none;
+      transition:
+        opacity 560ms ease,
+        transform 680ms cubic-bezier(.16, 1, .3, 1),
+        filter 560ms ease;
+    }
+
+    .frame.ecosystem-mode .ecosystem-view {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+      pointer-events: auto;
+    }
+
+    .eco-pixel-lock {
+      display: none;
+    }
+
+    .eco-live-overlay {
+      display: none;
+    }
+
+    .eco-live-bio-value {
+      left: 1694px;
+      top: 588px;
+      width: 92px;
+      text-align: center;
+      font-size: 40px;
+      line-height: 44px;
+      font-weight: 500;
+      letter-spacing: -1.1px;
+      text-shadow: 0 0 16px rgba(0, 0, 0, 0.62);
+    }
+
+    .eco-live-bio-score {
+      left: 1707px;
+      top: 629px;
+      width: 64px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 14px;
+      line-height: 16px;
+      text-shadow: 0 0 12px rgba(0, 0, 0, 0.72);
+    }
+
+    .eco-live-bio-status {
+      left: 1710px;
+      top: 655px;
+      width: 60px;
+      text-align: center;
+      font-size: 15px;
+      line-height: 17px;
+      font-weight: 700;
+      text-shadow: 0 0 12px rgba(0, 0, 0, 0.72);
+    }
+
+    .eco-live-bio-gain {
+      left: 1843px;
+      top: 535px;
+      width: 145px;
+      font-size: 52px;
+      line-height: 60px;
+      font-weight: 800;
+      letter-spacing: -0.9px;
+      text-shadow: 0 0 18px rgba(0, 0, 0, 0.52);
+    }
+
+    .eco-live-bio-sub {
+      left: 1858px;
+      top: 613px;
+      width: 138px;
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 20px;
+      line-height: 24px;
+      text-shadow: 0 0 14px rgba(0, 0, 0, 0.6);
+    }
+
+    .eco-live-chart {
+      left: 1838px;
+      top: 670px;
+      width: 176px;
+      height: 54px;
+      opacity: 0.98;
+      filter: drop-shadow(0 0 8px rgba(232, 196, 142, 0.38));
+    }
+
+    .eco-live-chart path {
+      fill: none;
+      stroke: #d8b879;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .eco-live-chart circle {
+      fill: #fff4c8;
+      stroke: rgba(216, 184, 121, 0.7);
+      stroke-width: 2;
+    }
+
+    .eco-brightness-feedback {
+      left: 588px;
+      top: 1010px;
+      width: 160px;
+      height: 66px;
+      border-radius: 37px;
+    }
+
+    .eco-brightness-feedback::after {
+      content: "";
+      position: absolute;
+      left: calc(33px + var(--eco-brightness-progress) * 76px);
+      top: 25px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff4c8;
+      box-shadow:
+        0 0 20px rgba(255, 244, 200, 0.85),
+        0 0 34px rgba(232, 196, 142, 0.5);
+      transition: left 180ms ease;
+    }
+
+    .eco-route-hit {
+      display: none;
+    }
+
+    .eco-route-overview {
+      left: 630px;
+      top: 51px;
+      width: 188px;
+      height: 63px;
+      border-radius: 32px;
+    }
+
+    .eco-route-ecosystem {
+      left: 818px;
+      top: 51px;
+      width: 202px;
+      height: 63px;
+      border-radius: 32px;
+    }
+
+    .eco-route-monitoring {
+      left: 1020px;
+      top: 51px;
+      width: 218px;
+      height: 63px;
+      border-radius: 32px;
+    }
+
+    .eco-route-logo {
+      left: 49px;
+      top: 48px;
+      width: 250px;
+      height: 64px;
+      border-radius: 18px;
+    }
+
+    .eco-route-bell {
+      left: 1712px;
+      top: 45px;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+    }
+
+    .eco-route-user {
+      left: 1811px;
+      top: 45px;
+      width: 214px;
+      height: 68px;
+      border-radius: 34px;
+    }
+
+    .frame.ecosystem-mode .meta,
+    .frame.ecosystem-mode .hero,
+    .frame.ecosystem-mode .description,
+    .frame.ecosystem-mode .cta,
+    .frame.ecosystem-mode .earth-slot,
+    .frame.ecosystem-mode .tooltip,
+    .frame.ecosystem-mode .side-control,
+    .frame.ecosystem-mode .zoom,
+    .frame.ecosystem-mode .timeline-bg,
+    .frame.ecosystem-mode .play,
+    .frame.ecosystem-mode .timeline-label,
+    .frame.ecosystem-mode .timeline-line,
+    .frame.ecosystem-mode .timeline-hit,
+    .frame.ecosystem-mode .tick,
+    .frame.ecosystem-mode .now-dot,
+    .frame.ecosystem-mode .time,
+    .frame.ecosystem-mode .now-title,
+    .frame.ecosystem-mode .calendar-bg {
+      opacity: 0;
+      transform: translateY(18px) scale(0.985);
+      filter: blur(3px);
+      pointer-events: none;
+    }
+
+    .frame.chat-mode .ecosystem-view {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .eco-map-stage {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #02080d;
+      cursor: grab;
+      --eco-map-scale: 1;
+      --eco-map-x: 0px;
+      --eco-map-y: 0px;
+    }
+
+    .eco-map-stage.dragging {
+      cursor: grabbing;
+    }
+
+    .eco-map-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 58% 50%, rgba(84, 128, 151, 0.1), transparent 34%),
+        linear-gradient(90deg, rgba(1, 4, 7, 0.26), rgba(1, 4, 7, 0.02) 44%, rgba(1, 4, 7, 0.28)),
+        url("./assets/ecosystem/dapeng-bay-bg.jpg") center / cover no-repeat;
+      filter: saturate(0.9) contrast(1.08) brightness(var(--eco-map-brightness));
+      transform: translate(var(--eco-map-x), var(--eco-map-y)) scale(var(--eco-map-scale));
+      transform-origin: center;
+      transition: transform 540ms cubic-bezier(.16, 1, .3, 1), filter 320ms ease;
+    }
+
+    .eco-map-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background:
+        radial-gradient(circle at 47% 48%, rgba(50, 105, 134, 0.04), transparent 30%),
+        radial-gradient(circle at 55% 58%, rgba(232, 196, 142, 0.075), transparent 9%),
+        linear-gradient(90deg, rgba(1, 2, 5, 0.28), transparent 23%, transparent 74%, rgba(1, 2, 5, 0.25)),
+        linear-gradient(180deg, rgba(1, 2, 5, 0.22), transparent 26%, transparent 73%, rgba(1, 2, 5, 0.3));
+      pointer-events: none;
+    }
+
+    .eco-current-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      width: 100%;
+      height: 100%;
+      opacity: 0.32;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .eco-title {
+      left: 49px;
+      top: 167px;
+      z-index: 8;
+      width: 455px;
+      margin: 0;
+      color: #e0e4e9;
+      font-size: 44px;
+      line-height: 54px;
+      font-weight: 800;
+      letter-spacing: 0.07px;
+      text-transform: capitalize;
+      text-shadow: 0 14px 48px rgba(0, 0, 0, 0.72);
+    }
+
+    .eco-card {
+      position: absolute;
+      z-index: 8;
+      border: 1px solid rgba(229, 235, 238, 0.18);
+      border-radius: 37px;
+      background:
+        radial-gradient(circle at 72% 16%, rgba(255, 255, 255, 0.1), transparent 36%),
+        radial-gradient(circle at 20% 94%, rgba(255, 255, 255, 0.035), transparent 42%),
+        linear-gradient(135deg, rgba(62, 66, 67, 0.56), rgba(31, 35, 39, 0.58) 48%, rgba(13, 18, 23, 0.62)),
+        rgba(8, 13, 18, 0.58);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.07),
+        0 30px 80px rgba(0, 0, 0, 0.54);
+      backdrop-filter: blur(30px) saturate(1.08);
+      -webkit-backdrop-filter: blur(30px) saturate(1.08);
+      overflow: hidden;
+    }
+
+    .eco-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        linear-gradient(128deg, rgba(255, 255, 255, 0.09), transparent 46%),
+        radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.08), transparent 42%);
+      opacity: 0.22;
+      pointer-events: none;
+    }
+
+    .eco-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .eco-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: linear-gradient(110deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+      transform: translateX(-120%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .eco-card:hover::after,
+    .eco-action:hover::after {
+      animation: glassSweep 900ms ease;
+    }
+
+    @keyframes glassSweep {
+      0% { opacity: 0; transform: translateX(-120%); }
+      35% { opacity: 0.9; }
+      100% { opacity: 0; transform: translateX(120%); }
+    }
+
+    .eco-card-title {
+      color: #fff;
+      font-size: 15px;
+      line-height: 16px;
+      font-weight: 800;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+    }
+
+    .eco-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 22px;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: #f0c674;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      background: rgba(212, 169, 85, 0.08);
+      border: 1px solid rgba(212, 169, 85, 0.25);
+    }
+
+    .eco-live::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #f0c674;
+      box-shadow: 0 0 8px #f0c674;
+    }
+
+    .eco-status-card {
+      left: 49px;
+      top: 375px;
+      width: 426px;
+      height: 325px;
+      padding: 30px 25px 24px;
+      border-color: rgba(255, 255, 255, 0.22);
+      border-radius: 37px;
+      background:
+        linear-gradient(100deg, rgba(25, 30, 38, 0.27) 3%, rgba(232, 196, 142, 0.162) 45%, rgba(207, 80, 45, 0.27) 82%),
+        rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(38px) saturate(1.18);
+      -webkit-backdrop-filter: blur(38px) saturate(1.18);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        0 30px 80px rgba(0, 0, 0, 0.5);
+    }
+
+    .eco-status-card::before {
+      background:
+        linear-gradient(120deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02) 48%, rgba(6, 10, 14, 0.42)),
+        rgba(255, 255, 255, 0.05);
+      opacity: 0.92;
+    }
+
+    .eco-status-card .eco-card-title {
+      font-size: 15px;
+      line-height: 15.4px;
+      font-weight: 600;
+      letter-spacing: 1.8px;
+    }
+
+    .eco-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .eco-status-label {
+      margin-top: 18px;
+      color: #9aa3b2;
+      font-size: 15px;
+      line-height: 15px;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    .eco-status-value {
+      margin-top: 8px;
+      color: #ffd88a;
+      font-size: 28px;
+      line-height: 40px;
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    .eco-spark {
+      position: absolute;
+      right: 26px;
+      top: 84px;
+      width: 216px;
+      height: 62px;
+    }
+
+    .eco-metric-row {
+      width: 100%;
+      height: 50px;
+      display: grid;
+      grid-template-columns: 1fr 70px 54px;
+      align-items: center;
+      gap: 14px;
+      margin-top: 10px;
+      padding: 0 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 17px;
+      color: rgba(238, 242, 240, 0.9);
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.035)),
+        rgba(12, 16, 21, 0.34);
+      font-size: 15px;
+      font-weight: 400;
+      line-height: normal;
+      transition: transform 220ms ease, border-color 220ms ease, background 220ms ease;
+      cursor: pointer;
+    }
+
+    .eco-metric-row:hover,
+    .eco-metric-row.active {
+      transform: translateY(-2px);
+      border-color: rgba(232, 196, 142, 0.28);
+      background:
+        linear-gradient(90deg, rgba(232, 196, 142, 0.11), rgba(255, 255, 255, 0.045)),
+        rgba(13, 18, 23, 0.38);
+    }
+
+    .eco-metric-row strong {
+      justify-self: end;
+      color: #f4f6f4;
+      font-size: 28px;
+      line-height: 34px;
+      font-weight: 400;
+      letter-spacing: -0.84px;
+    }
+
+    .eco-metric-row em {
+      color: #73e3a1;
+      font-style: normal;
+      font-size: 16px;
+      line-height: 19px;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    .eco-species-card {
+      left: 49px;
+      top: 726px;
+      width: 426px;
+      height: 367px;
+      padding: 30px 26px;
+    }
+
+    .eco-fish-title {
+      position: absolute;
+      left: 225px;
+      top: 78px;
+      color: #fff;
+      font-size: 27px;
+      line-height: 31px;
+      font-weight: 600;
+      letter-spacing: 1.8px;
+      color: #fff;
+    }
+
+    .eco-species-list {
+      position: absolute;
+      left: 26px;
+      top: 95px;
+      width: 158px;
+      height: 231px;
+      margin-top: 0;
+      display: grid;
+      grid-template-rows: repeat(4, 1fr);
+      gap: 0;
+      text-align: left;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 15px;
+      line-height: 33px;
+      font-weight: 400;
+      letter-spacing: 1.8px;
+    }
+
+    .eco-species-list strong {
+      display: block;
+      margin-top: -3px;
+      text-align: left;
+      color: #f0c674;
+      font-size: 15px;
+      line-height: 32px;
+      font-weight: 600;
+      letter-spacing: 1.8px;
+    }
+
+    .eco-fish-visual {
+      position: absolute;
+      right: 25px;
+      bottom: 36px;
+      width: 221px;
+      height: 196px;
+      background: url("./assets/ecosystem/fish-or-image.png") center / contain no-repeat;
+      opacity: 0.72;
+      filter: saturate(1.06) drop-shadow(0 0 24px rgba(103, 232, 255, 0.34));
+      mix-blend-mode: screen;
+    }
+
+    .eco-composition-card {
+      right: 60px;
+      top: 187px;
+      width: 426px;
+      height: 237px;
+      padding: 31px 30px;
+    }
+
+    .eco-composition-card .eco-card-head {
+      position: absolute;
+      left: 31px;
+      top: 27px;
+      width: 362px;
+      height: 23.5px;
+      display: block;
+    }
+
+    .eco-composition-card .eco-card-title {
+      display: block;
+      width: 194px;
+      height: 18px;
+      font-size: 15px;
+      line-height: 18px;
+      font-weight: 800;
+      letter-spacing: 0.78px;
+      white-space: nowrap;
+    }
+
+    .eco-composition-card .eco-live {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    .eco-bars {
+      position: absolute;
+      left: 31px;
+      top: 63px;
+      width: 372px;
+      height: 115px;
+      margin-top: 0;
+      display: grid;
+      grid-template-rows: repeat(4, 8px);
+      row-gap: 25px;
+    }
+
+    .eco-bar {
+      display: grid;
+      grid-template-columns: 118px 183px 48px;
+      align-items: center;
+      column-gap: 12px;
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 13px;
+      line-height: 15px;
+      font-weight: 400;
+    }
+
+    .eco-bar-track {
+      width: 183px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.09);
+      overflow: hidden;
+    }
+
+    .eco-bar-track span {
+      display: block;
+      width: var(--value);
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ffdf9a, #67e8ff);
+      box-shadow: 0 0 14px rgba(216, 184, 121, 0.35);
+    }
+
+    .eco-total {
+      position: absolute;
+      left: 334.5px;
+      top: 193px;
+      color: #ffdf9a;
+      width: 48px;
+      font-size: 27px;
+      line-height: 27px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .eco-total-label {
+      position: absolute;
+      left: 31px;
+      top: 200px;
+      width: 86px;
+      color: rgba(238, 242, 240, 0.68);
+      font-size: 15px;
+      line-height: 15px;
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 15px;
+      letter-spacing: 0;
+    }
+
+    .eco-bio-card {
+      right: 60px;
+      top: 451px;
+      width: 426px;
+      height: 258px;
+      padding: 31px 31px;
+      background:
+        radial-gradient(circle at 20% 88%, rgba(207, 80, 45, 0.28), transparent 43%),
+        radial-gradient(circle at 70% 52%, rgba(232, 196, 142, 0.2), transparent 40%),
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 58%),
+        linear-gradient(135deg, rgba(82, 78, 72, 0.68), rgba(52, 50, 48, 0.62) 48%, rgba(35, 38, 39, 0.6)),
+        rgba(25, 30, 38, 0.64);
+    }
+
+    .eco-bio-card::before {
+      background: var(--eco-glass-gradient);
+      opacity: 0.38;
+    }
+
+    .eco-bio-card .eco-card-head {
+      position: absolute;
+      left: 31px;
+      top: 27px;
+      width: 362px;
+      height: 23px;
+      display: block;
+    }
+
+    .eco-bio-card .eco-card-title {
+      display: block;
+      width: 230px;
+      height: 18px;
+      font-size: 15px;
+      line-height: 18px;
+      font-weight: 800;
+      letter-spacing: 0.78px;
+      white-space: nowrap;
+    }
+
+    .eco-bio-card .eco-live {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    .eco-ring {
+      position: absolute;
+      left: 30px;
+      top: 44px;
+      width: 184px;
+      height: 178px;
+    }
+
+    .eco-ring-svg {
+      position: absolute;
+      inset: 13px;
+      width: 170px;
+      height: 170px;
+      overflow: visible;
+    }
+
+    .eco-ring-track,
+    .eco-ring-progress {
+      fill: none;
+      stroke-width: 11;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .eco-ring-track {
+      stroke: rgba(255, 255, 255, 0.08);
+    }
+
+    .eco-ring-progress {
+      stroke: url("#ecoRingGradient");
+      stroke-dasharray: 76 100;
+      stroke-dashoffset: 0;
+    }
+
+    .eco-ring-label {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 95px;
+      transform: translate(-50%, -37%);
+      text-align: center;
+      color: #fff;
+      z-index: 1;
+    }
+
+    #ecoBioValue {
+      display: block;
+      font-size: 35px;
+      line-height: 42px;
+      font-weight: 500;
+      z-index: 1;
+    }
+
+    .eco-ring-label small {
+      display: block;
+      color: rgba(238, 242, 240, 0.68);
+      font-size: 12px;
+      line-height: 15px;
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    #ecoBioStatus {
+      display: block;
+      margin-top: 13px;
+      color: #fff;
+      font-size: 16px;
+      line-height: 19px;
+      font-weight: 600;
+    }
+
+    .eco-bio-gain {
+      position: absolute;
+      left: 240px;
+      top: 76px;
+      width: 128px;
+      height: 57px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: #fff;
+      font-size: 47px;
+      line-height: 57px;
+      font-weight: 700;
+    }
+
+    .eco-bio-gain::before {
+      content: "↑";
+      font-size: 47px;
+      line-height: 57px;
+      font-weight: 700;
+    }
+
+    .eco-bio-sub {
+      position: absolute;
+      left: 251px;
+      top: 140px;
+      width: 110px;
+      height: 21px;
+      color: rgba(238, 242, 240, 0.68);
+      font-size: 17px;
+      line-height: 21px;
+      font-weight: 400;
+    }
+
+    .eco-mini-chart {
+      position: absolute;
+      left: 180.5px;
+      top: 183px;
+      width: 206.5px;
+      height: 40.06px;
+      overflow: visible;
+      opacity: 1;
+    }
+
+    .eco-mini-chart path {
+      fill: none;
+      stroke: #f6dba8;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .eco-mini-chart .eco-chart-dot-outer {
+      fill: rgba(255, 230, 186, 0.16);
+      stroke: #ffe6ba;
+      stroke-width: 0.4;
+      filter: drop-shadow(0 0 11px rgba(255, 230, 186, 0.85));
+    }
+
+    .eco-mini-chart .eco-chart-dot-inner {
+      fill: #ffe6ba;
+    }
+
+    .eco-signals-card {
+      right: 60px;
+      top: 733px;
+      width: 426px;
+      height: 360px;
+      padding: 31px 31px;
+    }
+
+    .eco-signal-grid {
+      margin-top: 32px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .eco-signal-row {
+      display: grid;
+      grid-template-columns: 82px 1fr 62px;
+      align-items: center;
+      gap: 12px;
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 12px;
+    }
+
+    .eco-signal-track {
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    .eco-signal-track span {
+      display: block;
+      width: var(--value);
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.3), var(--signal));
+      box-shadow: 0 0 14px rgba(73, 183, 255, 0.18);
+    }
+
+    .eco-risk-row {
+      position: absolute;
+      left: 31px;
+      right: 31px;
+      bottom: 31px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .eco-risk {
+      min-height: 121px;
+      padding: 17px 15px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.95);
+      cursor: pointer;
+      transition: transform 220ms ease, border-color 220ms ease, background 220ms ease;
+    }
+
+    .eco-risk:hover,
+    .eco-risk.active {
+      transform: translateY(-3px);
+      border-color: rgba(103, 232, 255, 0.26);
+      background: rgba(103, 232, 255, 0.08);
+    }
+
+    .eco-risk strong {
+      font-family: Menlo, Consolas, monospace;
+      display: block;
+      font-size: 22px;
+      font-weight: 400;
+    }
+
+    .eco-risk span {
+      display: block;
+      margin-top: 8px;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 10px;
+      line-height: 13.5px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .eco-hotspot {
+      position: absolute;
+      z-index: 9;
+      width: 76px;
+      height: 76px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(216, 184, 121, 0.55);
+      border-radius: 50%;
+      color: white;
+      background:
+        radial-gradient(circle, #fff4c8 0 6%, rgba(216, 184, 121, 0.22) 7% 28%, rgba(255, 255, 255, 0.06) 29% 100%);
+      box-shadow: 0 0 20px rgba(216, 184, 121, 0.45);
+      cursor: pointer;
+      transition: transform 240ms ease, filter 240ms ease;
+    }
+
+    .eco-hotspot::before,
+    .eco-hotspot::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      border: 1.4px solid rgba(216, 184, 121, 0.35);
+      pointer-events: none;
+    }
+
+    .eco-hotspot::before { inset: -15px; }
+    .eco-hotspot::after { inset: -28px; }
+
+    .eco-hotspot:hover,
+    .eco-hotspot.active {
+      transform: scale(1.08);
+      filter: drop-shadow(0 0 22px rgba(232, 196, 142, 0.55));
+    }
+
+    .eco-hotspot.core {
+      left: 1064px;
+      top: 692px;
+    }
+
+    .eco-hotspot.north {
+      left: 844px;
+      top: 363px;
+      width: 54px;
+      height: 54px;
+    }
+
+    .eco-hotspot.east {
+      left: 1214px;
+      top: 559px;
+      width: 54px;
+      height: 54px;
+    }
+
+    .eco-hotspot.south {
+      left: 1414px;
+      top: 788px;
+      width: 54px;
+      height: 54px;
+    }
+
+    .eco-hotspot-label {
+      position: absolute;
+      z-index: 9;
+      color: white;
+      font-size: 12px;
+      line-height: 14px;
+      text-shadow: 0 2px 10px black;
+      pointer-events: none;
+    }
+
+    .eco-hotspot-label small {
+      display: block;
+      color: #e9ca86;
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    .eco-floating-card {
+      position: absolute;
+      left: 671px;
+      top: 422px;
+      z-index: 10;
+      width: 214px;
+      height: 69px;
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 20px 6px 6px;
+      border-radius: 35px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background:
+        linear-gradient(100deg, rgba(232, 196, 142, 0.46) 0%, rgba(46, 39, 28, 0.46) 100%),
+        rgba(255, 255, 255, 0.046);
+      backdrop-filter: blur(28px) saturate(1.24);
+      -webkit-backdrop-filter: blur(28px) saturate(1.24);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+        0 18px 50px rgba(0, 0, 0, 0.32);
+      color: white;
+      transition: left 360ms cubic-bezier(.16, 1, .3, 1), top 360ms cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .eco-floating-card.secondary {
+      left: 806px;
+      top: 716px;
+    }
+
+    .eco-card-orb {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: url("assets/ecosystem/biodiversity-orb.png") center / cover no-repeat;
+      box-shadow: none;
+    }
+
+    .eco-card-copy strong {
+      display: block;
+      font-size: 10px;
+      line-height: 12px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .eco-card-copy span {
+      display: block;
+      color: rgba(255, 255, 255, 0.46);
+      font-size: 10px;
+      line-height: 12px;
+      font-weight: 400;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .eco-link-lines {
+      position: absolute;
+      left: 695px;
+      top: 452px;
+      width: 820px;
+      height: 430px;
+      z-index: 6;
+      pointer-events: none;
+      opacity: 0.84;
+    }
+
+    .eco-bottom-controls {
+      position: absolute;
+      left: 588px;
+      top: 1010px;
+      z-index: 12;
+      display: flex;
+      align-items: center;
+      gap: 34px;
+      min-height: 104px;
+      padding-left: 198px;
+    }
+
+    .eco-scrub {
+      position: absolute;
+      left: 0;
+      top: 19px;
+      width: 164px;
+      height: 66px;
+      border-radius: 37px;
+      border: 0;
+      background:
+        linear-gradient(101deg, rgba(232, 196, 142, 0.49) 0%, rgba(255, 255, 255, 0.166) 72%, rgba(255, 255, 255, 0.166) 100%);
+      backdrop-filter: blur(20px) saturate(1.18);
+      -webkit-backdrop-filter: blur(20px) saturate(1.18);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+        0 18px 34px rgba(0, 0, 0, 0.22);
+      cursor: pointer;
+    }
+
+    .eco-scrub::before {
+      content: "";
+      position: absolute;
+      left: 28px;
+      top: 31px;
+      z-index: 1;
+      width: 104px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.22);
+      pointer-events: none;
+    }
+
+    .eco-scrub span {
+      position: absolute;
+      left: 44px;
+      top: 26px;
+      z-index: 2;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fef4c8;
+      box-shadow: 0 0 6px 3px rgba(255, 255, 255, 0.25);
+      transform: translateX(var(--scrub-x, 0px));
+      transition: transform 300ms ease;
+      pointer-events: none;
+    }
+
+    .eco-round-button,
+    .eco-pill-button {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #f4f6f8;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      cursor: pointer;
+      transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+    }
+
+    .eco-round-button {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 35px;
+      line-height: 29.3px;
+      font-weight: 300;
+      background:
+        radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.07), transparent 48%),
+        linear-gradient(135deg, rgba(41, 48, 52, 0.7), rgba(22, 27, 31, 0.72));
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 16px 44px rgba(0, 0, 0, 0.42);
+    }
+
+    .eco-pill-button {
+      width: 110px;
+      height: 66px;
+      border-radius: 37px;
+      font-size: 28px;
+    }
+
+    .eco-round-button:hover,
+    .eco-pill-button:hover,
+    .eco-action:hover {
+      transform: translateY(-3px);
+      border-color: rgba(232, 196, 142, 0.38);
+      box-shadow: 0 0 28px rgba(232, 196, 142, 0.14);
+    }
+
+    .eco-stepper {
+      position: relative;
+      width: 217px;
+      height: 104px;
+      margin: 0 -13px;
+      isolation: isolate;
+      color: #fff;
+      overflow: visible;
+    }
+
+    .eco-stepper-glass {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px) saturate(1.18);
+      -webkit-backdrop-filter: blur(20px) saturate(1.18);
+      clip-path: path("M 0 52 C 0 35 13 24 31 21 C 39 20 48 21 57 21 C 66 21 70 16 77 12 C 86 5 97 1 108.5 1 C 120 1 131 5 140 12 C 147 16 151 21 160 21 C 169 21 178 20 186 21 C 204 24 217 35 217 52 C 217 69 204 80 186 83 C 178 84 169 83 160 83 C 151 83 147 88 140 92 C 131 99 120 103 108.5 103 C 97 103 86 99 77 92 C 70 88 66 83 57 83 C 48 83 39 84 31 83 C 13 80 0 69 0 52 Z");
+      -webkit-clip-path: path("M 0 52 C 0 35 13 24 31 21 C 39 20 48 21 57 21 C 66 21 70 16 77 12 C 86 5 97 1 108.5 1 C 120 1 131 5 140 12 C 147 16 151 21 160 21 C 169 21 178 20 186 21 C 204 24 217 35 217 52 C 217 69 204 80 186 83 C 178 84 169 83 160 83 C 151 83 147 88 140 92 C 131 99 120 103 108.5 103 C 97 103 86 99 77 92 C 70 88 66 83 57 83 C 48 83 39 84 31 83 C 13 80 0 69 0 52 Z");
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -1px 14px rgba(0, 0, 0, 0.2);
+      filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.28));
+      pointer-events: none;
+    }
+
+    .eco-stepper-pad {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 0;
+      width: 89px;
+      height: 89px;
+      border-radius: 48px;
+      background:
+        radial-gradient(circle at 25% 23%, rgba(232, 196, 142, 1) 0%, rgba(255, 255, 255, 0.34) 66%, rgba(255, 255, 255, 0) 100%);
+      opacity: 0.33;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .eco-stepper-shape {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      z-index: 2;
+      width: 217px;
+      height: 104px;
+      overflow: visible;
+      pointer-events: none;
+      transform: translateY(-50%);
+    }
+
+    .eco-stepper-shape path {
+      fill: transparent;
+      stroke: rgba(255, 255, 255, 0.12);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .eco-stepper button {
+      position: absolute;
+      top: 34px;
+      z-index: 3;
+      width: 42px;
+      height: 42px;
+      border: 0;
+      color: inherit;
+      background: transparent;
+      cursor: pointer;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 18px;
+      line-height: 22px;
+      font-weight: 400;
+      letter-spacing: 0;
+      text-align: center;
+    }
+
+    .eco-stepper button:first-of-type {
+      left: 27px;
+    }
+
+    .eco-stepper button:last-of-type {
+      right: 27px;
+    }
+
+    .eco-stepper strong {
+      position: absolute;
+      left: 50%;
+      top: 18px;
+      z-index: 3;
+      width: 31px;
+      height: 57px;
+      font-weight: 400;
+      background: transparent;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 47px;
+      line-height: 57px;
+      text-align: center;
+      transform: translateX(-50%);
+    }
+
+    .eco-stepper small {
+      display: block;
+      margin-top: -1px;
+      font-size: 9px;
+      line-height: 10px;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    .eco-stepper .eco-core-caption {
+      position: absolute;
+      left: 50%;
+      top: 72px;
+      z-index: 3;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.96);
+      font-size: 9px;
+      line-height: 10px;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    .eco-action {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .eco-bottom-controls .eco-scrub {
+      position: absolute;
+      left: 0;
+      top: 19px;
+    }
+
+    .eco-bottom-controls .eco-scrub:hover {
+      transform: none;
+      border-color: transparent;
+    }
+
+    .eco-action::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+      transform: translateX(-120%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        overflow: hidden;
+      }
+
+      .page {
+        place-items: center;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page" aria-label="DAPENG BAY local HTML preview">
+    <section class="viewport" id="viewport">
+      <div class="frame" id="frame">
+        <header class="brand layer" aria-label="DAPENG BAY">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <span>
+            <h1 class="brand-title">DAPENG BAY</h1>
+            <span class="brand-subtitle">Marine Conservation Decision Platform</span>
+          </span>
+        </header>
+
+        <div class="top-nav-bg glass layer"></div>
+        <nav class="top-nav layer" aria-label="Primary">
+          <span class="nav-glider" aria-hidden="true"></span>
+          <button class="nav-item active" type="button" data-label="Overview">Overview</button>
+          <button class="nav-item" type="button" data-label="Ecosystem">Ecosystem</button>
+          <button class="nav-item" type="button" data-label="Monitoring">Monitoring</button>
+        </nav>
+
+        <button class="bell-button glass layer" type="button" data-label="Notifications" aria-label="Open notifications">
+          <svg viewBox="0 0 28 28" stroke-width="1.8">
+            <path d="M9 20.5h10" />
+            <path d="M11 23.4h6" />
+            <path d="M6.8 19c1.9-1.8 2.2-3.4 2.2-7a5 5 0 0 1 10 0c0 3.6.3 5.2 2.2 7H6.8Z" />
+          </svg>
+        </button>
+
+        <button class="user-button glass layer" type="button" data-label="Admin profile" aria-label="Open admin profile">
+          <span class="avatar">A</span>
+          <span>
+            <span class="user-name">Adele-Lu</span>
+            <span class="user-role">Administrator</span>
+          </span>
+        </button>
+
+        <div class="meta layer">
+          <span class="meta-item"><span class="dot"></span>GLOBAL VIEW</span>
+          <span class="meta-item live"><span class="dot"></span>Live</span>
+        </div>
+
+        <section class="hero layer" aria-label="Hero">
+          <h2>
+            Monitoring the planet<br />
+            <span class="gradient">Protecting our ocean</span>
+          </h2>
+        </section>
+
+        <p class="description layer">
+          Real-time data and AI-driven insights empowering smarter<br />
+          decisions for a sustainable marine future.
+        </p>
+
+        <a class="cta one glass layer" href="#" data-label="Explore the Bay" aria-label="Explore the Bay">
+          <span>Explore the Bay</span>
+          <span class="arrow" aria-hidden="true">
+            <svg viewBox="0 0 22 22" stroke-width="2.2">
+              <path d="M5 11h11" />
+              <path d="m11 5 6 6-6 6" />
+            </svg>
+          </span>
+        </a>
+
+        <a class="cta two glass layer" href="#chat" data-label="Chat with DP" aria-label="Chat with DP">
+          <span>Chat with DP</span>
+          <span class="arrow" aria-hidden="true">
+            <svg viewBox="0 0 22 22" stroke-width="2.2">
+              <path d="M5 11h11" />
+              <path d="m11 5 6 6-6 6" />
+            </svg>
+          </span>
+        </a>
+
+        <section class="earth-slot layer" id="earthSlot" aria-label="Google Maps 3D Earth slot">
+          <div class="earth-photo" aria-hidden="true"></div>
+          <canvas class="dynamic-radio-globe" id="dynamicGlobe" aria-label="Interactive Radio Garden style globe"></canvas>
+          <div class="google-map" id="googleMap"></div>
+          <span class="pin p1"></span>
+          <span class="pin p2"></span>
+          <span class="pin p3"></span>
+          <span class="pin p4"></span>
+          <span class="pin p5"></span>
+          <span class="pin p6"></span>
+        </section>
+
+        <div class="tooltip layer">
+          <small>Hong Kong · Shenzhen</small>
+          <strong>Analysis of the Dapeng Bay Sea Area</strong>
+        </div>
+
+        <button class="side-control cross glass layer" type="button" data-label="Recenter map" aria-label="Recenter map">
+          <svg viewBox="0 0 28 28">
+            <path d="M14 5v4" />
+            <path d="M14 19v4" />
+            <path d="M5 14h4" />
+            <path d="M19 14h4" />
+            <circle cx="14" cy="14" r="4.5" />
+          </svg>
+        </button>
+
+        <button class="side-control globe glass layer" type="button" data-label="World view" aria-label="World view">
+          <svg viewBox="0 0 28 28">
+            <circle cx="14" cy="14" r="9.5" />
+            <path d="M4.5 14h19" />
+            <path d="M14 4.5c3.2 3.5 3.2 15.5 0 19" />
+            <path d="M14 4.5c-3.2 3.5-3.2 15.5 0 19" />
+          </svg>
+        </button>
+
+        <button class="side-control layers glass layer is-active" type="button" data-label="Map layers" aria-label="Map layers">
+          <svg viewBox="0 0 28 28">
+            <path d="m14 5 9 4.6-9 4.6-9-4.6L14 5Z" />
+            <path d="m5 14 9 4.6 9-4.6" />
+            <path d="m5 18.5 9 4.5 9-4.5" />
+          </svg>
+        </button>
+
+        <div class="zoom glass layer" aria-label="Zoom controls">
+          <button class="zoom-button" type="button" data-label="Zoom in" aria-label="Zoom in">+</button>
+          <span class="zoom-line"></span>
+          <button class="zoom-button" type="button" data-label="Zoom out" aria-label="Zoom out">−</button>
+        </div>
+
+        <div class="timeline-bg glass layer"></div>
+        <button class="play layer" type="button" data-label="Play timeline" aria-label="Play timeline">
+          <svg viewBox="0 0 20 20">
+            <path d="M7 5.5v9l7-4.5-7-4.5Z" />
+          </svg>
+        </button>
+        <div class="timeline-label layer">TIMELINE</div>
+        <div class="timeline-line layer"></div>
+        <div class="timeline-hit layer" id="timelineHit" role="slider" tabindex="0" aria-label="Timeline position" aria-valuemin="0" aria-valuemax="24" aria-valuenow="12"></div>
+
+        <span class="tick" style="left: 579.5px"></span>
+        <span class="tick" style="left: 740.2px"></span>
+        <span class="tick" style="left: 944.8px"></span>
+        <span class="tick now" id="nowTick" style="left: 1120.1px"></span>
+        <span class="tick" style="left: 1310px"></span>
+        <span class="tick" style="left: 1514.6px"></span>
+        <span class="now-dot layer" id="nowDot"></span>
+
+        <span class="time" style="left: 557.1px; top: 1044px;">May 11</span>
+        <span class="time" style="left: 722.7px; top: 1044px;">00:00</span>
+        <span class="time" style="left: 927.3px; top: 1044px;">06:00</span>
+        <span class="now-title layer" id="nowTitle">NOW</span>
+        <span class="time now-text" id="nowTime" style="left: 1097.6px; top: 1043px;">12:00</span>
+        <span class="time" style="left: 1292.5px; top: 1044px;">18:00</span>
+        <span class="time" style="left: 1491.6px; top: 1044px;">May 12</span>
+
+        <button class="calendar-bg layer" type="button" data-label="Open calendar" aria-label="Open calendar">
+          <span class="calendar" aria-hidden="true">
+            <svg viewBox="0 0 20 20" stroke-width="1.6">
+              <rect x="4" y="5" width="12" height="11" rx="2" />
+              <path d="M7 3v4" />
+              <path d="M13 3v4" />
+              <path d="M4 9h12" />
+            </svg>
+          </span>
+        </button>
+
+        <section class="chat-view layer" id="chatView" aria-label="Chat with Deepseek">
+          <button class="chat-close" type="button" id="chatClose">Back to dashboard</button>
+          <div class="chat-stream" id="chatStream">
+            <article class="chat-user">
+              I would like to know the fish data about Dapeng Bay in Hong Kong 🐟.
+            </article>
+
+            <article class="chat-card">
+              <header class="chat-card-head">
+                <div class="deepseek-brand">
+                  <svg class="deepseek-mark" viewBox="0 0 48 48" aria-hidden="true">
+                    <path fill="currentColor" d="M39.9 17.1c-2.1-5.8-8-9.6-15.1-9.6C14.6 7.5 6.5 14.3 6.5 23.1c0 8.9 8.1 16.1 18.1 16.1 7.7 0 14.3-4.2 16.9-10.3-4.2 2.8-9.2 3.1-13.6.9-4.7-2.3-7.3-6.8-7.4-11.8 3.6 4.2 8.6 6.5 14.3 6.2 2.4-.1 4.7-.8 6.9-1.9.1-1.8-.5-3.6-1.8-5.2Z" />
+                    <path fill="#10141f" d="M15.2 19.3c.9 0 1.7.7 1.7 1.7s-.8 1.7-1.7 1.7-1.7-.7-1.7-1.7.8-1.7 1.7-1.7Z" />
+                    <path fill="#10141f" d="M24.2 28.5c-3.8 0-7-1.2-9.4-3.3 1.6 3.7 5.2 6.2 9.5 6.2 3 0 5.7-1.2 7.6-3.1-2.4.4-5 .4-7.7.2Z" opacity=".65" />
+                  </svg>
+                  <span>Deepseek</span>
+                  <span class="chevron">⌄</span>
+                </div>
+                <button class="chat-sound" type="button" data-chat-action="Read response" aria-label="Read response aloud">
+                  <svg viewBox="0 0 32 32">
+                    <path d="M5 13v6h5l7 6V7l-7 6H5Z" />
+                    <path d="M22 12c1.5 2.3 1.5 5.7 0 8" />
+                    <path d="M25.5 9.5c3.2 4 3.2 9 0 13" />
+                  </svg>
+                </button>
+              </header>
+
+              <p class="chat-answer">
+                For Hong Kong, Dapeng Bay usually corresponds to Mirs Bay / 大鹏湾, the northeastern marine area around Yan Chau Tong,
+                Tung Ping Chau, Crooked Island and the Sai Kung-Shenzhen border waters. One caveat: many “Dapeng Bay” fisheries papers
+                sample the Shenzhen side, while Hong Kong government/ecology sources usually call the same broader bay Mirs Bay.
+              </p>
+
+              <div class="chat-thumbs" aria-label="Related marine references">
+                <div class="chat-thumb map" role="img" aria-label="Dapeng Bay map preview"></div>
+                <div class="chat-thumb bay" role="img" aria-label="Dapeng Bay coast preview"></div>
+                <div class="chat-thumb coral" role="img" aria-label="Marine coral preview"></div>
+                <div class="chat-thumb harbor" role="img" aria-label="Harbor preview"></div>
+              </div>
+
+              <div class="chat-actions">
+                <button class="chat-action" type="button" data-chat-action="Helpful" aria-label="Helpful">
+                  <svg viewBox="0 0 32 32">
+                    <path d="M10 28H5V14h5v14Z" />
+                    <path d="M10 15 16 4c1.8.4 2.8 1.7 2.8 3.5V13h6.6c1.7 0 2.8 1.6 2.4 3.2l-2 8.2c-.5 2.1-2.3 3.6-4.5 3.6H10V15Z" />
+                  </svg>
+                </button>
+                <button class="chat-action" type="button" data-chat-action="Not helpful" aria-label="Not helpful">
+                  <svg viewBox="0 0 32 32">
+                    <path d="M10 4H5v14h5V4Z" />
+                    <path d="m10 17 6 11c1.8-.4 2.8-1.7 2.8-3.5V19h6.6c1.7 0 2.8-1.6 2.4-3.2l-2-8.2C25.3 5.5 23.5 4 21.3 4H10v13Z" />
+                  </svg>
+                </button>
+                <button class="chat-action" type="button" data-chat-action="Share" aria-label="Share">
+                  <svg viewBox="0 0 32 32">
+                    <path d="M16 21V5" />
+                    <path d="m10 11 6-6 6 6" />
+                    <path d="M7 18v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7" />
+                  </svg>
+                </button>
+                <button class="chat-action" type="button" data-chat-action="Copy" aria-label="Copy answer">
+                  <svg viewBox="0 0 32 32">
+                    <rect x="11" y="9" width="15" height="18" rx="2" />
+                    <path d="M7 21V6c0-1.1.9-2 2-2h12" />
+                  </svg>
+                </button>
+              </div>
+
+              <p class="chat-disclaimer">Deepseek can make mistakes, so double-check it.</p>
+            </article>
+          </div>
+
+          <form class="chat-input-shell" id="chatForm">
+            <span class="chat-search-icon" aria-hidden="true">
+              <svg viewBox="0 0 28 28">
+                <circle cx="12.5" cy="12.5" r="7.5" />
+                <path d="m18.2 18.2 5.3 5.3" />
+              </svg>
+            </span>
+            <input class="chat-input" id="chatInput" autocomplete="off" placeholder="问问 AI ... ..." aria-label="Ask Deepseek" />
+            <button class="chat-mic" type="button" data-chat-action="Voice input" aria-label="Voice input">
+              <svg viewBox="0 0 32 32">
+                <path d="M16 4a5 5 0 0 0-5 5v7a5 5 0 0 0 10 0V9a5 5 0 0 0-5-5Z" />
+                <path d="M7 15v1a9 9 0 0 0 18 0v-1" />
+                <path d="M16 25v4" />
+              </svg>
+            </button>
+          </form>
+        </section>
+
+        <section class="monitoring-view layer" id="monitoringView" aria-label="Monitoring dashboard view" aria-hidden="true">
+          <img src="assets/monitoring/figma-exact-1x.png" width="2085" height="1132" alt="Monitoring dashboard" />
+          <button class="monitoring-hit soft" type="button" style="left: 129px; top: 145px; width: 350px; height: 90px;" data-monitor-action="Current Emergency Information" aria-label="Open current emergency information"></button>
+          <button class="monitoring-hit" type="button" style="left: 148px; top: 278px; width: 120px; height: 86px;" data-monitor-action="Monitoring Stations" aria-label="Open monitoring stations"></button>
+          <button class="monitoring-hit" type="button" style="left: 276px; top: 278px; width: 112px; height: 86px;" data-monitor-action="Protected Areas" aria-label="Open protected areas"></button>
+          <button class="monitoring-hit" type="button" style="left: 394px; top: 278px; width: 92px; height: 86px;" data-monitor-action="Alerts 24h" aria-label="Open alerts from last 24 hours"></button>
+          <button class="monitoring-hit" type="button" style="left: 489px; top: 278px; width: 92px; height: 86px;" data-monitor-action="Coverage" aria-label="Open coverage"></button>
+          <button class="monitoring-hit" type="button" style="left: 521px; top: 432px; width: 62px; height: 36px;" data-monitor-action="View all alerts" aria-label="View all recent alerts"></button>
+          <button class="monitoring-hit" type="button" style="left: 154px; top: 475px; width: 420px; height: 70px;" data-monitor-action="Abnormal Turbidity Detected" aria-label="Open abnormal turbidity alert"></button>
+          <button class="monitoring-hit" type="button" style="left: 154px; top: 552px; width: 420px; height: 70px;" data-monitor-action="Fishing Activity Detected" aria-label="Open fishing activity alert"></button>
+          <button class="monitoring-hit" type="button" style="left: 154px; top: 628px; width: 420px; height: 66px;" data-monitor-action="Water Quality Improvement" aria-label="Open water quality improvement alert"></button>
+          <button class="monitoring-hit soft" type="button" style="left: 128px; top: 754px; width: 250px; height: 48px;" data-monitor-action="Quick Access" aria-label="Open quick access"></button>
+          <button class="monitoring-hit soft" type="button" style="left: 145px; top: 820px; width: 330px; height: 166px;" data-monitor-action="Water Quality Index" aria-label="Open water quality index"></button>
+          <button class="monitoring-hit soft" type="button" style="left: 490px; top: 820px; width: 330px; height: 166px;" data-monitor-action="Marine Biodiversity" aria-label="Open marine biodiversity"></button>
+          <button class="monitoring-hit soft" type="button" style="left: 835px; top: 820px; width: 375px; height: 166px;" data-monitor-action="Protected Area Coverage" aria-label="Open protected area coverage"></button>
+          <button class="monitoring-hit soft" type="button" style="left: 1338px; top: 462px; width: 470px; height: 388px;" data-monitor-action="Protected Boundary" aria-label="Open protected boundary route"></button>
+          <button class="monitoring-hit round" type="button" style="left: 1278px; top: 570px; width: 136px; height: 148px;" data-monitor-action="Water Quality" aria-label="Open water quality marker"></button>
+          <button class="monitoring-hit round" type="button" style="left: 1600px; top: 480px; width: 142px; height: 150px;" data-monitor-action="Biodiversity" aria-label="Open biodiversity marker"></button>
+          <button class="monitoring-hit round" type="button" style="left: 1490px; top: 780px; width: 92px; height: 116px;" data-monitor-action="Activity Cluster" aria-label="Open activity cluster"></button>
+          <button class="monitoring-hit round" type="button" style="left: 1695px; top: 825px; width: 145px; height: 150px;" data-monitor-action="Marine Activity" aria-label="Open marine activity marker"></button>
+          <button class="monitoring-hit round" type="button" style="left: 1888px; top: 151px; width: 64px; height: 64px;" data-monitor-action="Recenter monitoring map" aria-label="Recenter monitoring map"></button>
+          <button class="monitoring-hit round" type="button" style="left: 1888px; top: 226px; width: 64px; height: 64px;" data-monitor-action="Monitoring world view" aria-label="Open monitoring world view"></button>
+          <button class="monitoring-hit round" type="button" style="left: 1888px; top: 300px; width: 64px; height: 64px;" data-monitor-action="Monitoring layers" aria-label="Toggle monitoring layers"></button>
+          <button class="monitoring-hit round" type="button" style="left: 1890px; top: 374px; width: 60px; height: 52px;" data-monitor-action="Monitoring zoom in" aria-label="Zoom in monitoring map"></button>
+          <button class="monitoring-hit round" type="button" style="left: 1890px; top: 426px; width: 60px; height: 52px;" data-monitor-action="Monitoring zoom out" aria-label="Zoom out monitoring map"></button>
+        </section>
+
+        <section class="ecosystem-view layer" id="ecosystemView" aria-label="Ecosystem dynamic satellite view">
+          <div class="eco-pixel-lock" aria-hidden="true"></div>
+          <button class="eco-route-hit eco-route-overview" type="button" data-eco-route="Overview" aria-label="Back to overview"></button>
+          <button class="eco-route-hit eco-route-ecosystem" type="button" data-eco-route="Ecosystem" aria-label="Stay on ecosystem"></button>
+          <button class="eco-route-hit eco-route-monitoring" type="button" data-eco-route="Monitoring" aria-label="Open monitoring"></button>
+          <button class="eco-route-hit eco-route-logo" type="button" data-eco-route="Overview" aria-label="Open Dapeng Bay overview"></button>
+          <button class="eco-route-hit eco-route-bell" type="button" data-eco-route="Notifications" aria-label="Open ecosystem notifications"></button>
+          <button class="eco-route-hit eco-route-user" type="button" data-eco-route="Admin profile" aria-label="Open admin profile"></button>
+          <span class="eco-live-overlay eco-brightness-feedback" aria-hidden="true"></span>
+          <span class="eco-live-overlay eco-live-bio-value" id="ecoLiveBioValue">0.82</span>
+          <span class="eco-live-overlay eco-live-bio-score">/1.00</span>
+          <span class="eco-live-overlay eco-live-bio-status" id="ecoLiveBioStatus">Good</span>
+          <span class="eco-live-overlay eco-live-bio-gain" id="ecoLiveBioGain">↑ 6%</span>
+          <span class="eco-live-overlay eco-live-bio-sub">vs last 7 days</span>
+          <svg class="eco-live-overlay eco-live-chart" viewBox="0 0 176 54" aria-hidden="true">
+            <path id="ecoLiveChartPath" d="M2 42 L22 39 L42 41 L62 33 L82 37 L102 18 L122 34 L141 16 L160 30 L174 16" />
+            <circle id="ecoLiveChartDot" cx="174" cy="16" r="5" />
+          </svg>
+          <div class="eco-map-stage" id="ecoMapStage" aria-label="Dynamic Dapeng Bay satellite map">
+            <div class="eco-map-image" id="ecoMapImage"></div>
+            <canvas class="eco-current-canvas" id="ecoCurrentCanvas"></canvas>
+          </div>
+
+          <h2 class="eco-title layer">Current Emergency Information<br />In Mills Bay</h2>
+
+          <article class="eco-card eco-status-card">
+            <header class="eco-card-head">
+              <span class="eco-card-title">Ecosystem Status</span>
+              <span class="eco-live">Live</span>
+            </header>
+            <div class="eco-status-label">Overall Status</div>
+            <div class="eco-status-value" id="ecoStatusValue">Stable</div>
+            <svg class="eco-spark" viewBox="0 0 210 62" aria-hidden="true">
+              <path d="M2 45 L34 34 L58 45 L82 24 L112 42 L142 20 L174 35 L207 12" fill="none" stroke="#d8b879" stroke-width="1.8" opacity=".82" />
+              <circle cx="207" cy="12" r="5" fill="#f0c674" filter="url(#ecoGlow)" />
+              <defs>
+                <filter id="ecoGlow" x="-30" y="-30" width="80" height="80">
+                  <feGaussianBlur stdDeviation="6" result="blur" />
+                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+              </defs>
+            </svg>
+            <button class="eco-metric-row active" type="button" data-eco-action="metric" data-metric="Biodiversity Index" data-value="0.82">
+              <span>◎ Biodiversity Index</span><strong>0.82</strong><em>↑ 6%</em>
+            </button>
+            <button class="eco-metric-row" type="button" data-eco-action="metric" data-metric="Water Quality Index" data-value="91">
+              <span>◉ Water Quality Index</span><strong>91</strong><em>↑ 8%</em>
+            </button>
+            <button class="eco-metric-row" type="button" data-eco-action="metric" data-metric="Habitat Integrity" data-value="78">
+              <span>◎ Habitat Integrity</span><strong>78</strong><em>→ 0%</em>
+            </button>
+          </article>
+
+          <article class="eco-card eco-species-card">
+            <header class="eco-card-head">
+              <span class="eco-card-title">Species Spotlight</span>
+              <span class="eco-live">Live</span>
+            </header>
+            <div class="eco-fish-title">Marine Fish</div>
+            <div class="eco-species-list">
+              <span>Population Trend<strong>Stable</strong></span>
+              <span>Movement Pattern<strong>Moderate</strong></span>
+              <span>Depth Range<strong>12-38 M</strong></span>
+              <span>Noise Sensitivity<strong>High</strong></span>
+            </div>
+            <div class="eco-fish-visual" aria-hidden="true"></div>
+          </article>
+
+          <svg class="eco-link-lines" viewBox="0 0 820 430" aria-hidden="true">
+            <path d="M176 38 C276 116 288 238 412 256 S620 156 746 318" fill="none" stroke="rgba(216,184,121,.74)" stroke-width="1.2" stroke-dasharray="4 7" />
+            <path d="M420 252 C360 162 480 64 585 112" fill="none" stroke="rgba(216,184,121,.62)" stroke-width="1.2" stroke-dasharray="4 7" />
+            <path d="M420 252 C324 302 224 272 102 222" fill="none" stroke="rgba(216,184,121,.54)" stroke-width="1.2" stroke-dasharray="4 7" />
+          </svg>
+
+          <button class="eco-hotspot north eco-action" type="button" data-eco-action="hotspot" data-hotspot="north" aria-label="Northern biodiversity node"></button>
+          <button class="eco-hotspot east eco-action" type="button" data-eco-action="hotspot" data-hotspot="east" aria-label="Eastern biodiversity node"></button>
+          <button class="eco-hotspot south eco-action" type="button" data-eco-action="hotspot" data-hotspot="south" aria-label="Southern biodiversity node"></button>
+          <button class="eco-hotspot core eco-action active" type="button" data-eco-action="hotspot" data-hotspot="core" aria-label="Marine activity core"></button>
+          <span class="eco-hotspot-label" style="left: 922px; top: 370px;">Biodiversity<small>High</small></span>
+          <span class="eco-hotspot-label" style="left: 1295px; top: 514px;">Biodiversity<small>Medium</small></span>
+          <span class="eco-hotspot-label" style="left: 1485px; top: 797px;">Biodiversity<small>High</small></span>
+          <span class="eco-hotspot-label" style="left: 1036px; top: 812px; text-align:center;">Marine Activity Core<small>High Activity</small></span>
+
+          <aside class="eco-floating-card" id="ecoFloatingCard">
+            <span class="eco-card-orb" aria-hidden="true"></span>
+            <span class="eco-card-copy">
+              <strong id="ecoFloatTitle">BIODIVERSITY1</strong>
+              <span id="ecoFloatMeta">DATA</span>
+              <span id="ecoFloatSub">PRESENTATION</span>
+            </span>
+          </aside>
+
+          <aside class="eco-floating-card secondary">
+            <span class="eco-card-orb" aria-hidden="true"></span>
+            <span class="eco-card-copy">
+              <strong>BIODIVERSITY2</strong>
+              <span>DATA</span>
+              <span>PRESENTATION</span>
+            </span>
+          </aside>
+
+          <article class="eco-card eco-composition-card">
+            <header class="eco-card-head">
+              <span class="eco-card-title">Habitat Composition</span>
+              <span class="eco-live">Live</span>
+            </header>
+            <div class="eco-bars">
+              <div class="eco-bar"><span>Coral Reef</span><span class="eco-bar-track"><span style="--value:28%"></span></span><strong>28%</strong></div>
+              <div class="eco-bar"><span>Seagrass Beds</span><span class="eco-bar-track"><span style="--value:34%"></span></span><strong>34%</strong></div>
+              <div class="eco-bar"><span>Mangroves</span><span class="eco-bar-track"><span style="--value:18%"></span></span><strong>18%</strong></div>
+              <div class="eco-bar"><span>Others</span><span class="eco-bar-track"><span style="--value:20%; background:linear-gradient(90deg,#8fa5bf,#d8b879)"></span></span><strong>20%</strong></div>
+            </div>
+            <span class="eco-total-label">Total Coverage</span>
+            <strong class="eco-total">64%</strong>
+          </article>
+
+          <article class="eco-card eco-bio-card">
+            <header class="eco-card-head">
+              <span class="eco-card-title">Biodiversity Index</span>
+              <span class="eco-live">Live</span>
+            </header>
+            <div class="eco-ring">
+              <svg class="eco-ring-svg" viewBox="0 0 170 170" aria-hidden="true">
+                <defs>
+                  <linearGradient id="ecoRingGradient" x1="24" y1="136" x2="156" y2="70" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="#e8c48e" />
+                    <stop offset="0.54" stop-color="#b7dac1" />
+                    <stop offset="1" stop-color="#67e8ff" />
+                  </linearGradient>
+                </defs>
+                <path class="eco-ring-track" pathLength="100" d="M30 143 A77 77 0 1 1 142 143" />
+                <path class="eco-ring-progress" pathLength="100" d="M30 143 A77 77 0 1 1 142 143" />
+              </svg>
+              <span class="eco-ring-label"><span id="ecoBioValue">0.82</span><small>/1.00<br /><span id="ecoBioStatus">Good</span></small></span>
+            </div>
+            <div class="eco-bio-gain" id="ecoBioGain">6%</div>
+            <div class="eco-bio-sub">vs last 7 days</div>
+            <svg class="eco-mini-chart" viewBox="0 0 206.5 40.06" aria-hidden="true">
+              <path id="ecoBioChartPath" d="M0 39 C18 40 31 36 43 28 C55 20 63 20 71 24 C78 28 86 37 95 36 C107 30 119 14 130 1 C141 9 151 35 164 32 C171 31 174 22 180 21 C184 21 184 26 190 25 C198 22 200 13 206.5 8" />
+              <circle class="eco-chart-dot-outer" cx="206.5" cy="8" r="8" />
+              <circle id="ecoBioChartDot" class="eco-chart-dot-inner" cx="206.5" cy="8" r="4" />
+            </svg>
+          </article>
+
+          <article class="eco-card eco-signals-card">
+            <header class="eco-card-head">
+              <span class="eco-card-title">Environmental Signals</span>
+              <span class="eco-live">Live</span>
+            </header>
+            <div class="eco-signal-grid">
+              <div class="eco-signal-row"><span>1-3.5 m</span><span class="eco-signal-track"><span style="--value:84%; --signal:rgba(255,223,154,.95)"></span></span><span>Snapper</span></div>
+              <div class="eco-signal-row"><span>5 m</span><span class="eco-signal-track"><span style="--value:62%; --signal:rgba(135,221,255,.95)"></span></span><span>Sensor</span></div>
+              <div class="eco-signal-row"><span>8-10 m</span><span class="eco-signal-track"><span style="--value:91%; --signal:rgba(255,223,154,.95)"></span></span><span>Bream</span></div>
+              <div class="eco-signal-row"><span>12-38 m</span><span class="eco-signal-track"><span style="--value:48%; --signal:rgba(135,221,255,.95)"></span></span><span>Grouper</span></div>
+            </div>
+            <div class="eco-risk-row">
+              <button class="eco-risk active" type="button" data-eco-action="risk" data-risk="Behavioural Avoidance"><strong>130</strong><span>Behavioural<br />Avoidance</span></button>
+              <button class="eco-risk" type="button" data-eco-action="risk" data-risk="Physiological Stress"><strong>150</strong><span>Physiological<br />Stress</span></button>
+              <button class="eco-risk" type="button" data-eco-action="risk" data-risk="Otolith Damage Risk"><strong>180</strong><span>Otolith<br />Damage<br />Risk</span></button>
+            </div>
+          </article>
+
+          <div class="eco-bottom-controls">
+            <button class="eco-scrub eco-action" type="button" data-eco-action="scrub" aria-label="Scan ecosystem timeline"><span></span></button>
+            <button class="eco-round-button eco-action" type="button" data-eco-action="prev" aria-label="Previous layer">&lt;</button>
+            <div class="eco-stepper">
+              <span class="eco-stepper-pad" aria-hidden="true"></span>
+              <span class="eco-stepper-glass" aria-hidden="true"></span>
+              <svg class="eco-stepper-shape" viewBox="0 0 217 104" aria-hidden="true" focusable="false">
+                <path d="M 0 52 C 0 35 13 24 31 21 C 39 20 48 21 57 21 C 66 21 70 16 77 12 C 86 5 97 1 108.5 1 C 120 1 131 5 140 12 C 147 16 151 21 160 21 C 169 21 178 20 186 21 C 204 24 217 35 217 52 C 217 69 204 80 186 83 C 178 84 169 83 160 83 C 151 83 147 88 140 92 C 131 99 120 103 108.5 103 C 97 103 86 99 77 92 C 70 88 66 83 57 83 C 48 83 39 84 31 83 C 13 80 0 69 0 52 Z" />
+              </svg>
+              <button type="button" data-eco-action="set-count" data-count="2"><span class="eco-step-number">2</span><small>Core</small></button>
+              <strong id="ecoCoreCount">4</strong>
+              <span class="eco-core-caption">Activity Core</span>
+              <button type="button" data-eco-action="set-count" data-count="18"><span class="eco-step-number">18</span><small>Core</small></button>
+            </div>
+            <button class="eco-round-button eco-action" type="button" data-eco-action="next" aria-label="Next layer">&gt;</button>
+            <button class="eco-pill-button eco-action" type="button" data-eco-action="zoom-in" aria-label="Zoom ecosystem map in">+</button>
+            <button class="eco-pill-button eco-action" type="button" data-eco-action="zoom-out" aria-label="Zoom ecosystem map out">−</button>
+          </div>
+        </section>
+
+        <p class="api-note" id="apiNote">
+          Google Maps API Key interface is ready. Open this page with ?googleKey=YOUR_KEY or set localStorage.GOOGLE_MAPS_API_KEY.
+        </p>
+        <div class="interaction-toast glass layer" id="interactionToast" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const viewport = document.querySelector("#viewport");
+    const frame = document.querySelector("#frame");
+    const earthSlot = document.querySelector("#earthSlot");
+    const googleMap = document.querySelector("#googleMap");
+    const dynamicGlobeCanvas = document.querySelector("#dynamicGlobe");
+    const geoTooltip = document.querySelector(".tooltip");
+    const nav = document.querySelector(".top-nav");
+    const navItems = [...document.querySelectorAll(".nav-item")];
+    const toast = document.querySelector("#interactionToast");
+    const timelineHit = document.querySelector("#timelineHit");
+    const nowTick = document.querySelector("#nowTick");
+    const nowDot = document.querySelector("#nowDot");
+    const nowTitle = document.querySelector("#nowTitle");
+    const nowTime = document.querySelector("#nowTime");
+    const playButton = document.querySelector(".play");
+    const chatView = document.querySelector("#chatView");
+    const chatClose = document.querySelector("#chatClose");
+    const chatForm = document.querySelector("#chatForm");
+    const chatInput = document.querySelector("#chatInput");
+    const chatStream = document.querySelector("#chatStream");
+    const worldViewButton = document.querySelector(".side-control.globe");
+    const layerButton = document.querySelector(".side-control.layers");
+    const ecosystemView = document.querySelector("#ecosystemView");
+    const monitoringView = document.querySelector("#monitoringView");
+    const ecoMapStage = document.querySelector("#ecoMapStage");
+    const ecoMapImage = document.querySelector("#ecoMapImage");
+    const ecoCurrentCanvas = document.querySelector("#ecoCurrentCanvas");
+    const ecoFloatingCard = document.querySelector("#ecoFloatingCard");
+    const ecoFloatTitle = document.querySelector("#ecoFloatTitle");
+    const ecoFloatMeta = document.querySelector("#ecoFloatMeta");
+    const ecoFloatSub = document.querySelector("#ecoFloatSub");
+    const ecoCoreCount = document.querySelector("#ecoCoreCount");
+    const ecoLiveBioValue = document.querySelector("#ecoBioValue");
+    const ecoLiveBioStatus = document.querySelector("#ecoBioStatus");
+    const ecoLiveBioGain = document.querySelector("#ecoBioGain");
+    const ecoLiveChartPath = document.querySelector("#ecoBioChartPath");
+    const ecoLiveChartDot = document.querySelector("#ecoBioChartDot");
+    const ecoBrightnessControl = document.querySelector('[data-eco-action="scrub"]');
+    let selectedNav = document.querySelector(".nav-item.active");
+    let toastTimer = 0;
+    let earthScale = 1.1;
+    let ecoMapScale = 1;
+    let ecoMapX = 0;
+    let ecoMapY = 0;
+    let ecoBrightness = 1;
+    let isDraggingEcoMap = false;
+    let isDraggingEcoBrightness = false;
+    let ecoPointer = { x: 0, y: 0 };
+    let ecoScrub = 0;
+    let ecoLiveTick = 0;
+    let timelineProgress = (1120.1 - 375) / 1461;
+    let isDraggingTimeline = false;
+    let playTimer = 0;
+    let chatTurn = 0;
+    let advancedGlobeApi = null;
+
+    function fitStage() {
+      const maxW = Math.max(320, innerWidth);
+      const maxH = Math.max(320, innerHeight);
+      const scale = Math.min(maxW / 2085, maxH / 1132);
+      document.documentElement.style.setProperty("--scale", String(scale));
+    }
+
+    addEventListener("resize", fitStage, { passive: true });
+    fitStage();
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 1100);
+    }
+
+    function setNavGlider(item) {
+      if (!item) return;
+      nav.style.setProperty("--nav-x", `${item.offsetLeft}px`);
+      nav.style.setProperty("--nav-w", `${item.offsetWidth}px`);
+    }
+
+    function activateNav(item) {
+      const label = item.dataset.label;
+      if (label === "Ecosystem") {
+        exitMonitoringMode(false);
+        enterEcosystemMode(true);
+        return;
+      }
+
+      if (label === "Overview") {
+        exitMonitoringMode(false);
+        exitEcosystemMode(true);
+        if (frame.classList.contains("chat-mode")) exitChatMode(true);
+        setActiveNav(item);
+        showToast("Overview selected");
+        return;
+      }
+
+      if (label === "Monitoring") {
+        enterMonitoringMode(true);
+        return;
+      }
+
+      if (frame.classList.contains("chat-mode")) exitChatMode(true);
+      exitMonitoringMode(false);
+      exitEcosystemMode(true);
+      setActiveNav(item);
+      showToast(`${label} selected`);
+    }
+
+    function setActiveNav(item) {
+      selectedNav?.classList.remove("active");
+      selectedNav = item;
+      selectedNav.classList.add("active");
+      setNavGlider(selectedNav);
+    }
+
+    function navItemByLabel(label) {
+      return navItems.find((item) => item.dataset.label === label);
+    }
+
+    requestAnimationFrame(() => setNavGlider(selectedNav));
+
+    nav.addEventListener("mouseleave", () => setNavGlider(selectedNav));
+    navItems.forEach((item) => {
+      item.addEventListener("mouseenter", () => setNavGlider(item));
+      item.addEventListener("focus", () => setNavGlider(item));
+      item.addEventListener("click", () => activateNav(item));
+    });
+
+    function setEarthScale(nextScale) {
+      earthScale = Math.min(1.26, Math.max(0.98, nextScale));
+      earthSlot.style.setProperty("--earth-scale", earthScale.toFixed(2));
+    }
+
+    function zoomGlobe(delta) {
+      if (advancedGlobeApi) {
+        advancedGlobeApi.zoom(delta);
+        return;
+      }
+
+      setEarthScale(earthScale + (delta < 0 ? 0.06 : -0.06));
+    }
+
+    function recenterGlobe() {
+      if (advancedGlobeApi) {
+        advancedGlobeApi.recenter();
+        worldViewButton?.classList.remove("is-active");
+        return;
+      }
+
+      setEarthScale(1.1);
+      earthSlot.style.setProperty("--earth-x", "0px");
+      earthSlot.style.setProperty("--earth-y", "0px");
+    }
+
+    function setWorldGlobeView() {
+      if (advancedGlobeApi) {
+        advancedGlobeApi.worldView();
+        worldViewButton?.classList.add("is-active");
+        return;
+      }
+
+      setEarthScale(0.98);
+      worldViewButton?.classList.add("is-active");
+    }
+
+    function toggleGlobeLayers(target) {
+      const nextVisible = advancedGlobeApi ? advancedGlobeApi.toggleLayers() : !target.classList.contains("is-active");
+      target.classList.toggle("is-active", nextVisible);
+      return nextVisible;
+    }
+
+    function handleButtonAction(target) {
+      const label = target.dataset.label || target.getAttribute("aria-label") || "Action";
+      if (target.closest(".nav-item")) return;
+
+      if (label === "Chat with DP") {
+        if (frame.classList.contains("chat-mode")) {
+          exitChatMode(true);
+        } else {
+          enterChatMode(true);
+        }
+        return;
+      }
+
+      if (target.closest(".cta")) {
+        showToast(`${label} clicked`);
+        return;
+      }
+
+      if (label === "Zoom in") {
+        zoomGlobe(-0.45);
+        showToast("Zoom in");
+        return;
+      }
+
+      if (label === "Zoom out") {
+        zoomGlobe(0.45);
+        showToast("Zoom out");
+        return;
+      }
+
+      if (label === "Recenter map") {
+        recenterGlobe();
+        showToast("Map recentered");
+        return;
+      }
+
+      if (label === "World view") {
+        setWorldGlobeView();
+        showToast("World view");
+        return;
+      }
+
+      if (label === "Map layers") {
+        const visible = toggleGlobeLayers(target);
+        showToast(visible ? "Marine layers on" : "Marine layers off");
+        return;
+      }
+
+      if (label === "Play timeline") {
+        toggleTimelinePlayback();
+        return;
+      }
+
+      showToast(`${label} clicked`);
+    }
+
+    document.querySelectorAll("button[data-label], a[data-label]").forEach((target) => {
+      target.addEventListener("click", (event) => {
+        event.preventDefault();
+        handleButtonAction(target);
+      });
+    });
+
+    document.querySelectorAll("[data-monitor-action]").forEach((target) => {
+      target.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        document.querySelectorAll(".monitoring-hit.is-active").forEach((item) => {
+          if (item !== target) item.classList.remove("is-active");
+        });
+        target.classList.add("is-active");
+        showToast(`${target.dataset.monitorAction} selected`);
+      });
+    });
+
+    function setTimeline(progress) {
+      timelineProgress = Math.min(1, Math.max(0, progress));
+      const x = 375 + timelineProgress * 1461;
+      nowTick.style.left = `${x}px`;
+      nowDot.style.left = `${x - 6}px`;
+      nowTitle.style.left = `${x - 18}px`;
+      nowTime.style.left = `${x - 23}px`;
+
+      const totalMinutes = Math.round(timelineProgress * 24 * 4) * 15;
+      const hours = Math.floor(totalMinutes / 60) % 24;
+      const minutes = totalMinutes % 60;
+      nowTime.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+      timelineHit.setAttribute("aria-valuenow", String(Math.round(timelineProgress * 24)));
+    }
+
+    function progressFromClientX(clientX) {
+      const rect = frame.getBoundingClientRect();
+      const scale = rect.width / 2085;
+      const designX = (clientX - rect.left) / scale;
+      return (designX - 375) / 1461;
+    }
+
+    function updateTimelineFromPointer(event) {
+      setTimeline(progressFromClientX(event.clientX));
+    }
+
+    timelineHit.addEventListener("pointerdown", (event) => {
+      isDraggingTimeline = true;
+      timelineHit.setPointerCapture(event.pointerId);
+      updateTimelineFromPointer(event);
+      showToast("Timeline dragging");
+    });
+
+    timelineHit.addEventListener("pointermove", (event) => {
+      if (!isDraggingTimeline) return;
+      updateTimelineFromPointer(event);
+    });
+
+    timelineHit.addEventListener("pointerup", () => {
+      isDraggingTimeline = false;
+      showToast(`Timeline set to ${nowTime.textContent}`);
+    });
+
+    timelineHit.addEventListener("pointercancel", () => {
+      isDraggingTimeline = false;
+    });
+
+    timelineHit.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      setTimeline(timelineProgress + (event.key === "ArrowRight" ? 1 : -1) / 48);
+      showToast(`Timeline set to ${nowTime.textContent}`);
+    });
+
+    function toggleTimelinePlayback() {
+      if (playTimer) {
+        clearInterval(playTimer);
+        playTimer = 0;
+        playButton.classList.remove("is-playing");
+        playButton.setAttribute("aria-pressed", "false");
+        showToast("Timeline paused");
+        return;
+      }
+
+      playButton.classList.add("is-playing");
+      playButton.setAttribute("aria-pressed", "true");
+      showToast("Timeline playing");
+      playTimer = setInterval(() => {
+        setTimeline((timelineProgress + 1 / 144) % 1);
+      }, 260);
+    }
+
+    function setEcoMapTransform() {
+      ecoMapScale = Math.min(1.16, Math.max(0.96, ecoMapScale));
+      ecoMapX = Math.min(120, Math.max(-120, ecoMapX));
+      ecoMapY = Math.min(80, Math.max(-80, ecoMapY));
+      ecoMapStage?.style.setProperty("--eco-map-scale", ecoMapScale.toFixed(3));
+      ecoMapStage?.style.setProperty("--eco-map-x", `${ecoMapX.toFixed(1)}px`);
+      ecoMapStage?.style.setProperty("--eco-map-y", `${ecoMapY.toFixed(1)}px`);
+      ecosystemView?.style.setProperty("--eco-visual-scale", ecoMapScale.toFixed(3));
+      ecosystemView?.style.setProperty("--eco-visual-x", `${(ecoMapX * 0.35).toFixed(1)}px`);
+      ecosystemView?.style.setProperty("--eco-visual-y", `${(ecoMapY * 0.35).toFixed(1)}px`);
+    }
+
+    function setEcoBrightness(value) {
+      ecoBrightness = Math.min(1.2, Math.max(0.72, value));
+      const progress = (ecoBrightness - 0.72) / 0.48;
+      ecosystemView?.style.setProperty("--eco-visual-brightness", ecoBrightness.toFixed(2));
+      ecosystemView?.style.setProperty("--eco-map-brightness", ecoBrightness.toFixed(2));
+      ecosystemView?.style.setProperty("--eco-brightness-progress", progress.toFixed(3));
+    }
+
+    function setEcoBrightnessFromPointer(event) {
+      if (!ecoBrightnessControl) return;
+      const rect = ecoBrightnessControl.getBoundingClientRect();
+      const progress = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+      setEcoBrightness(0.72 + progress * 0.48);
+      ecoBrightnessControl.style.setProperty("--scrub-x", `${(progress * 81).toFixed(1)}px`);
+    }
+
+    function updateEcoLiveData() {
+      if (!frame.classList.contains("ecosystem-mode")) return;
+      ecoLiveBioValue.textContent = "0.82";
+      ecoLiveBioStatus.textContent = "Good";
+      ecoLiveBioGain.textContent = "6%";
+      ecoLiveChartPath?.setAttribute("d", "M0 39 C18 40 31 36 43 28 C55 20 63 20 71 24 C78 28 86 37 95 36 C107 30 119 14 130 1 C141 9 151 35 164 32 C171 31 174 22 180 21 C184 21 184 26 190 25 C198 22 200 13 206.5 8");
+      ecoLiveChartDot?.setAttribute("cx", "206.5");
+      ecoLiveChartDot?.setAttribute("cy", "8");
+    }
+
+    function enterEcosystemMode(updateHash = true) {
+      if (frame.classList.contains("chat-mode")) exitChatMode(false);
+      exitMonitoringMode(false);
+      frame.classList.add("ecosystem-mode");
+      ecosystemView?.setAttribute("aria-hidden", "false");
+      setActiveNav(navItemByLabel("Ecosystem"));
+      if (playTimer) toggleTimelinePlayback();
+      if (updateHash && location.hash !== "#ecosystem") history.pushState(null, "", "#ecosystem");
+      showToast("Ecosystem view opened");
+    }
+
+    function exitEcosystemMode(updateHash = true) {
+      frame.classList.remove("ecosystem-mode");
+      ecosystemView?.setAttribute("aria-hidden", "true");
+      if (updateHash && location.hash === "#ecosystem") {
+        history.pushState(null, "", `${location.pathname}${location.search}`);
+      }
+    }
+
+    function enterMonitoringMode(updateHash = true) {
+      if (frame.classList.contains("chat-mode")) exitChatMode(false);
+      exitEcosystemMode(false);
+      frame.classList.add("monitoring-mode");
+      monitoringView?.setAttribute("aria-hidden", "false");
+      setActiveNav(navItemByLabel("Monitoring"));
+      if (playTimer) toggleTimelinePlayback();
+      if (updateHash && location.hash !== "#monitoring") history.pushState(null, "", "#monitoring");
+      showToast("Monitoring selected");
+    }
+
+    function exitMonitoringMode(updateHash = true) {
+      frame.classList.remove("monitoring-mode");
+      monitoringView?.setAttribute("aria-hidden", "true");
+      if (updateHash && location.hash === "#monitoring") {
+        history.pushState(null, "", `${location.pathname}${location.search}`);
+      }
+    }
+
+    const ecoHotspotData = {
+      core: {
+        left: 815,
+        top: 424,
+        title: "BIODIVERSITY1",
+        meta: "DATA",
+        sub: "PRESENTATION",
+      },
+      north: {
+        left: 676,
+        top: 424,
+        title: "BIODIVERSITY1",
+        meta: "DATA",
+        sub: "PRESENTATION",
+      },
+      east: {
+        left: 1242,
+        top: 520,
+        title: "BIODIVERSITY1",
+        meta: "DATA",
+        sub: "PRESENTATION",
+      },
+      south: {
+        left: 1180,
+        top: 735,
+        title: "BIODIVERSITY1",
+        meta: "DATA",
+        sub: "PRESENTATION",
+      },
+    };
+
+    function setEcoHotspot(name) {
+      const data = ecoHotspotData[name] || ecoHotspotData.core;
+      document.querySelectorAll(".eco-hotspot").forEach((node) => {
+        node.classList.toggle("active", node.dataset.hotspot === name);
+      });
+      if (ecoFloatingCard) {
+        ecoFloatingCard.style.left = `${data.left}px`;
+        ecoFloatingCard.style.top = `${data.top}px`;
+      }
+      ecoFloatTitle.textContent = data.title;
+      ecoFloatMeta.textContent = data.meta;
+      ecoFloatSub.textContent = data.sub;
+      showToast(data.title);
+    }
+
+    function handleEcoAction(target) {
+      const action = target.dataset.ecoAction;
+      if (!action) return;
+
+      if (action === "hotspot") {
+        setEcoHotspot(target.dataset.hotspot);
+        return;
+      }
+
+      if (action === "metric") {
+        document.querySelectorAll(".eco-metric-row").forEach((row) => row.classList.remove("active"));
+        target.classList.add("active");
+        document.querySelector("#ecoStatusValue").textContent = target.dataset.metric === "Water Quality Index" ? "Clean" : "Stable";
+        showToast(`${target.dataset.metric}: ${target.dataset.value}`);
+        return;
+      }
+
+      if (action === "risk") {
+        document.querySelectorAll(".eco-risk").forEach((row) => row.classList.remove("active"));
+        target.classList.add("active");
+        showToast(target.dataset.risk);
+        return;
+      }
+
+      if (action === "zoom-in") {
+        ecoMapScale += 0.04;
+        setEcoMapTransform();
+        showToast("Ecosystem map zoom in");
+        return;
+      }
+
+      if (action === "zoom-out") {
+        ecoMapScale -= 0.04;
+        setEcoMapTransform();
+        showToast("Ecosystem map zoom out");
+        return;
+      }
+
+      if (action === "prev" || action === "next") {
+        setEcoHotspot(action === "next" ? "east" : "north");
+        return;
+      }
+
+      if (action === "set-count") {
+        ecoCoreCount.textContent = target.dataset.count;
+        showToast(`${target.dataset.count} layer selected`);
+        return;
+      }
+
+      if (action === "scrub") {
+        ecoScrub = (ecoScrub + 1) % 4;
+        const nextBrightness = 0.78 + ecoScrub * 0.12;
+        setEcoBrightness(nextBrightness);
+        target.style.setProperty("--scrub-x", `${ecoScrub * 27}px`);
+        showToast(`Map brightness ${Math.round(ecoBrightness * 100)}%`);
+      }
+    }
+
+    function enterChatMode(updateHash = true) {
+      if (frame.classList.contains("ecosystem-mode")) exitEcosystemMode(false);
+      frame.classList.add("chat-mode");
+      chatView.setAttribute("aria-hidden", "false");
+      if (playTimer) toggleTimelinePlayback();
+      if (updateHash && location.hash !== "#chat") history.pushState(null, "", "#chat");
+      setTimeout(() => chatInput.focus(), 360);
+      showToast("Chat with DP opened");
+    }
+
+    function exitChatMode(updateHash = true) {
+      frame.classList.remove("chat-mode");
+      chatView.setAttribute("aria-hidden", "true");
+      if (updateHash && location.hash === "#chat") {
+        history.pushState(null, "", `${location.pathname}${location.search}`);
+      }
+      showToast("Back to dashboard");
+    }
+
+    function generateLocalDeepseekReply(prompt) {
+      const normalized = prompt.toLowerCase();
+      if (normalized.includes("fish") || normalized.includes("鱼") || normalized.includes("marine")) {
+        return "For a future Deepseek connection, this question should call your marine data endpoint first, then ask Deepseek to summarize species, seasonal changes, catch pressure, protected-area context and source confidence. In this local prototype, I am keeping the same Dapeng Bay / Mirs Bay scope and returning a structured placeholder response.";
+      }
+
+      if (normalized.includes("water") || normalized.includes("quality") || normalized.includes("水质")) {
+        return "A Deepseek-backed version can combine monitoring station readings, turbidity, dissolved oxygen, chlorophyll-a and recent alerts, then produce an explainable water-quality summary. This prototype response is generated locally so the chat flow is already interactive.";
+      }
+
+      return `I can help analyze “${prompt}”. This is a local interactive prototype response; later you can replace this function with a Deepseek API call while keeping the current glass chat UI, message layout and action buttons.`;
+    }
+
+    function appendChatTurn(prompt) {
+      const userMessage = document.createElement("article");
+      userMessage.className = "chat-user";
+      userMessage.textContent = prompt;
+      chatStream.appendChild(userMessage);
+
+      const cardTemplate = chatStream.querySelector(".chat-card");
+      const responseCard = cardTemplate.cloneNode(true);
+      responseCard.querySelector(".chat-answer").textContent = generateLocalDeepseekReply(prompt);
+      chatTurn += 1;
+      responseCard.dataset.turn = String(chatTurn);
+      chatStream.appendChild(responseCard);
+      chatStream.scrollTo({ top: chatStream.scrollHeight, behavior: "smooth" });
+    }
+
+    chatClose.addEventListener("click", () => exitChatMode(true));
+
+    function submitChatPrompt() {
+      const prompt = chatInput.value.trim();
+      if (!prompt) {
+        showToast("Type a question first");
+        return;
+      }
+      appendChatTurn(prompt);
+      chatInput.value = "";
+      showToast("Message sent");
+    }
+
+    chatForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      submitChatPrompt();
+    });
+
+    chatInput.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || event.shiftKey) return;
+      event.preventDefault();
+      submitChatPrompt();
+    });
+
+    chatView.addEventListener("click", async (event) => {
+      const actionButton = event.target.closest("[data-chat-action]");
+      if (!actionButton) return;
+
+      const action = actionButton.dataset.chatAction;
+      if (action === "Copy") {
+        const card = actionButton.closest(".chat-card");
+        const text = card?.querySelector(".chat-answer")?.textContent?.trim() || "";
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast("Answer copied");
+        } catch {
+          showToast("Copy unavailable in this browser");
+        }
+        return;
+      }
+
+      showToast(`${action} clicked`);
+    });
+
+    addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && frame.classList.contains("chat-mode")) {
+        exitChatMode(true);
+      } else if (event.key === "Escape" && frame.classList.contains("ecosystem-mode")) {
+        exitEcosystemMode(true);
+        setActiveNav(navItemByLabel("Overview"));
+      } else if (event.key === "Escape" && frame.classList.contains("monitoring-mode")) {
+        exitMonitoringMode(true);
+        setActiveNav(navItemByLabel("Overview"));
+      }
+    });
+
+    addEventListener("hashchange", () => {
+      if (location.hash === "#chat") enterChatMode(false);
+      else if (location.hash === "#ecosystem") enterEcosystemMode(false);
+      else if (location.hash === "#monitoring") enterMonitoringMode(false);
+      else if (frame.classList.contains("chat-mode")) exitChatMode(false);
+      else if (frame.classList.contains("ecosystem-mode")) {
+        exitEcosystemMode(false);
+        setActiveNav(navItemByLabel("Overview"));
+      } else if (frame.classList.contains("monitoring-mode")) {
+        exitMonitoringMode(false);
+        setActiveNav(navItemByLabel("Overview"));
+      }
+    });
+
+    if (location.hash === "#chat") enterChatMode(false);
+    else if (location.hash === "#ecosystem") enterEcosystemMode(false);
+    else if (location.hash === "#monitoring") enterMonitoringMode(false);
+    else {
+      chatView.setAttribute("aria-hidden", "true");
+      ecosystemView?.setAttribute("aria-hidden", "true");
+      monitoringView?.setAttribute("aria-hidden", "true");
+    }
+
+    document.querySelectorAll("[data-eco-action]").forEach((target) => {
+      target.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        handleEcoAction(target);
+      });
+    });
+
+    document.querySelectorAll("[data-eco-route]").forEach((target) => {
+      target.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const label = target.dataset.ecoRoute;
+        if (label === "Overview") {
+          exitEcosystemMode(true);
+          setActiveNav(navItemByLabel("Overview"));
+          showToast("Overview selected");
+        } else if (label === "Ecosystem") {
+          enterEcosystemMode(true);
+        } else if (label === "Notifications" || label === "Admin profile") {
+          showToast(`${label} opened`);
+        } else if (label === "Monitoring") {
+          enterMonitoringMode(true);
+        } else {
+          exitEcosystemMode(true);
+          const nextNav = navItemByLabel(label);
+          if (nextNav) setActiveNav(nextNav);
+          showToast(`${label} selected`);
+        }
+      });
+    });
+
+    ecoBrightnessControl?.addEventListener("pointerdown", (event) => {
+      if (!frame.classList.contains("ecosystem-mode")) return;
+      event.preventDefault();
+      event.stopPropagation();
+      isDraggingEcoBrightness = true;
+      ecoBrightnessControl.setPointerCapture(event.pointerId);
+      setEcoBrightnessFromPointer(event);
+    });
+
+    ecoBrightnessControl?.addEventListener("pointermove", (event) => {
+      if (!isDraggingEcoBrightness) return;
+      event.preventDefault();
+      event.stopPropagation();
+      setEcoBrightnessFromPointer(event);
+    });
+
+    ecoBrightnessControl?.addEventListener("pointerup", (event) => {
+      if (!isDraggingEcoBrightness) return;
+      event.preventDefault();
+      event.stopPropagation();
+      isDraggingEcoBrightness = false;
+      ecoBrightnessControl.releasePointerCapture(event.pointerId);
+      showToast(`Map brightness ${Math.round(ecoBrightness * 100)}%`);
+    });
+
+    ecoBrightnessControl?.addEventListener("pointercancel", () => {
+      isDraggingEcoBrightness = false;
+    });
+
+    setInterval(updateEcoLiveData, 1600);
+
+    ecoMapStage?.addEventListener("pointerdown", (event) => {
+      if (!frame.classList.contains("ecosystem-mode")) return;
+      isDraggingEcoMap = true;
+      ecoPointer = { x: event.clientX, y: event.clientY };
+      ecoMapStage.classList.add("dragging");
+      ecoMapStage.setPointerCapture(event.pointerId);
+    });
+
+    ecoMapStage?.addEventListener("pointermove", (event) => {
+      if (!isDraggingEcoMap) return;
+      const dx = event.clientX - ecoPointer.x;
+      const dy = event.clientY - ecoPointer.y;
+      ecoMapX += dx / Math.max(0.85, Number(getComputedStyle(document.documentElement).getPropertyValue("--scale")) || 1);
+      ecoMapY += dy / Math.max(0.85, Number(getComputedStyle(document.documentElement).getPropertyValue("--scale")) || 1);
+      ecoPointer = { x: event.clientX, y: event.clientY };
+      setEcoMapTransform();
+    });
+
+    ecoMapStage?.addEventListener("pointerup", (event) => {
+      isDraggingEcoMap = false;
+      ecoMapStage.classList.remove("dragging");
+      ecoMapStage.releasePointerCapture(event.pointerId);
+      showToast("Satellite map repositioned");
+    });
+
+    ecoMapStage?.addEventListener("pointercancel", () => {
+      isDraggingEcoMap = false;
+      ecoMapStage.classList.remove("dragging");
+    });
+
+    ecoMapStage?.addEventListener("wheel", (event) => {
+      if (!frame.classList.contains("ecosystem-mode")) return;
+      event.preventDefault();
+      ecoMapScale += event.deltaY < 0 ? 0.05 : -0.05;
+      setEcoMapTransform();
+    }, { passive: false });
+
+    function initEcoCurrentCanvas() {
+      if (!ecoCurrentCanvas) return;
+      const context = ecoCurrentCanvas.getContext("2d");
+      const currents = Array.from({ length: 56 }, (_, index) => ({
+        x: 500 + Math.random() * 920,
+        y: 245 + Math.random() * 630,
+        speed: 0.35 + Math.random() * 0.95,
+        length: 38 + Math.random() * 82,
+        phase: Math.random() * Math.PI * 2,
+        alpha: 0.16 + Math.random() * 0.24,
+        offset: index * 0.19,
+      }));
+
+      function sizeCanvas() {
+        ecoCurrentCanvas.width = 2085;
+        ecoCurrentCanvas.height = 1132;
+      }
+
+      function draw(time = 0) {
+        context.clearRect(0, 0, ecoCurrentCanvas.width, ecoCurrentCanvas.height);
+        const t = time * 0.001;
+        context.lineCap = "round";
+        currents.forEach((current) => {
+          const drift = (Math.sin(t * current.speed + current.phase) + 1) * 28;
+          const x = current.x + Math.sin(t * 0.6 + current.offset) * 18;
+          const y = current.y + Math.cos(t * 0.5 + current.phase) * 16;
+          const gradient = context.createLinearGradient(x - current.length, y, x + current.length, y + drift * 0.18);
+          gradient.addColorStop(0, `rgba(103, 232, 255, 0)`);
+          gradient.addColorStop(0.45, `rgba(103, 232, 255, ${current.alpha})`);
+          gradient.addColorStop(1, `rgba(232, 196, 142, 0)`);
+          context.strokeStyle = gradient;
+          context.lineWidth = 1.1;
+          context.beginPath();
+          context.moveTo(x - current.length, y + Math.sin(t + current.offset) * 8);
+          context.bezierCurveTo(x - 18, y - 18, x + 24, y + 24, x + current.length, y + drift * 0.2);
+          context.stroke();
+        });
+        requestAnimationFrame(draw);
+      }
+
+      sizeCanvas();
+      draw();
+    }
+
+    initEcoCurrentCanvas();
+
+    function loadExternalScript(src) {
+      return new Promise((resolve, reject) => {
+        const existing = document.querySelector(`script[src="${src}"]`);
+        if (existing) {
+          existing.addEventListener("load", resolve, { once: true });
+          existing.addEventListener("error", reject, { once: true });
+          if (window.THREE) resolve();
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = src;
+        script.async = true;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    async function initAdvancedGlobe() {
+      if (!dynamicGlobeCanvas) return;
+      await loadExternalScript("https://unpkg.com/three@0.160.0/build/three.min.js");
+
+      const THREE = window.THREE;
+      const globeRenderSize = 1400;
+      const renderer = new THREE.WebGLRenderer({
+        canvas: dynamicGlobeCanvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: "high-performance",
+      });
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer.setSize(globeRenderSize, globeRenderSize, false);
+      renderer.setClearColor(0x000000, 0);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 20);
+      camera.position.set(0, 0, 5.8);
+
+      const globeGroup = new THREE.Group();
+      globeGroup.rotation.set(-0.08, -1.05, -0.05);
+      scene.add(globeGroup);
+
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.crossOrigin = "anonymous";
+      const earthTexture = textureLoader.load(
+        "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg"
+      );
+      const specularTexture = textureLoader.load(
+        "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg"
+      );
+      const cloudTexture = textureLoader.load(
+        "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png"
+      );
+      earthTexture.colorSpace = THREE.SRGBColorSpace;
+      cloudTexture.colorSpace = THREE.SRGBColorSpace;
+
+      const globe = new THREE.Mesh(
+        new THREE.SphereGeometry(1.55, 96, 96),
+        new THREE.MeshPhongMaterial({
+          map: earthTexture,
+          specularMap: specularTexture,
+          specular: new THREE.Color("#52738a"),
+          emissive: new THREE.Color("#132942"),
+          emissiveIntensity: 0.34,
+          shininess: 18,
+        })
+      );
+      globeGroup.add(globe);
+
+      const clouds = new THREE.Mesh(
+        new THREE.SphereGeometry(1.57, 96, 96),
+        new THREE.MeshLambertMaterial({
+          map: cloudTexture,
+          transparent: true,
+          opacity: 0.22,
+          depthWrite: false,
+        })
+      );
+      globeGroup.add(clouds);
+
+      const atmosphere = new THREE.Mesh(
+        new THREE.SphereGeometry(1.62, 96, 96),
+        new THREE.MeshBasicMaterial({
+          color: "#7dbfff",
+          transparent: true,
+          opacity: 0.14,
+          side: THREE.BackSide,
+          blending: THREE.AdditiveBlending,
+        })
+      );
+      globeGroup.add(atmosphere);
+
+      const ambient = new THREE.AmbientLight("#6f849f", 1.85);
+      scene.add(ambient);
+      const skyFill = new THREE.HemisphereLight("#9ccfff", "#06111f", 1.15);
+      scene.add(skyFill);
+      const sun = new THREE.DirectionalLight("#f3f7ff", 2.55);
+      sun.position.set(4, 2, 5);
+      scene.add(sun);
+      const rim = new THREE.DirectionalLight("#4e9ce8", 1.55);
+      rim.position.set(-5, 1.2, -2);
+      scene.add(rim);
+      const frontFill = new THREE.DirectionalLight("#7fb7ec", 1.05);
+      frontFill.position.set(-2.6, -0.2, 4.2);
+      scene.add(frontFill);
+
+      const stationMaterial = new THREE.MeshBasicMaterial({
+        color: "#e8c48e",
+        transparent: true,
+        opacity: 0.95,
+      });
+      const glowMaterial = new THREE.MeshBasicMaterial({
+        color: "#62dd89",
+        transparent: true,
+        opacity: 0.35,
+        blending: THREE.AdditiveBlending,
+      });
+      const stationGroup = new THREE.Group();
+      const stationHitTargets = [];
+      const stations = [
+        {
+          lat: 22.56,
+          lon: 114.42,
+          eyebrow: "Hong Kong · Shenzhen",
+          title: "Dapeng Bay / Mirs Bay Marine Area",
+        },
+        {
+          lat: 37.77,
+          lon: -122.42,
+          eyebrow: "California · United States",
+          title: "San Francisco Bay Water Quality Station",
+        },
+        {
+          lat: 35.5,
+          lon: 139.8,
+          eyebrow: "Tokyo · Japan",
+          title: "Tokyo Bay Coastal Monitoring",
+        },
+        {
+          lat: -33.85,
+          lon: 151.22,
+          eyebrow: "Sydney · Australia",
+          title: "Sydney Harbour Biodiversity Node",
+        },
+        {
+          lat: -22.9,
+          lon: -43.17,
+          eyebrow: "Rio de Janeiro · Brazil",
+          title: "Guanabara Bay Restoration Watch",
+        },
+        {
+          lat: 38.9,
+          lon: -76.4,
+          eyebrow: "Maryland · United States",
+          title: "Chesapeake Bay Nutrient Survey",
+        },
+        {
+          lat: 15,
+          lon: 88,
+          eyebrow: "Indian Ocean",
+          title: "Bay of Bengal Ocean Condition Grid",
+        },
+      ];
+
+      function latLonToVector3(lat, lon, radius) {
+        const phi = (90 - lat) * Math.PI / 180;
+        const theta = (lon + 180) * Math.PI / 180;
+        return new THREE.Vector3(
+          -radius * Math.sin(phi) * Math.cos(theta),
+          radius * Math.cos(phi),
+          radius * Math.sin(phi) * Math.sin(theta)
+        );
+      }
+
+      stations.forEach((stationData) => {
+        const { lat, lon } = stationData;
+        const position = latLonToVector3(lat, lon, 1.61);
+        const station = new THREE.Mesh(new THREE.SphereGeometry(0.018, 18, 18), stationMaterial);
+        station.position.copy(position);
+        const glow = new THREE.Mesh(new THREE.SphereGeometry(0.052, 20, 20), glowMaterial);
+        glow.position.copy(position);
+        const hitTarget = new THREE.Mesh(
+          new THREE.SphereGeometry(0.09, 18, 18),
+          new THREE.MeshBasicMaterial({
+            color: "#ffffff",
+            transparent: true,
+            opacity: 0,
+            depthWrite: false,
+          })
+        );
+        hitTarget.position.copy(position);
+        hitTarget.userData = stationData;
+        station.userData = stationData;
+        glow.userData = stationData;
+        stationHitTargets.push(hitTarget);
+        stationGroup.add(glow, station, hitTarget);
+      });
+      globeGroup.add(stationGroup);
+
+      const stars = new THREE.Points(
+        new THREE.BufferGeometry().setAttribute(
+          "position",
+          new THREE.Float32BufferAttribute(
+            Array.from({ length: 900 }, () => (Math.random() - 0.5) * 9),
+            3
+          )
+        ),
+        new THREE.PointsMaterial({
+          color: "#dce8ff",
+          size: 0.008,
+          transparent: true,
+          opacity: 0.34,
+        })
+      );
+      scene.add(stars);
+
+      const pointer = { active: false, x: 0, y: 0 };
+      const raycaster = new THREE.Raycaster();
+      const pointerNdc = new THREE.Vector2();
+      const homeView = { x: -0.08, y: -1.05, z: -0.05, cameraZ: 5.8 };
+      const worldView = { x: -0.05, y: -0.32, z: -0.02, cameraZ: 6.9 };
+      const targetRotation = {
+        x: globeGroup.rotation.x,
+        y: globeGroup.rotation.y,
+        z: globeGroup.rotation.z,
+      };
+      let targetCameraZ = camera.position.z;
+      let autoRotate = true;
+      let marineLayersVisible = true;
+
+      function clampCameraZ(value) {
+        return Math.max(3.65, Math.min(7.35, value));
+      }
+
+      function setGlobeView(view) {
+        targetRotation.x = view.x;
+        targetRotation.y = view.y;
+        targetRotation.z = view.z;
+        targetCameraZ = clampCameraZ(view.cameraZ);
+        autoRotate = true;
+        hideStationTooltip();
+      }
+
+      function syncTargetToCurrentRotation() {
+        targetRotation.x = globeGroup.rotation.x;
+        targetRotation.y = globeGroup.rotation.y;
+        targetRotation.z = globeGroup.rotation.z;
+      }
+
+      function hideStationTooltip() {
+        geoTooltip?.classList.remove("visible");
+      }
+
+      function updateStationTooltip(event) {
+        if (!geoTooltip || pointer.active || frame.classList.contains("chat-mode")) {
+          hideStationTooltip();
+          return;
+        }
+
+        const canvasRect = dynamicGlobeCanvas.getBoundingClientRect();
+        pointerNdc.x = ((event.clientX - canvasRect.left) / canvasRect.width) * 2 - 1;
+        pointerNdc.y = -(((event.clientY - canvasRect.top) / canvasRect.height) * 2 - 1);
+        raycaster.setFromCamera(pointerNdc, camera);
+
+        const worldPosition = new THREE.Vector3();
+        const visibleHits = raycaster.intersectObjects(stationHitTargets, false).filter((candidate) => {
+          candidate.object.getWorldPosition(worldPosition);
+          const surfaceNormal = worldPosition.clone().normalize();
+          const cameraVector = camera.position.clone().sub(worldPosition).normalize();
+          return surfaceNormal.dot(cameraVector) > 0.08;
+        });
+        const [hit] = visibleHits;
+        if (!hit) {
+          hideStationTooltip();
+          return;
+        }
+
+        const frameRect = frame.getBoundingClientRect();
+        const scale = frameRect.width / 2085;
+        const left = Math.min(1645, Math.max(48, (event.clientX - frameRect.left) / scale + 24));
+        const top = Math.min(920, Math.max(130, (event.clientY - frameRect.top) / scale - 34));
+        geoTooltip.style.left = `${left}px`;
+        geoTooltip.style.top = `${top}px`;
+        geoTooltip.querySelector("small").textContent = hit.object.userData.eyebrow;
+        geoTooltip.querySelector("strong").textContent = hit.object.userData.title;
+        geoTooltip.classList.add("visible");
+      }
+
+      dynamicGlobeCanvas.addEventListener("pointerdown", (event) => {
+        pointer.active = true;
+        autoRotate = false;
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+        hideStationTooltip();
+        earthSlot.classList.add("dragging");
+        dynamicGlobeCanvas.setPointerCapture(event.pointerId);
+      });
+      dynamicGlobeCanvas.addEventListener("pointermove", (event) => {
+        updateStationTooltip(event);
+        if (!pointer.active) return;
+        const dx = event.clientX - pointer.x;
+        const dy = event.clientY - pointer.y;
+        globeGroup.rotation.y += dx * 0.006;
+        globeGroup.rotation.x = Math.max(-0.82, Math.min(0.82, globeGroup.rotation.x + dy * 0.004));
+        syncTargetToCurrentRotation();
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+      });
+      dynamicGlobeCanvas.addEventListener("pointerup", (event) => {
+        pointer.active = false;
+        earthSlot.classList.remove("dragging");
+        dynamicGlobeCanvas.releasePointerCapture(event.pointerId);
+        updateStationTooltip(event);
+      });
+      dynamicGlobeCanvas.addEventListener("pointercancel", () => {
+        pointer.active = false;
+        earthSlot.classList.remove("dragging");
+        hideStationTooltip();
+      });
+      dynamicGlobeCanvas.addEventListener("pointerleave", hideStationTooltip);
+      dynamicGlobeCanvas.addEventListener("wheel", (event) => {
+        event.preventDefault();
+        hideStationTooltip();
+        targetCameraZ = clampCameraZ(targetCameraZ + event.deltaY * 0.0025);
+      }, { passive: false });
+
+      function render() {
+        if (!pointer.active && autoRotate) targetRotation.y += 0.0009;
+        globeGroup.rotation.x += (targetRotation.x - globeGroup.rotation.x) * 0.11;
+        globeGroup.rotation.y += (targetRotation.y - globeGroup.rotation.y) * 0.11;
+        globeGroup.rotation.z += (targetRotation.z - globeGroup.rotation.z) * 0.11;
+        camera.position.z += (targetCameraZ - camera.position.z) * 0.12;
+        clouds.rotation.y += 0.0014;
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+      }
+
+      earthSlot.classList.add("globe-ready");
+      advancedGlobeApi = {
+        camera,
+        globeGroup,
+        renderer,
+        recenter() {
+          setGlobeView(homeView);
+        },
+        worldView() {
+          setGlobeView(worldView);
+        },
+        zoom(delta) {
+          targetCameraZ = clampCameraZ(targetCameraZ + delta);
+          hideStationTooltip();
+        },
+        toggleLayers() {
+          marineLayersVisible = !marineLayersVisible;
+          clouds.visible = marineLayersVisible;
+          stationGroup.visible = marineLayersVisible;
+          hideStationTooltip();
+          return marineLayersVisible;
+        },
+      };
+      render();
+    }
+
+    initAdvancedGlobe().catch((error) => {
+      console.warn("Advanced globe did not initialize; using fallback earth image.", error);
+    });
+
+    function getGoogleMapsApiKey() {
+      const params = new URLSearchParams(location.search);
+      return params.get("googleKey") || localStorage.getItem("GOOGLE_MAPS_API_KEY") || "";
+    }
+
+    async function loadGoogleMaps3D(apiKey) {
+      if (!apiKey) return;
+
+      await new Promise((resolve, reject) => {
+        const existing = document.querySelector("script[data-google-maps-3d]");
+        if (existing) {
+          existing.addEventListener("load", resolve, { once: true });
+          existing.addEventListener("error", reject, { once: true });
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.dataset.googleMaps3d = "true";
+        script.async = true;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&v=beta&libraries=maps3d`;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+
+      const { Map3DElement } = await google.maps.importLibrary("maps3d");
+      const map = new Map3DElement({
+        center: { lat: 22.59, lng: 114.45, altitude: 6317000 },
+        range: 12000000,
+        tilt: 0,
+        heading: 305,
+        mode: "hybrid",
+        defaultUIHidden: true,
+        gestureHandling: "greedy",
+      });
+
+      googleMap.replaceChildren(map);
+      earthSlot.classList.add("google-ready");
+    }
+
+    loadGoogleMaps3D(getGoogleMapsApiKey()).catch((error) => {
+      console.warn("Google Maps 3D did not initialize. Check the API key and Maps JavaScript API access.", error);
+    });
+  </script>
+</body>
+</html>
