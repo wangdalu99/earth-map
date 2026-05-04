@@ -39,6 +39,7 @@
       width: 100%;
       min-height: 100%;
       margin: 0;
+      overflow: visible;
     }
 
     body {
@@ -52,6 +53,8 @@
 
     .page {
       width: 100vw;
+      height: 100vh;
+      height: 100dvh;
       min-height: 100vh;
       min-height: 100dvh;
       display: grid;
@@ -565,14 +568,23 @@
       height: 1300px;
       z-index: 3;
       overflow: visible;
-      cursor: default;
-      pointer-events: none;
+      cursor: grab;
+      pointer-events: auto;
+      touch-action: none;
+      user-select: none;
       --earth-scale: 1.1;
       --earth-x: 0px;
       --earth-y: 0px;
+      --earth-focus-x: 0px;
+      --earth-focus-y: 0px;
+      --earth-focus-scale: 1;
       --globe-size: 1400px;
       --globe-left: 20px;
       --globe-top: -5px;
+      transform: translate(var(--earth-focus-x), var(--earth-focus-y)) scale(var(--earth-focus-scale));
+      transform-origin: 52% 46%;
+      will-change: transform;
+      transition: transform 980ms cubic-bezier(.16, 1, .3, 1);
     }
 
     .earth-photo {
@@ -581,17 +593,14 @@
       top: var(--globe-top);
       width: var(--globe-size);
       height: var(--globe-size);
-      border-radius: 50%;
-      clip-path: circle(50% at 50% 50%);
+      border-radius: 0;
+      clip-path: none;
       background-image: url("./assets/earth-source.png");
       background-size: var(--globe-size) var(--globe-size);
       background-position: center;
       transform: translate(var(--earth-x), var(--earth-y)) scale(var(--earth-scale));
-      filter: saturate(0.9) contrast(1.07) brightness(0.82);
-      box-shadow:
-        inset 58px 0 145px rgba(0, 0, 0, 0.92),
-        inset -28px 0 58px rgba(120, 186, 241, 0.38),
-        0 0 64px rgba(71, 145, 214, 0.28);
+      filter: none;
+      box-shadow: none;
     }
 
     .earth-photo::after {
@@ -599,9 +608,8 @@
       position: absolute;
       inset: 0;
       border-radius: inherit;
-      background:
-        radial-gradient(circle at 34% 48%, rgba(8, 20, 34, 0.18), transparent 40%),
-        radial-gradient(circle at 50% 50%, transparent 55%, rgba(1, 2, 5, 0.42) 100%);
+      display: none;
+      background: none;
       pointer-events: none;
     }
 
@@ -612,15 +620,22 @@
       z-index: 1;
       width: var(--globe-size);
       height: var(--globe-size);
-      border-radius: 50%;
-      clip-path: circle(50% at 50% 50%);
+      border-radius: 0;
+      clip-path: none;
       border: 0;
       background: transparent;
       filter: none;
       cursor: grab;
       opacity: 0;
       pointer-events: auto;
-      transition: opacity 700ms ease;
+      touch-action: none;
+      user-select: none;
+      transform: scale(1);
+      transform-origin: center;
+      transition:
+        opacity 700ms ease,
+        transform 760ms cubic-bezier(0.2, 0.86, 0.22, 1),
+        filter 760ms cubic-bezier(0.2, 0.86, 0.22, 1);
     }
 
     .earth-slot.globe-ready .dynamic-radio-globe {
@@ -671,11 +686,11 @@
       z-index: 4;
       width: var(--globe-size);
       height: var(--globe-size);
-      overflow: hidden;
-      border-radius: 50%;
+      overflow: visible;
+      border-radius: 0;
       display: none;
-      filter: saturate(0.82) contrast(1.08) brightness(0.68);
-      pointer-events: auto;
+      filter: saturate(0.96) contrast(1.03) brightness(0.86);
+      pointer-events: none;
     }
 
     .google-map gmp-map-3d {
@@ -687,16 +702,144 @@
       opacity: 0;
     }
 
+    .earth-slot.dragging,
     .earth-slot.dragging .dynamic-radio-globe {
       cursor: grabbing;
     }
 
+    .earth-slot.station-focus .dynamic-radio-globe {
+      cursor: progress;
+      filter: brightness(1.08) saturate(1.08);
+      transform: none;
+    }
+
     .earth-slot.google-ready .dynamic-radio-globe {
-      display: none;
+      display: block;
     }
 
     .earth-slot.google-ready .google-map {
+      display: none;
+    }
+
+    .geo-focus-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 7;
+      opacity: 0;
+      pointer-events: none;
+      transition:
+        opacity 180ms ease,
+        transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
+      transform: scale(0.98);
+    }
+
+    .earth-slot.station-focus .geo-focus-overlay {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .geo-focus-ring {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 1px solid rgba(232, 196, 142, 0.34);
+      box-shadow:
+        0 0 0 24px rgba(99, 221, 137, 0.06),
+        0 0 48px rgba(99, 221, 137, 0.18),
+        inset 0 0 0 10px rgba(232, 196, 142, 0.08);
+      background:
+        radial-gradient(circle, rgba(255, 255, 255, 0.18) 0 2px, transparent 2.5px),
+        radial-gradient(circle, rgba(99, 221, 137, 0.18) 0 28px, transparent 29px);
+      transform: translate(var(--geo-x, 0px), var(--geo-y, 0px)) translate(-50%, -50%);
+      left: 50%;
+      top: 50%;
+    }
+
+    .geo-focus-ring::before,
+    .geo-focus-ring::after {
+      content: "";
+      position: absolute;
+      inset: -18px;
+      border-radius: 50%;
+      border: 1px solid rgba(99, 221, 137, 0.24);
+      animation: geoPulse 2.1s ease-out infinite;
+    }
+
+    .geo-focus-ring::after {
+      inset: -42px;
+      animation-delay: 0.7s;
+    }
+
+    .geo-focus-crosshair {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 250px;
+      height: 250px;
+      transform: translate(var(--geo-x, 0px), var(--geo-y, 0px)) translate(-50%, -50%);
+      background:
+        radial-gradient(circle at center, rgba(255, 255, 255, 0.92) 0 3px, transparent 3.5px),
+        linear-gradient(90deg, transparent 49.25%, rgba(255, 255, 255, 0.28) 49.25% 50.75%, transparent 50.75%),
+        linear-gradient(180deg, transparent 49.25%, rgba(255, 255, 255, 0.28) 49.25% 50.75%, transparent 50.75%);
+      mask: radial-gradient(circle at center, transparent 0 18px, #000 18px 100%);
+      opacity: 0.82;
+    }
+
+    .geo-focus-card {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 268px;
+      padding: 14px 16px 13px;
+      border-radius: 18px;
+      color: #f6f7f9;
+      transform: translate(var(--geo-card-x, 0px), var(--geo-card-y, 0px)) translate(46px, -106px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background:
+        linear-gradient(180deg, rgba(24, 29, 35, 0.86), rgba(8, 10, 12, 0.74)),
+        rgba(9, 11, 15, 0.56);
+      box-shadow:
+        0 18px 48px rgba(0, 0, 0, 0.42),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(22px) saturate(1.2);
+      -webkit-backdrop-filter: blur(22px) saturate(1.2);
+    }
+
+    .geo-focus-card small {
       display: block;
+      color: #e9ebef;
+      font-size: 11px;
+      line-height: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12px;
+    }
+
+    .geo-focus-card strong {
+      display: block;
+      margin-top: 7px;
+      color: #fff;
+      font-size: 21px;
+      line-height: 24px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .geo-focus-card span,
+    .geo-focus-card em {
+      display: block;
+      font-style: normal;
+      margin-top: 6px;
+      color: rgba(234, 236, 240, 0.84);
+      font-size: 13px;
+      line-height: 16px;
+      font-weight: 500;
+    }
+
+    @keyframes geoPulse {
+      0% { transform: scale(0.72); opacity: 0.8; }
+      70% { transform: scale(1.16); opacity: 0.1; }
+      100% { transform: scale(1.22); opacity: 0; }
     }
 
     .pin {
@@ -1149,27 +1292,512 @@
         transform 520ms cubic-bezier(.16, 1, .3, 1);
     }
 
-    .monitoring-view img {
-      position: absolute;
-      inset: 0;
-      display: block;
-      width: 2085px;
-      height: 1132px;
-      pointer-events: none;
-      user-select: none;
-      -webkit-user-drag: none;
+    .monitoring-base-left,
+    .monitoring-base-quick {
+      display: none;
     }
 
-    .monitoring-view::after {
-      content: "";
+    .monitoring-earth-stage {
       position: absolute;
       left: 0;
       top: 0;
       width: 2085px;
-      height: 130px;
-      background: #000;
-      pointer-events: none;
+      height: 1132px;
       z-index: 1;
+      overflow: hidden;
+      --monitor-globe-x: 0px;
+      --monitor-globe-y: 0px;
+      --monitor-globe-scale: 1;
+      background: transparent;
+      pointer-events: auto;
+    }
+
+    .monitoring-earth-stage::before,
+    .monitoring-earth-stage::after { content: none; }
+
+    .monitoring-globe-canvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 1;
+      cursor: grab;
+    }
+
+    .monitoring-earth-stage.dragging .monitoring-globe-canvas {
+      cursor: grabbing;
+    }
+
+    .monitoring-live-value {
+      position: absolute;
+      z-index: 5;
+      display: none;
+      place-items: center;
+      padding: 0 4px;
+      border-radius: 5px;
+      background: rgba(8, 9, 12, 0.96);
+      color: #f7f8fa;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 0;
+      text-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.9),
+        0 0 1px rgba(0, 0, 0, 0.85);
+      pointer-events: none;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .monitoring-quick-title {
+      position: absolute;
+      left: 35px;
+      top: 814px;
+      z-index: 5;
+      margin: 0;
+      color: #f4f5f7;
+      font-size: 29px;
+      line-height: 35px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .monitoring-live-value.large {
+      font-size: 35px;
+      line-height: 42px;
+    }
+
+    .monitoring-live-value.medium {
+      font-size: 30px;
+      line-height: 36px;
+    }
+
+    .monitoring-live-value.small {
+      font-size: 17px;
+      line-height: 21px;
+      font-weight: 700;
+      color: #f4d486;
+    }
+
+    .monitoring-live-value.status {
+      font-size: 12px;
+      line-height: 15px;
+      color: #f5d277;
+      font-weight: 700;
+      background: rgba(8, 9, 12, 0.92);
+    }
+
+    .monitoring-widgets {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      pointer-events: none;
+      color: #f4f6f8;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .monitoring-widgets * {
+      box-sizing: border-box;
+    }
+
+    .monitoring-glass-card {
+      position: absolute;
+      border: 1px solid rgba(242, 244, 245, 0.24);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.012)),
+        radial-gradient(circle at 9% 12%, rgba(255, 255, 255, 0.08), transparent 34%),
+        rgba(12, 14, 18, 0.62);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 22px 70px rgba(0, 0, 0, 0.36);
+      backdrop-filter: blur(24px) saturate(1.18);
+      -webkit-backdrop-filter: blur(24px) saturate(1.18);
+      overflow: hidden;
+    }
+
+    .monitoring-glass-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(110deg, rgba(255, 255, 255, 0.06), transparent 33%, rgba(232, 196, 142, 0.025) 72%, transparent);
+      pointer-events: none;
+    }
+
+    .monitoring-widgets h2,
+    .monitoring-widgets h3,
+    .monitoring-widgets p {
+      margin: 0;
+    }
+
+    .monitoring-widget-title {
+      position: absolute;
+      left: 53px;
+      top: 153px;
+      width: 470px;
+      color: #eef0f5;
+      font-size: 39px;
+      line-height: 43px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .monitoring-stats-card {
+      left: 53px;
+      top: 281px;
+      width: 511px;
+      height: 128px;
+      border-radius: 12px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.82fr 0.75fr 0.95fr;
+      align-items: center;
+      padding: 0 31px;
+    }
+
+    .monitoring-stat {
+      position: relative;
+      min-width: 0;
+    }
+
+    .monitoring-stat + .monitoring-stat {
+      padding-left: 20px;
+    }
+
+    .monitoring-stat + .monitoring-stat::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 19px;
+      width: 1px;
+      height: 45px;
+      background: rgba(232, 196, 142, 0.18);
+    }
+
+    .monitoring-stat-label {
+      display: block;
+      margin-bottom: 9px;
+      color: #b9c1cd;
+      font-size: 10px;
+      line-height: 12px;
+      font-weight: 700;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .monitoring-stat-value {
+      display: block;
+      color: #f4f5f7;
+      font-size: 30px;
+      line-height: 32px;
+      font-weight: 800;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .monitoring-stat-status {
+      display: block;
+      margin-top: 4px;
+      color: #f4d486;
+      font-size: 12px;
+      line-height: 15px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .monitoring-alert-card {
+      left: 53px;
+      top: 443px;
+      width: 511px;
+      height: 319px;
+      border-radius: 14px;
+      border-color: rgba(255, 255, 255, 0.12);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)),
+      rgba(10, 12, 16, 0.56);
+      padding: 0;
+    }
+
+    .monitoring-alert-card::before {
+      content: none;
+    }
+
+    .monitoring-card-header {
+      position: absolute;
+      left: 32px;
+      top: 30px;
+      width: 448px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .monitoring-card-kicker {
+      color: #f0f2f5;
+      font-size: 14px;
+      line-height: 16px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .monitoring-card-link {
+      color: #9aa9b7;
+      font-size: 12.7px;
+      line-height: 16px;
+      font-weight: 700;
+    }
+
+    .monitoring-alert-list {
+      position: absolute;
+      inset: 0;
+    }
+
+    .monitoring-alert {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 511px;
+      height: 42px;
+    }
+
+    .monitoring-alert-icon {
+      position: absolute;
+      left: 32px;
+      top: 0;
+      width: 41.33px;
+      height: 41.33px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: #ffdf9a;
+      background: rgba(255, 223, 154, 0.13);
+    }
+
+    .monitoring-alert-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.45;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .monitoring-alert-copy {
+      position: absolute;
+      left: 89.33px;
+      top: 1px;
+      width: 221px;
+      height: 39px;
+    }
+
+    .monitoring-alert-title {
+      color: #f3f4f7;
+      font-size: 16px;
+      line-height: 18.67px;
+      font-weight: 700;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .monitoring-alert-meta {
+      display: block;
+      margin-top: 3.83px;
+      color: #8f96a0;
+      font-size: 14px;
+      line-height: 16px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .monitoring-alert-level {
+      position: absolute;
+      top: 12px;
+      color: #f4d486;
+      font-size: 14px;
+      line-height: 16.94px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .monitoring-alert:nth-child(1) { top: 81px; }
+    .monitoring-alert:nth-child(2) { top: 163px; }
+    .monitoring-alert:nth-child(3) { top: 244px; }
+    .monitoring-alert:nth-child(1) .monitoring-alert-level { left: 415px; }
+    .monitoring-alert:nth-child(2) .monitoring-alert-level { left: 443px; }
+    .monitoring-alert:nth-child(3) .monitoring-alert-level { left: 444px; }
+
+    .monitoring-quick-heading {
+      position: absolute;
+      left: 53px;
+      top: 817px;
+      color: #f4f5f7;
+      font-size: 27px;
+      line-height: 33px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .monitoring-quick-card {
+      left: 53px;
+      top: 867px;
+      width: 1203px;
+      height: 223px;
+      border-radius: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      align-items: stretch;
+      padding: 34px 30px 26px;
+    }
+
+    .monitoring-quick-metric {
+      position: relative;
+      min-width: 0;
+      padding: 0 26px 0 0;
+    }
+
+    .monitoring-quick-metric + .monitoring-quick-metric {
+      padding-left: 33px;
+    }
+
+    .monitoring-quick-metric + .monitoring-quick-metric::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 18px;
+      width: 1px;
+      height: 112px;
+      background: rgba(232, 196, 142, 0.14);
+    }
+
+    .monitoring-quick-name {
+      display: block;
+      color: #f1f3f6;
+      font-size: 12px;
+      line-height: 15px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .monitoring-quick-body {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      column-gap: 34px;
+      align-items: end;
+      margin-top: 25px;
+    }
+
+    .monitoring-quick-value {
+      display: block;
+      color: #f4f5f7;
+      font-size: 44px;
+      line-height: 50px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .monitoring-quick-status {
+      display: block;
+      margin-top: 10px;
+      color: #f4d486;
+      font-size: 17px;
+      line-height: 20px;
+      font-weight: 800;
+    }
+
+    .monitoring-spark {
+      width: 176px;
+      height: 75px;
+      overflow: visible;
+    }
+
+    .monitoring-spark path {
+      fill: none;
+      stroke: #f0cd86;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .monitoring-quick-note {
+      margin-top: 12px;
+      color: #b8c0cb;
+      font-size: 13px;
+      line-height: 16px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .monitoring-quick-note strong {
+      color: #f4d486;
+      font-weight: 800;
+    }
+
+    .monitoring-map-control {
+      position: absolute;
+      z-index: 8;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(242, 244, 245, 0.28);
+      color: #f2f4f5;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.012)),
+        rgba(255, 255, 255, 0.035);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        0 14px 34px rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(16px) saturate(1.16);
+      -webkit-backdrop-filter: blur(16px) saturate(1.16);
+      pointer-events: none;
+      cursor: default;
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease;
+    }
+
+    .monitoring-map-control {
+      right: 60px;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+    }
+
+    .monitoring-map-control svg {
+      width: 28px;
+      height: 28px;
+      stroke-width: 2.2;
+    }
+
+    .monitoring-map-control:hover,
+    .monitoring-map-control:focus-visible {
+      outline: none;
+      color: #f4d894;
+      border-color: rgba(232, 196, 142, 0.5);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 0 28px rgba(232, 196, 142, 0.22),
+        0 16px 36px rgba(0, 0, 0, 0.38);
+    }
+
+    .monitoring-map-control:active {
+      transform: scale(0.96);
+    }
+
+    .monitoring-map-control.is-active {
+      color: var(--gold);
+      border-color: rgba(232, 196, 142, 0.58);
+    }
+
+    .monitoring-map-control.recenter { top: 151px; }
+    .monitoring-map-control.world { top: 226px; }
+    .monitoring-map-control.layers { top: 300px; }
+
+    .monitoring-view::after {
+      content: none;
     }
 
     .frame.monitoring-mode .monitoring-view {
@@ -1178,36 +1806,228 @@
       pointer-events: auto;
     }
 
+    .frame.monitoring-mode .brand,
+    .frame.monitoring-mode .top-nav-bg,
+    .frame.monitoring-mode .top-nav,
+    .frame.monitoring-mode .bell-button,
+    .frame.monitoring-mode .user-button {
+      z-index: 40;
+    }
+
+    .frame.monitoring-mode .top-nav-bg,
+    .frame.monitoring-mode .bell-button,
+    .frame.monitoring-mode .user-button {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.018)),
+        rgba(255, 255, 255, 0.035);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        0 18px 48px rgba(0, 0, 0, 0.24);
+    }
+
     .monitoring-hit {
+      --monitor-hit-fill: transparent;
+      --monitor-hit-border: rgba(232, 196, 142, 0.28);
       position: absolute;
-      z-index: 2;
-      border: 0;
+      z-index: 4;
+      border: 1px solid transparent;
       border-radius: 14px;
       padding: 0;
       background: transparent;
       cursor: pointer;
       appearance: none;
       -webkit-appearance: none;
+      transition:
+        transform 180ms ease,
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease,
+        opacity 180ms ease;
     }
 
-    .monitoring-hit:hover,
-    .monitoring-hit:focus-visible,
-    .monitoring-hit.is-active {
+    .monitoring-hit::before,
+    .monitoring-hit::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .monitoring-hit::before {
+      background:
+        linear-gradient(115deg, rgba(255, 255, 255, 0.035), transparent 42%, rgba(232, 196, 142, 0.035)),
+        var(--monitor-hit-fill);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.045),
+        0 0 22px rgba(232, 196, 142, 0.11);
+    }
+
+    .monitoring-hit::after {
+      border: 1px solid var(--monitor-hit-border);
+    }
+
+    .monitoring-hit.round:hover,
+    .monitoring-hit.round:focus-visible,
+    .monitoring-hit.round.is-active {
       outline: none;
-      background: transparent;
-      box-shadow: none;
+      border-color: var(--monitor-hit-border);
+      transform: none;
+    }
+
+    .monitoring-hit.round:hover::before,
+    .monitoring-hit.round:hover::after,
+    .monitoring-hit.round:focus-visible::before,
+    .monitoring-hit.round:focus-visible::after,
+    .monitoring-hit.round.is-active::before,
+    .monitoring-hit.round.is-active::after {
+      opacity: 0.72;
     }
 
     .monitoring-hit:active {
-      transform: none;
+      transform: scale(0.996);
     }
 
     .monitoring-hit.round {
       border-radius: 999px;
+      --monitor-hit-fill: radial-gradient(circle, rgba(232, 196, 142, 0.14), rgba(232, 196, 142, 0.04) 48%, transparent 72%);
+      --monitor-hit-border: rgba(232, 196, 142, 0.34);
     }
 
     .monitoring-hit.soft {
       border-radius: 24px;
+    }
+
+    .monitoring-hit.is-active {
+      --monitor-hit-fill: transparent;
+      --monitor-hit-border: rgba(245, 216, 161, 0.42);
+      box-shadow: 0 0 18px rgba(232, 196, 142, 0.1);
+    }
+
+    .monitoring-hit.soft.is-active,
+    .monitoring-hit:not(.round).is-active {
+      --monitor-hit-fill: rgba(232, 196, 142, 0.025);
+    }
+
+    .monitoring-hit:not(.round):hover,
+    .monitoring-hit:not(.round):focus-visible,
+    .monitoring-hit:not(.round).is-active {
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    .monitoring-hit:not(.round):hover::before,
+    .monitoring-hit:not(.round):hover::after,
+    .monitoring-hit:not(.round):focus-visible::before,
+    .monitoring-hit:not(.round):focus-visible::after,
+    .monitoring-hit:not(.round).is-active::before,
+    .monitoring-hit:not(.round).is-active::after {
+      opacity: 0;
+    }
+
+    .monitoring-panel {
+      position: absolute;
+      right: 44px;
+      bottom: 38px;
+      z-index: 8;
+      width: 246px;
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 9px;
+      align-items: center;
+      padding: 8px 12px 8px 8px;
+      border-radius: 44px;
+      border: 1px solid rgba(255, 236, 204, 0.14);
+      background:
+        radial-gradient(circle at 14% 50%, rgba(232, 196, 142, 0.22), transparent 40%),
+        linear-gradient(108deg, rgba(171, 133, 74, 0.32) 0%, rgba(171, 133, 74, 0.12) 24%, rgba(21, 28, 39, 0.66) 50%, rgba(9, 13, 20, 0.86) 100%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015));
+      box-shadow:
+        0 22px 54px rgba(0, 0, 0, 0.34),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(24px) saturate(1.18);
+      -webkit-backdrop-filter: blur(24px) saturate(1.18);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .frame.monitoring-mode .monitoring-panel {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    .monitoring-panel-orb {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(248, 217, 133, 1) 0 4px, transparent 5px),
+        radial-gradient(circle at 50% 50%, rgba(248, 217, 133, 0.2) 0 12px, transparent 13px),
+        rgba(21, 28, 39, 0.46);
+      border: 1px solid rgba(255, 241, 215, 0.16);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .monitoring-panel-orb::before,
+    .monitoring-panel-orb::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(244, 208, 124, 0.28);
+    }
+
+    .monitoring-panel-orb::before { inset: 8px; }
+    .monitoring-panel-orb::after { inset: 12px; }
+
+    .monitoring-panel-copy {
+      min-width: 0;
+      display: grid;
+      gap: 1px;
+    }
+
+    .monitoring-panel-tag {
+      margin: 0;
+      color: #f3cc7b;
+      font-size: 7px;
+      line-height: 1;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .monitoring-panel-title {
+      margin: 0;
+      color: rgba(247, 250, 255, 0.96);
+      font-size: 10px;
+      line-height: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .monitoring-panel-detail,
+    .monitoring-panel-meta {
+      margin: 0;
+      color: rgba(233, 237, 244, 0.72);
+      font-size: 7px;
+      line-height: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .monitoring-panel-meta {
+      color: rgba(236, 240, 247, 0.54);
+      font-size: 6px;
     }
 
     .frame.monitoring-mode .meta,
@@ -1552,6 +2372,41 @@
       pointer-events: auto;
     }
 
+    .frame.dapeng-focus-mode .ecosystem-view {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+      pointer-events: auto;
+    }
+
+    .frame.dapeng-focus-mode .meta,
+    .frame.dapeng-focus-mode .hero,
+    .frame.dapeng-focus-mode .description,
+    .frame.dapeng-focus-mode .cta,
+    .frame.dapeng-focus-mode .earth-slot,
+    .frame.dapeng-focus-mode .tooltip,
+    .frame.dapeng-focus-mode .side-control,
+    .frame.dapeng-focus-mode .zoom,
+    .frame.dapeng-focus-mode .timeline-bg,
+    .frame.dapeng-focus-mode .play,
+    .frame.dapeng-focus-mode .timeline-label,
+    .frame.dapeng-focus-mode .timeline-line,
+    .frame.dapeng-focus-mode .timeline-hit,
+    .frame.dapeng-focus-mode .tick,
+    .frame.dapeng-focus-mode .now-dot,
+    .frame.dapeng-focus-mode .time,
+    .frame.dapeng-focus-mode .now-title,
+    .frame.dapeng-focus-mode .calendar-bg {
+      opacity: 0;
+      transform: translateY(18px) scale(0.985);
+      filter: blur(3px);
+      pointer-events: none;
+    }
+
+    .frame.dapeng-focus-mode .ecosystem-view > :not(.eco-map-stage):not(#ecoFloatingCard) {
+      display: none;
+    }
+
     .eco-pixel-lock {
       display: none;
     }
@@ -1751,10 +2606,36 @@
       --eco-map-scale: 1;
       --eco-map-x: 0px;
       --eco-map-y: 0px;
+      --eco-map-origin-x: 50%;
+      --eco-map-origin-y: 50%;
     }
 
     .eco-map-stage.dragging {
       cursor: grabbing;
+    }
+
+    .ecosystem-view.eco-map-flight .eco-map-image {
+      transition:
+        transform 1240ms cubic-bezier(.16, 1, .3, 1),
+        filter 700ms ease;
+    }
+
+    .ecosystem-view.eco-map-flight .eco-current-canvas {
+      opacity: 0.44;
+    }
+
+    .ecosystem-view.eco-map-flight .eco-hotspot,
+    .ecosystem-view.eco-map-flight .eco-hotspot-label,
+    .ecosystem-view.eco-map-flight .eco-floating-card,
+    .ecosystem-view.eco-map-flight .eco-link-lines {
+      transition:
+        opacity 520ms ease,
+        transform 760ms cubic-bezier(.16, 1, .3, 1),
+        filter 520ms ease;
+    }
+
+    .frame.dapeng-focus-mode .eco-map-stage {
+      cursor: grab;
     }
 
     .eco-map-image {
@@ -1768,7 +2649,7 @@
         url("./assets/ecosystem/dapeng-bay-bg.jpg") center / cover no-repeat;
       filter: saturate(0.9) contrast(1.08) brightness(var(--eco-map-brightness));
       transform: translate(var(--eco-map-x), var(--eco-map-y)) scale(var(--eco-map-scale));
-      transform-origin: center;
+      transform-origin: var(--eco-map-origin-x) var(--eco-map-origin-y);
       transition: transform 540ms cubic-bezier(.16, 1, .3, 1), filter 320ms ease;
     }
 
@@ -2934,6 +3815,16 @@
           <div class="earth-photo" aria-hidden="true"></div>
           <canvas class="dynamic-radio-globe" id="dynamicGlobe" aria-label="Interactive Radio Garden style globe"></canvas>
           <div class="google-map" id="googleMap"></div>
+          <div class="geo-focus-overlay" aria-hidden="true">
+            <span class="geo-focus-ring"></span>
+            <span class="geo-focus-crosshair"></span>
+            <div class="geo-focus-card glass">
+              <small>22.56°N 114.42°E</small>
+              <strong>Dapeng Bay</strong>
+              <span>Marine monitoring node</span>
+              <em>Water quality 92 · Protected coastline</em>
+            </div>
+          </div>
           <span class="pin p1"></span>
           <span class="pin p2"></span>
           <span class="pin p3"></span>
@@ -3108,30 +3999,183 @@
         </section>
 
         <section class="monitoring-view layer" id="monitoringView" aria-label="Monitoring dashboard view" aria-hidden="true">
-          <img src="assets/monitoring/figma-exact-1x.png" width="2085" height="1132" alt="Monitoring dashboard" />
-          <button class="monitoring-hit soft" type="button" style="left: 129px; top: 145px; width: 350px; height: 90px;" data-monitor-action="Current Emergency Information" aria-label="Open current emergency information"></button>
-          <button class="monitoring-hit" type="button" style="left: 148px; top: 278px; width: 120px; height: 86px;" data-monitor-action="Monitoring Stations" aria-label="Open monitoring stations"></button>
-          <button class="monitoring-hit" type="button" style="left: 276px; top: 278px; width: 112px; height: 86px;" data-monitor-action="Protected Areas" aria-label="Open protected areas"></button>
-          <button class="monitoring-hit" type="button" style="left: 394px; top: 278px; width: 92px; height: 86px;" data-monitor-action="Alerts 24h" aria-label="Open alerts from last 24 hours"></button>
-          <button class="monitoring-hit" type="button" style="left: 489px; top: 278px; width: 92px; height: 86px;" data-monitor-action="Coverage" aria-label="Open coverage"></button>
-          <button class="monitoring-hit" type="button" style="left: 521px; top: 432px; width: 62px; height: 36px;" data-monitor-action="View all alerts" aria-label="View all recent alerts"></button>
-          <button class="monitoring-hit" type="button" style="left: 154px; top: 475px; width: 420px; height: 70px;" data-monitor-action="Abnormal Turbidity Detected" aria-label="Open abnormal turbidity alert"></button>
-          <button class="monitoring-hit" type="button" style="left: 154px; top: 552px; width: 420px; height: 70px;" data-monitor-action="Fishing Activity Detected" aria-label="Open fishing activity alert"></button>
-          <button class="monitoring-hit" type="button" style="left: 154px; top: 628px; width: 420px; height: 66px;" data-monitor-action="Water Quality Improvement" aria-label="Open water quality improvement alert"></button>
-          <button class="monitoring-hit soft" type="button" style="left: 128px; top: 754px; width: 250px; height: 48px;" data-monitor-action="Quick Access" aria-label="Open quick access"></button>
-          <button class="monitoring-hit soft" type="button" style="left: 145px; top: 820px; width: 330px; height: 166px;" data-monitor-action="Water Quality Index" aria-label="Open water quality index"></button>
-          <button class="monitoring-hit soft" type="button" style="left: 490px; top: 820px; width: 330px; height: 166px;" data-monitor-action="Marine Biodiversity" aria-label="Open marine biodiversity"></button>
-          <button class="monitoring-hit soft" type="button" style="left: 835px; top: 820px; width: 375px; height: 166px;" data-monitor-action="Protected Area Coverage" aria-label="Open protected area coverage"></button>
-          <button class="monitoring-hit soft" type="button" style="left: 1338px; top: 462px; width: 470px; height: 388px;" data-monitor-action="Protected Boundary" aria-label="Open protected boundary route"></button>
-          <button class="monitoring-hit round" type="button" style="left: 1278px; top: 570px; width: 136px; height: 148px;" data-monitor-action="Water Quality" aria-label="Open water quality marker"></button>
-          <button class="monitoring-hit round" type="button" style="left: 1600px; top: 480px; width: 142px; height: 150px;" data-monitor-action="Biodiversity" aria-label="Open biodiversity marker"></button>
-          <button class="monitoring-hit round" type="button" style="left: 1490px; top: 780px; width: 92px; height: 116px;" data-monitor-action="Activity Cluster" aria-label="Open activity cluster"></button>
-          <button class="monitoring-hit round" type="button" style="left: 1695px; top: 825px; width: 145px; height: 150px;" data-monitor-action="Marine Activity" aria-label="Open marine activity marker"></button>
-          <button class="monitoring-hit round" type="button" style="left: 1888px; top: 151px; width: 64px; height: 64px;" data-monitor-action="Recenter monitoring map" aria-label="Recenter monitoring map"></button>
-          <button class="monitoring-hit round" type="button" style="left: 1888px; top: 226px; width: 64px; height: 64px;" data-monitor-action="Monitoring world view" aria-label="Open monitoring world view"></button>
-          <button class="monitoring-hit round" type="button" style="left: 1888px; top: 300px; width: 64px; height: 64px;" data-monitor-action="Monitoring layers" aria-label="Toggle monitoring layers"></button>
-          <button class="monitoring-hit round" type="button" style="left: 1890px; top: 374px; width: 60px; height: 52px;" data-monitor-action="Monitoring zoom in" aria-label="Zoom in monitoring map"></button>
-          <button class="monitoring-hit round" type="button" style="left: 1890px; top: 426px; width: 60px; height: 52px;" data-monitor-action="Monitoring zoom out" aria-label="Zoom out monitoring map"></button>
+          <img class="monitoring-base-left" src="assets/monitoring/figma-exact-4x.png" width="2085" height="1132" alt="Monitoring dashboard left panels" decoding="async" />
+          <img class="monitoring-base-quick" src="assets/monitoring/figma-exact-4x.png" width="2085" height="1132" alt="Monitoring dashboard quick access" decoding="async" />
+          <div class="monitoring-earth-stage" id="monitoringEarthStage" aria-label="Interactive monitoring globe">
+            <canvas class="monitoring-globe-canvas" id="monitoringGlobe" aria-label="3D monitoring globe"></canvas>
+          </div>
+          <div class="monitoring-widgets" aria-hidden="true">
+            <h2 class="monitoring-widget-title">Current Emergency<br />Information</h2>
+
+            <section class="monitoring-glass-card monitoring-stats-card">
+              <div class="monitoring-stat">
+                <span class="monitoring-stat-label">Monitoring Stations</span>
+                <strong class="monitoring-stat-value">1,248</strong>
+                <span class="monitoring-stat-status">Active</span>
+              </div>
+              <div class="monitoring-stat">
+                <span class="monitoring-stat-label">Protected Areas</span>
+                <strong class="monitoring-stat-value">286</strong>
+                <span class="monitoring-stat-status">Total</span>
+              </div>
+              <div class="monitoring-stat">
+                <span class="monitoring-stat-label">Alerts (24h)</span>
+                <strong class="monitoring-stat-value">12</strong>
+                <span class="monitoring-stat-status">New</span>
+              </div>
+              <div class="monitoring-stat">
+                <span class="monitoring-stat-label">Coverage</span>
+                <strong class="monitoring-stat-value">64%</strong>
+                <span class="monitoring-stat-status">Ocean Area</span>
+              </div>
+            </section>
+
+            <section class="monitoring-glass-card monitoring-alert-card">
+              <header class="monitoring-card-header">
+                <h3 class="monitoring-card-kicker">Recent Alerts</h3>
+                <span class="monitoring-card-link">View all</span>
+              </header>
+              <div class="monitoring-alert-list">
+                <article class="monitoring-alert">
+                  <span class="monitoring-alert-icon">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M12 3.8 22 20.2H2L12 3.8Z" />
+                      <path d="M12 9.1v5.2" />
+                      <path d="M12 17.4h.01" />
+                    </svg>
+                  </span>
+                  <span class="monitoring-alert-copy">
+                    <strong class="monitoring-alert-title">Abnormal Turbidity Detected</strong>
+                    <span class="monitoring-alert-meta">Area B07 · 2h ago</span>
+                  </span>
+                  <span class="monitoring-alert-level">Medium ›</span>
+                </article>
+                <article class="monitoring-alert">
+                  <span class="monitoring-alert-icon">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle cx="12" cy="12" r="7.2" />
+                      <circle cx="12" cy="12" r="2.4" />
+                    </svg>
+                  </span>
+                  <span class="monitoring-alert-copy">
+                    <strong class="monitoring-alert-title">Fishing Activity Detected</strong>
+                    <span class="monitoring-alert-meta">Restricted Zone · 5h ago</span>
+                  </span>
+                  <span class="monitoring-alert-level">Low ›</span>
+                </article>
+                <article class="monitoring-alert">
+                  <span class="monitoring-alert-icon">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="m7.2 12.2 3.2 3.2 6.6-7" />
+                    </svg>
+                  </span>
+                  <span class="monitoring-alert-copy">
+                    <strong class="monitoring-alert-title">Water Quality Improvement</strong>
+                    <span class="monitoring-alert-meta">Area A12 · 1d ago</span>
+                  </span>
+                  <span class="monitoring-alert-level">Info ›</span>
+                </article>
+              </div>
+            </section>
+
+            <h3 class="monitoring-quick-heading">Quick Access</h3>
+            <section class="monitoring-glass-card monitoring-quick-card">
+              <article class="monitoring-quick-metric">
+                <span class="monitoring-quick-name">Water Quality Index</span>
+                <div class="monitoring-quick-body">
+                  <span>
+                    <strong class="monitoring-quick-value">92</strong>
+                    <span class="monitoring-quick-status">Good</span>
+                  </span>
+                  <span>
+                    <svg class="monitoring-spark" viewBox="0 0 176 75" aria-hidden="true"><path d="M0 61 L24 52 L51 47 L76 34 L96 25 L119 37 L138 19 L163 27 L176 8"/></svg>
+                    <p class="monitoring-quick-note"><strong>↑ 8%</strong> vs last 30 days</p>
+                  </span>
+                </div>
+              </article>
+              <article class="monitoring-quick-metric">
+                <span class="monitoring-quick-name">Marine Biodiversity</span>
+                <div class="monitoring-quick-body">
+                  <span>
+                    <strong class="monitoring-quick-value">87</strong>
+                    <span class="monitoring-quick-status">High</span>
+                  </span>
+                  <span>
+                    <svg class="monitoring-spark" viewBox="0 0 176 75" aria-hidden="true"><path d="M0 57 L26 50 L51 42 L78 29 L101 25 L120 31 L142 28 L176 13"/></svg>
+                    <p class="monitoring-quick-note"><strong>↑ 5%</strong> vs last 30 days</p>
+                  </span>
+                </div>
+              </article>
+              <article class="monitoring-quick-metric">
+                <span class="monitoring-quick-name">Protected Area Coverage</span>
+                <div class="monitoring-quick-body">
+                  <span>
+                    <strong class="monitoring-quick-value">64%</strong>
+                    <span class="monitoring-quick-status">Stable</span>
+                  </span>
+                  <span>
+                    <svg class="monitoring-spark" viewBox="0 0 176 75" aria-hidden="true"><path d="M0 62 L22 59 L48 51 L71 55 L91 44 L112 48 L132 34 L153 38 L176 25"/></svg>
+                    <p class="monitoring-quick-note">No change vs last 30 days</p>
+                  </span>
+                </div>
+              </article>
+            </section>
+          </div>
+          <span class="monitoring-live-value large" style="left: 81.33px; top: 324px; width: 91px; height: 45px" data-live="stations">1,248</span>
+          <span class="monitoring-live-value large" style="left: 216.33px; top: 324px; width: 65px; height: 45px" data-live="areas">286</span>
+          <span class="monitoring-live-value large" style="left: 335.33px; top: 324px; width: 48px; height: 45px" data-live="alerts">12</span>
+          <span class="monitoring-live-value large" style="left: 438.331px; top: 324.33px; width: 122.667px; height: 45px" data-live="coverage">64%</span>
+          <span class="monitoring-live-value medium" style="left: 101px; top: 953px; width: 67px; height: 34px" data-live="wqi">92</span>
+          <span class="monitoring-live-value medium" style="left: 477px; top: 953px; width: 66px; height: 34px" data-live="biodiversity">87</span>
+          <span class="monitoring-live-value medium" style="left: 839px; top: 953px; width: 106px; height: 34px" data-live="protectedCoverage">64%</span>
+          <span class="monitoring-live-value status" style="left: 103px; top: 1004px; width: 63px; height: 34px" data-live="wqiStatus">Good</span>
+          <span class="monitoring-live-value status" style="left: 480px; top: 1004px; width: 56px; height: 34px" data-live="bioStatus">High</span>
+          <span class="monitoring-live-value status" style="left: 850px; top: 1004px; width: 72px; height: 34px" data-live="coverageStatus">Stable</span>
+          <span class="monitoring-live-value small" style="left: 716.724px; top: 1028px; width: 51px; height: 27px" data-live="clock">00:00</span>
+          <span class="monitoring-live-value small" style="left: 206.2px; top: 1028.33px; width: 171.6px; height: 29px" data-live="trend">+8% vs last 30 days</span>
+          <button class="monitoring-map-control recenter" type="button" data-monitor-control="recenter" aria-label="Recenter monitoring globe">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg>
+          </button>
+          <button class="monitoring-map-control world" type="button" data-monitor-control="world" aria-label="Switch monitoring globe view">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.5 3.6 5.5 3.6 9S14.4 18.5 12 21M12 3C9.6 5.5 8.4 8.5 8.4 12s1.2 6.5 3.6 9"/></svg>
+          </button>
+          <button class="monitoring-map-control layers is-active" type="button" data-monitor-control="layers" aria-label="Toggle monitoring globe layers">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z"/><path d="m4 12 8 4.5 8-4.5M4 16.5 12 21l8-4.5"/></svg>
+          </button>
+          <button class="monitoring-hit" type="button" style="left: 35px; top: 146.38px; width: 491px; height: 106.24px" data-monitor-action="Current emergency information" data-figma-name="Current emergency information" aria-label="Open Current emergency information"></button>
+          <button class="monitoring-hit" type="button" style="left: 81.33px; top: 299.165px; width: 122px; height: 25px" data-monitor-action="Monitoring Stations" data-figma-name="Monitoring Stations" aria-label="Open Monitoring Stations"></button>
+          <button class="monitoring-hit" type="button" style="left: 216.33px; top: 299.165px; width: 103px; height: 25px" data-monitor-action="Protected Areas" data-figma-name="Protected Areas" aria-label="Open Protected Areas"></button>
+          <button class="monitoring-hit" type="button" style="left: 335.33px; top: 299.165px; width: 80px; height: 25px" data-monitor-action="Alerts (24h)" data-figma-name="Alerts (24h)" aria-label="Open Alerts (24h)"></button>
+          <button class="monitoring-hit" type="button" style="left: 438.331px; top: 300px; width: 122.667px; height: 25px" data-monitor-action="Coverage" data-figma-name="Coverage" aria-label="Open Coverage"></button>
+          <button class="monitoring-hit" type="button" style="left: 81.33px; top: 362.67px; width: 59px; height: 26px" data-monitor-action="Active" data-figma-name="Active" aria-label="Open Active"></button>
+          <button class="monitoring-hit" type="button" style="left: 216.33px; top: 362.67px; width: 48px; height: 26px" data-monitor-action="Total" data-figma-name="Total" aria-label="Open Total"></button>
+          <button class="monitoring-hit" type="button" style="left: 335.33px; top: 362.67px; width: 45px; height: 26px" data-monitor-action="New" data-figma-name="New" aria-label="Open New"></button>
+          <button class="monitoring-hit" type="button" style="left: 438.331px; top: 363.33px; width: 122.667px; height: 26px" data-monitor-action="Ocean Area" data-figma-name="Ocean Area" aria-label="Open Ocean Area"></button>
+          <button class="monitoring-hit" type="button" style="left: 480.208px; top: 469.335px; width: 61.136px; height: 26px" data-monitor-action="View all" data-figma-name="View all" aria-label="Open View all"></button>
+          <button class="monitoring-hit" type="button" style="left: 78.999px; top: 470px; width: 128px; height: 26px" data-monitor-action="RECENT ALERTS" data-figma-name="RECENT ALERTS" aria-label="Open RECENT ALERTS"></button>
+          <button class="monitoring-hit" type="button" style="left: 131.279px; top: 520px; width: 243.1px; height: 29px" data-monitor-action="Abnormal Turbidity Detected" data-figma-name="Abnormal Turbidity Detected" aria-label="Open Abnormal Turbidity Detected"></button>
+          <button class="monitoring-hit" type="button" style="left: 461.999px; top: 531px; width: 77px; height: 27px" data-monitor-action="Medium ›" data-figma-name="Medium ›" aria-label="Open Medium ›"></button>
+          <button class="monitoring-hit" type="button" style="left: 136.329px; top: 542.835px; width: 132px; height: 26px" data-monitor-action="Area B07 · 2h ago" data-figma-name="Area B07 · 2h ago" aria-label="Open Area B07 · 2h ago"></button>
+          <button class="monitoring-hit" type="button" style="left: 132.729px; top: 602px; width: 211.2px; height: 29px" data-monitor-action="Fishing Activity Detected" data-figma-name="Fishing Activity Detected" aria-label="Open Fishing Activity Detected"></button>
+          <button class="monitoring-hit" type="button" style="left: 489.999px; top: 613px; width: 49px; height: 27px" data-monitor-action="Low ›" data-figma-name="Low ›" aria-label="Open Low ›"></button>
+          <button class="monitoring-hit" type="button" style="left: 133.979px; top: 624.835px; width: 183.7px; height: 26px" data-monitor-action="Restricted Zone · 5h ago" data-figma-name="Restricted Zone · 5h ago" aria-label="Open Restricted Zone · 5h ago"></button>
+          <button class="monitoring-hit" type="button" style="left: 131.879px; top: 683px; width: 229.9px; height: 29px" data-monitor-action="Water Quality Improvement" data-figma-name="Water Quality Improvement" aria-label="Open Water Quality Improvement"></button>
+          <button class="monitoring-hit" type="button" style="left: 490.999px; top: 694px; width: 48px; height: 27px" data-monitor-action="Info ›" data-figma-name="Info ›" aria-label="Open Info ›"></button>
+          <button class="monitoring-hit" type="button" style="left: 136.329px; top: 705.825px; width: 129px; height: 26px" data-monitor-action="Area A12 · 1d ago" data-figma-name="Area A12 · 1d ago" aria-label="Open Area A12 · 1d ago"></button>
+          <button class="monitoring-hit" type="button" style="left: 35px; top: 819px; width: 483.997px; height: 26px" data-monitor-action="QUICK ACCESS" data-figma-name="QUICK ACCESS" aria-label="Open QUICK ACCESS"></button>
+          <button class="monitoring-hit" type="button" style="left: 77.9px; top: 898.66px; width: 178.2px; height: 26px" data-monitor-action="WATER QUALITY INDEX" data-figma-name="WATER QUALITY INDEX" aria-label="Open WATER QUALITY INDEX"></button>
+          <button class="monitoring-hit" type="button" style="left: 452.371px; top: 898.66px; width: 172.7px; height: 26px" data-monitor-action="MARINE BIODIVERSITY" data-figma-name="MARINE BIODIVERSITY" aria-label="Open MARINE BIODIVERSITY"></button>
+          <button class="monitoring-hit" type="button" style="left: 824.042px; top: 898.66px; width: 228.8px; height: 26px" data-monitor-action="PROTECTED AREA COVERAGE" data-figma-name="PROTECTED AREA COVERAGE" aria-label="Open PROTECTED AREA COVERAGE"></button>
+          <aside class="monitoring-panel" aria-live="polite" aria-label="Monitoring interaction status">
+            <span class="monitoring-panel-orb" aria-hidden="true"></span>
+            <span class="monitoring-panel-copy">
+              <p class="monitoring-panel-tag" id="monitoringPanelTag">Monitoring</p>
+              <h2 class="monitoring-panel-title" id="monitoringPanelTitle">Live Controls</h2>
+              <p class="monitoring-panel-detail" id="monitoringPanelDetail">Click any monitoring control to inspect it.</p>
+              <p class="monitoring-panel-meta" id="monitoringPanelMeta">Ready</p>
+            </span>
+          </aside>
         </section>
 
         <section class="ecosystem-view layer" id="ecosystemView" aria-label="Ecosystem dynamic satellite view">
@@ -3349,6 +4393,10 @@
     const layerButton = document.querySelector(".side-control.layers");
     const ecosystemView = document.querySelector("#ecosystemView");
     const monitoringView = document.querySelector("#monitoringView");
+    const monitoringEarthStage = document.querySelector("#monitoringEarthStage");
+    const monitoringGlobeCanvas = document.querySelector("#monitoringGlobe");
+    const geoFocusOverlay = document.querySelector(".geo-focus-overlay");
+    const geoFocusCard = document.querySelector(".geo-focus-card");
     const ecoMapStage = document.querySelector("#ecoMapStage");
     const ecoMapImage = document.querySelector("#ecoMapImage");
     const ecoCurrentCanvas = document.querySelector("#ecoCurrentCanvas");
@@ -3363,6 +4411,10 @@
     const ecoLiveChartPath = document.querySelector("#ecoBioChartPath");
     const ecoLiveChartDot = document.querySelector("#ecoBioChartDot");
     const ecoBrightnessControl = document.querySelector('[data-eco-action="scrub"]');
+    const monitoringPanelTag = document.querySelector("#monitoringPanelTag");
+    const monitoringPanelTitle = document.querySelector("#monitoringPanelTitle");
+    const monitoringPanelDetail = document.querySelector("#monitoringPanelDetail");
+    const monitoringPanelMeta = document.querySelector("#monitoringPanelMeta");
     let selectedNav = document.querySelector(".nav-item.active");
     let toastTimer = 0;
     let earthScale = 1.1;
@@ -3380,6 +4432,124 @@
     let playTimer = 0;
     let chatTurn = 0;
     let advancedGlobeApi = null;
+    let monitoringGlobeApi = null;
+    const monitorActionData = {
+      "Current Emergency Information": {
+        tag: "Headline",
+        detail: "Emergency summary is in focus.",
+        meta: "Situation layer",
+      },
+      "Monitoring Stations": {
+        tag: "Metric",
+        detail: "1,248 active stations selected.",
+        meta: "Active network",
+      },
+      "Protected Areas": {
+        tag: "Metric",
+        detail: "286 protected areas selected.",
+        meta: "Conservation scope",
+      },
+      "Alerts 24h": {
+        tag: "Metric",
+        detail: "12 new alerts selected.",
+        meta: "Last 24 hours",
+      },
+      Coverage: {
+        tag: "Metric",
+        detail: "64% ocean-area coverage selected.",
+        meta: "Coverage layer",
+      },
+      "View all alerts": {
+        tag: "Alerts",
+        detail: "Recent alert queue opened.",
+        meta: "3 visible items",
+      },
+      "Abnormal Turbidity Detected": {
+        tag: "Alert",
+        detail: "Area B07 medium-priority alert.",
+        meta: "2h ago",
+      },
+      "Fishing Activity Detected": {
+        tag: "Alert",
+        detail: "Restricted-zone low-priority alert.",
+        meta: "5h ago",
+      },
+      "Water Quality Improvement": {
+        tag: "Alert",
+        detail: "Area A12 improvement signal.",
+        meta: "1d ago",
+      },
+      "Quick Access": {
+        tag: "Quick Access",
+        detail: "Metric shortcuts are active.",
+        meta: "Dashboard cards",
+      },
+      "Water Quality Index": {
+        tag: "Quick Card",
+        detail: "Water quality score 92.",
+        meta: "Good, +8%",
+      },
+      "Marine Biodiversity": {
+        tag: "Quick Card",
+        detail: "Biodiversity score 87.",
+        meta: "High, +5%",
+      },
+      "Protected Area Coverage": {
+        tag: "Quick Card",
+        detail: "Protected coverage is stable.",
+        meta: "64%, no change",
+      },
+      "Protected Boundary": {
+        tag: "Map Layer",
+        detail: "Protected boundary route selected.",
+        meta: "Route overlay",
+      },
+      "Water Quality": {
+        tag: "Map Node",
+        detail: "Water quality marker selected.",
+        meta: "Sensor cluster",
+      },
+      Biodiversity: {
+        tag: "Map Node",
+        detail: "Biodiversity marker selected.",
+        meta: "Habitat signal",
+      },
+      "Activity Cluster": {
+        tag: "Map Node",
+        detail: "Activity cluster selected.",
+        meta: "Event density",
+      },
+      "Marine Activity": {
+        tag: "Map Node",
+        detail: "Marine activity marker selected.",
+        meta: "Southeast route",
+      },
+      "Recenter monitoring map": {
+        tag: "Map Tool",
+        detail: "Monitoring map recentered.",
+        meta: "View control",
+      },
+      "Monitoring world view": {
+        tag: "Map Tool",
+        detail: "World framing selected.",
+        meta: "Global view",
+      },
+      "Monitoring layers": {
+        tag: "Map Tool",
+        detail: "Monitoring layers toggled.",
+        meta: "Layer stack",
+      },
+      "Monitoring zoom in": {
+        tag: "Map Tool",
+        detail: "Monitoring map zoomed in.",
+        meta: "Closer inspection",
+      },
+      "Monitoring zoom out": {
+        tag: "Map Tool",
+        detail: "Monitoring map zoomed out.",
+        meta: "Wider context",
+      },
+    };
 
     function fitStage() {
       const maxW = Math.max(320, innerWidth);
@@ -3398,6 +4568,90 @@
       toastTimer = setTimeout(() => toast.classList.remove("show"), 1100);
     }
 
+    function setMonitoringPanel(action) {
+      const data = monitorActionData[action] || {
+        tag: "Monitoring",
+        detail: "Live monitoring control selected.",
+        meta: "Interactive",
+      };
+
+      monitoringPanelTag.textContent = data.tag;
+      monitoringPanelTitle.textContent = action;
+      monitoringPanelDetail.textContent = data.detail;
+      monitoringPanelMeta.textContent = data.meta;
+    }
+
+    function handleMonitoringAction(target) {
+      const action = target.dataset.monitorAction;
+      if (!action) return;
+
+      document.querySelectorAll(".monitoring-hit.is-active").forEach((item) => {
+        if (item !== target) item.classList.remove("is-active");
+      });
+
+      target.classList.add("is-active");
+      setMonitoringPanel(action);
+      requestAnimationFrame(() => scrollTo(0, 0));
+    }
+
+    function setLiveMonitoringValue(key, value) {
+      document.querySelectorAll(`[data-live="${key}"]`).forEach((node) => {
+        node.textContent = value;
+      });
+    }
+
+    function updateMonitoringLiveMetrics() {
+      const now = Date.now();
+      const wave = Math.sin(now / 4800);
+      const pulse = Math.cos(now / 7200);
+      const stationCount = 1248 + Math.round(wave * 7);
+      const protectedAreas = 286 + Math.round(Math.max(0, pulse) * 2);
+      const alerts = 12 + Math.max(0, Math.round(Math.sin(now / 5600) * 3));
+      const coverage = 64 + Math.max(0, Math.round(Math.sin(now / 9600) * 2));
+      const wqi = 92 + Math.round(Math.sin(now / 4100) * 2);
+      const bio = 87 + Math.round(Math.cos(now / 5200) * 2);
+      const trend = 8 + Math.max(0, Math.round(Math.sin(now / 6900) * 2));
+      const clock = new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+
+      setLiveMonitoringValue("stations", stationCount.toLocaleString("en-US"));
+      setLiveMonitoringValue("areas", protectedAreas.toLocaleString("en-US"));
+      setLiveMonitoringValue("alerts", String(alerts));
+      setLiveMonitoringValue("coverage", `${coverage}%`);
+      setLiveMonitoringValue("wqi", String(wqi));
+      setLiveMonitoringValue("biodiversity", String(bio));
+      setLiveMonitoringValue("protectedCoverage", `${coverage}%`);
+      setLiveMonitoringValue("wqiStatus", wqi >= 92 ? "Good" : "Fair");
+      setLiveMonitoringValue("bioStatus", bio >= 87 ? "High" : "Stable");
+      setLiveMonitoringValue("coverageStatus", coverage >= 65 ? "Rising" : "Stable");
+      setLiveMonitoringValue("clock", clock);
+      setLiveMonitoringValue("trend", `+${trend}% vs last 30 days`);
+    }
+
+    updateMonitoringLiveMetrics();
+    setInterval(updateMonitoringLiveMetrics, 1800);
+
+    function handleMonitoringControl(target) {
+      const control = target.dataset.monitorControl;
+      if (!control) return;
+
+      if (control === "recenter") {
+        monitoringGlobeApi?.recenter();
+        document.querySelector('[data-monitor-control="world"]')?.classList.remove("is-active");
+        showToast("Monitoring globe recentered");
+      } else if (control === "world") {
+        monitoringGlobeApi?.worldView();
+        target.classList.add("is-active");
+        showToast("Monitoring world view");
+      } else if (control === "layers") {
+        const visible = monitoringGlobeApi?.toggleLayers?.() ?? !target.classList.contains("is-active");
+        target.classList.toggle("is-active", visible);
+        monitoringEarthStage?.classList.toggle("layers-hidden", !visible);
+        showToast(visible ? "Monitoring layers on" : "Monitoring layers off");
+      }
+
+      requestAnimationFrame(() => scrollTo(0, 0));
+    }
+
     function setNavGlider(item) {
       if (!item) return;
       nav.style.setProperty("--nav-x", `${item.offsetLeft}px`);
@@ -3413,7 +4667,8 @@
       }
 
       if (label === "Overview") {
-        exitMonitoringMode(false);
+        exitDapengFocusMode();
+        exitMonitoringMode(true);
         exitEcosystemMode(true);
         if (frame.classList.contains("chat-mode")) exitChatMode(true);
         setActiveNav(item);
@@ -3509,6 +4764,12 @@
         return;
       }
 
+      if (label === "Explore the Bay") {
+        advancedGlobeApi?.playOverviewMotion?.();
+        showToast("Exploring the bay");
+        return;
+      }
+
       if (target.closest(".cta")) {
         showToast(`${label} clicked`);
         return;
@@ -3563,11 +4824,15 @@
       target.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
-        document.querySelectorAll(".monitoring-hit.is-active").forEach((item) => {
-          if (item !== target) item.classList.remove("is-active");
-        });
-        target.classList.add("is-active");
-        showToast(`${target.dataset.monitorAction} selected`);
+        handleMonitoringAction(target);
+      });
+    });
+
+    document.querySelectorAll("[data-monitor-control]").forEach((target) => {
+      target.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        handleMonitoringControl(target);
       });
     });
 
@@ -3644,12 +4909,14 @@
     }
 
     function setEcoMapTransform() {
-      ecoMapScale = Math.min(1.16, Math.max(0.96, ecoMapScale));
-      ecoMapX = Math.min(120, Math.max(-120, ecoMapX));
-      ecoMapY = Math.min(80, Math.max(-80, ecoMapY));
+      ecoMapScale = Math.min(4, Math.max(0.92, ecoMapScale));
+      ecoMapX = Math.min(260, Math.max(-260, ecoMapX));
+      ecoMapY = Math.min(190, Math.max(-190, ecoMapY));
       ecoMapStage?.style.setProperty("--eco-map-scale", ecoMapScale.toFixed(3));
       ecoMapStage?.style.setProperty("--eco-map-x", `${ecoMapX.toFixed(1)}px`);
       ecoMapStage?.style.setProperty("--eco-map-y", `${ecoMapY.toFixed(1)}px`);
+      ecoMapStage?.style.setProperty("--eco-map-origin-x", `${ecoHotspotData.core.left}px`);
+      ecoMapStage?.style.setProperty("--eco-map-origin-y", `${ecoHotspotData.core.top}px`);
       ecosystemView?.style.setProperty("--eco-visual-scale", ecoMapScale.toFixed(3));
       ecosystemView?.style.setProperty("--eco-visual-x", `${(ecoMapX * 0.35).toFixed(1)}px`);
       ecosystemView?.style.setProperty("--eco-visual-y", `${(ecoMapY * 0.35).toFixed(1)}px`);
@@ -3672,7 +4939,7 @@
     }
 
     function updateEcoLiveData() {
-      if (!frame.classList.contains("ecosystem-mode")) return;
+      if (!frame.classList.contains("ecosystem-mode") && !frame.classList.contains("dapeng-focus-mode")) return;
       ecoLiveBioValue.textContent = "0.82";
       ecoLiveBioStatus.textContent = "Good";
       ecoLiveBioGain.textContent = "6%";
@@ -3683,6 +4950,7 @@
 
     function enterEcosystemMode(updateHash = true) {
       if (frame.classList.contains("chat-mode")) exitChatMode(false);
+      advancedGlobeApi?.resetBayFocus?.();
       exitMonitoringMode(false);
       frame.classList.add("ecosystem-mode");
       ecosystemView?.setAttribute("aria-hidden", "false");
@@ -3700,12 +4968,30 @@
       }
     }
 
+    function enterDapengFocusMode() {
+      if (frame.classList.contains("chat-mode")) exitChatMode(false);
+      exitMonitoringMode(false);
+      exitEcosystemMode(false);
+      frame.classList.add("dapeng-focus-mode");
+      ecosystemView?.setAttribute("aria-hidden", "false");
+      if (playTimer) toggleTimelinePlayback();
+    }
+
+    function exitDapengFocusMode() {
+      frame.classList.remove("dapeng-focus-mode", "bay-focus-mode");
+      advancedGlobeApi?.resetBayFocus?.();
+      ecosystemView?.classList.remove("eco-map-flight");
+      ecosystemView?.setAttribute("aria-hidden", "true");
+    }
+
     function enterMonitoringMode(updateHash = true) {
       if (frame.classList.contains("chat-mode")) exitChatMode(false);
+      advancedGlobeApi?.resetBayFocus?.();
       exitEcosystemMode(false);
       frame.classList.add("monitoring-mode");
       monitoringView?.setAttribute("aria-hidden", "false");
       setActiveNav(navItemByLabel("Monitoring"));
+      setMonitoringPanel("Live Controls");
       if (playTimer) toggleTimelinePlayback();
       if (updateHash && location.hash !== "#monitoring") history.pushState(null, "", "#monitoring");
       showToast("Monitoring selected");
@@ -3723,9 +5009,9 @@
       core: {
         left: 815,
         top: 424,
-        title: "BIODIVERSITY1",
-        meta: "DATA",
-        sub: "PRESENTATION",
+        title: "Dapeng Bay",
+        meta: "Marine Core",
+        sub: "Local ecosystem focus",
       },
       north: {
         left: 676,
@@ -3750,7 +5036,7 @@
       },
     };
 
-    function setEcoHotspot(name) {
+    function setEcoHotspot(name, announce = true) {
       const data = ecoHotspotData[name] || ecoHotspotData.core;
       document.querySelectorAll(".eco-hotspot").forEach((node) => {
         node.classList.toggle("active", node.dataset.hotspot === name);
@@ -3762,7 +5048,7 @@
       ecoFloatTitle.textContent = data.title;
       ecoFloatMeta.textContent = data.meta;
       ecoFloatSub.textContent = data.sub;
-      showToast(data.title);
+      if (announce) showToast(data.title);
     }
 
     function handleEcoAction(target) {
@@ -3917,6 +5203,8 @@
     addEventListener("keydown", (event) => {
       if (event.key === "Escape" && frame.classList.contains("chat-mode")) {
         exitChatMode(true);
+      } else if (event.key === "Escape" && (frame.classList.contains("dapeng-focus-mode") || frame.classList.contains("bay-focus-mode"))) {
+        exitDapengFocusMode();
       } else if (event.key === "Escape" && frame.classList.contains("ecosystem-mode")) {
         exitEcosystemMode(true);
         setActiveNav(navItemByLabel("Overview"));
@@ -3931,6 +5219,7 @@
       else if (location.hash === "#ecosystem") enterEcosystemMode(false);
       else if (location.hash === "#monitoring") enterMonitoringMode(false);
       else if (frame.classList.contains("chat-mode")) exitChatMode(false);
+      else if (frame.classList.contains("dapeng-focus-mode") || frame.classList.contains("bay-focus-mode")) exitDapengFocusMode();
       else if (frame.classList.contains("ecosystem-mode")) {
         exitEcosystemMode(false);
         setActiveNav(navItemByLabel("Overview"));
@@ -4129,14 +5418,16 @@
       renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
       renderer.setSize(globeRenderSize, globeRenderSize, false);
       renderer.setClearColor(0x000000, 0);
+      renderer.setClearAlpha(0);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
 
       const scene = new THREE.Scene();
+      scene.background = null;
       const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 20);
       camera.position.set(0, 0, 5.8);
 
       const globeGroup = new THREE.Group();
-      globeGroup.rotation.set(-0.08, -1.05, -0.05);
+      globeGroup.rotation.set(-0.08, -2.7, -0.05);
       scene.add(globeGroup);
 
       const textureLoader = new THREE.TextureLoader();
@@ -4155,23 +5446,18 @@
 
       const globe = new THREE.Mesh(
         new THREE.SphereGeometry(1.55, 96, 96),
-        new THREE.MeshPhongMaterial({
+        new THREE.MeshBasicMaterial({
           map: earthTexture,
-          specularMap: specularTexture,
-          specular: new THREE.Color("#52738a"),
-          emissive: new THREE.Color("#132942"),
-          emissiveIntensity: 0.34,
-          shininess: 18,
         })
       );
       globeGroup.add(globe);
 
       const clouds = new THREE.Mesh(
         new THREE.SphereGeometry(1.57, 96, 96),
-        new THREE.MeshLambertMaterial({
+        new THREE.MeshBasicMaterial({
           map: cloudTexture,
           transparent: true,
-          opacity: 0.22,
+          opacity: 0.18,
           depthWrite: false,
         })
       );
@@ -4180,28 +5466,31 @@
       const atmosphere = new THREE.Mesh(
         new THREE.SphereGeometry(1.62, 96, 96),
         new THREE.MeshBasicMaterial({
-          color: "#7dbfff",
+          color: "#fff0d7",
           transparent: true,
-          opacity: 0.14,
+          opacity: 0.025,
           side: THREE.BackSide,
           blending: THREE.AdditiveBlending,
         })
       );
       globeGroup.add(atmosphere);
 
-      const ambient = new THREE.AmbientLight("#6f849f", 1.85);
+      const ambient = new THREE.AmbientLight("#fff6ea", 2.45);
       scene.add(ambient);
-      const skyFill = new THREE.HemisphereLight("#9ccfff", "#06111f", 1.15);
+      const skyFill = new THREE.HemisphereLight("#fff6ea", "#34291d", 1.24);
       scene.add(skyFill);
-      const sun = new THREE.DirectionalLight("#f3f7ff", 2.55);
+      const sun = new THREE.DirectionalLight("#fff9ef", 2.2);
       sun.position.set(4, 2, 5);
       scene.add(sun);
-      const rim = new THREE.DirectionalLight("#4e9ce8", 1.55);
+      const rim = new THREE.DirectionalLight("#f1d0a7", 0.5);
       rim.position.set(-5, 1.2, -2);
       scene.add(rim);
-      const frontFill = new THREE.DirectionalLight("#7fb7ec", 1.05);
+      const frontFill = new THREE.DirectionalLight("#fff2dd", 1.55);
       frontFill.position.set(-2.6, -0.2, 4.2);
       scene.add(frontFill);
+      const softLeftFill = new THREE.DirectionalLight("#fff0cf", 0.82);
+      softLeftFill.position.set(-4.5, 0.1, 3.4);
+      scene.add(softLeftFill);
 
       const stationMaterial = new THREE.MeshBasicMaterial({
         color: "#e8c48e",
@@ -4216,8 +5505,10 @@
       });
       const stationGroup = new THREE.Group();
       const stationHitTargets = [];
+      const stationMeshesById = new Map();
       const stations = [
         {
+          id: "dapeng",
           lat: 22.56,
           lon: 114.42,
           eyebrow: "Hong Kong · Shenzhen",
@@ -4278,8 +5569,9 @@
         station.position.copy(position);
         const glow = new THREE.Mesh(new THREE.SphereGeometry(0.052, 20, 20), glowMaterial);
         glow.position.copy(position);
+        const hitRadius = stationData.id === "dapeng" ? 0.15 : 0.09;
         const hitTarget = new THREE.Mesh(
-          new THREE.SphereGeometry(0.09, 18, 18),
+          new THREE.SphereGeometry(hitRadius, 18, 18),
           new THREE.MeshBasicMaterial({
             color: "#ffffff",
             transparent: true,
@@ -4291,6 +5583,7 @@
         hitTarget.userData = stationData;
         station.userData = stationData;
         glow.userData = stationData;
+        if (stationData.id) stationMeshesById.set(stationData.id, station);
         stationHitTargets.push(hitTarget);
         stationGroup.add(glow, station, hitTarget);
       });
@@ -4314,10 +5607,15 @@
       scene.add(stars);
 
       const pointer = { active: false, x: 0, y: 0 };
+      const clickStart = { x: 0, y: 0 };
       const raycaster = new THREE.Raycaster();
       const pointerNdc = new THREE.Vector2();
-      const homeView = { x: -0.08, y: -1.05, z: -0.05, cameraZ: 5.8 };
+      const homeView = { x: -0.08, y: -2.7, z: -0.05, cameraZ: 5.8 };
       const worldView = { x: -0.05, y: -0.32, z: -0.02, cameraZ: 6.9 };
+      const bayFocusTransform = { x: 0, y: 0, scale: 1 };
+      const homeFocusTransform = { x: 0, y: 0, scale: 1 };
+      const earthFocusTransform = { ...homeFocusTransform };
+      const targetEarthFocusTransform = { ...homeFocusTransform };
       const targetRotation = {
         x: globeGroup.rotation.x,
         y: globeGroup.rotation.y,
@@ -4326,6 +5624,9 @@
       let targetCameraZ = camera.position.z;
       let autoRotate = true;
       let marineLayersVisible = true;
+      let isDapengTransitioning = false;
+      let overviewMotion = null;
+      const dapengJumpEnabled = false;
 
       function clampCameraZ(value) {
         return Math.max(3.65, Math.min(7.35, value));
@@ -4346,8 +5647,170 @@
         targetRotation.z = globeGroup.rotation.z;
       }
 
+      function closestEquivalentAngle(target, current) {
+        const twoPi = Math.PI * 2;
+        return current + ((((target - current) % twoPi) + Math.PI * 3) % twoPi - Math.PI);
+      }
+
+      function setEarthFocusTarget(transform) {
+        targetEarthFocusTransform.x = transform.x;
+        targetEarthFocusTransform.y = transform.y;
+        targetEarthFocusTransform.scale = transform.scale;
+      }
+
+      function syncEarthFocusTransform() {
+        earthFocusTransform.x += (targetEarthFocusTransform.x - earthFocusTransform.x) * 0.1;
+        earthFocusTransform.y += (targetEarthFocusTransform.y - earthFocusTransform.y) * 0.1;
+        earthFocusTransform.scale += (targetEarthFocusTransform.scale - earthFocusTransform.scale) * 0.1;
+        earthSlot.style.setProperty("--earth-focus-x", `${earthFocusTransform.x.toFixed(2)}px`);
+        earthSlot.style.setProperty("--earth-focus-y", `${earthFocusTransform.y.toFixed(2)}px`);
+        earthSlot.style.setProperty("--earth-focus-scale", earthFocusTransform.scale.toFixed(4));
+      }
+
+      function easeInOutCubic(value) {
+        return value < 0.5
+          ? 4 * value * value * value
+          : 1 - Math.pow(-2 * value + 2, 3) / 2;
+      }
+
+      function lerp(start, end, progress) {
+        return start + (end - start) * progress;
+      }
+
+      function mixPose(start, end, progress) {
+        const eased = easeInOutCubic(progress);
+        return {
+          x: lerp(start.x, end.x, eased),
+          y: lerp(start.y, end.y, eased),
+          z: lerp(start.z, end.z, eased),
+          cameraZ: lerp(start.cameraZ, end.cameraZ, eased),
+          focusX: lerp(start.focusX, end.focusX, eased),
+          focusY: lerp(start.focusY, end.focusY, eased),
+          focusScale: lerp(start.focusScale, end.focusScale, eased),
+        };
+      }
+
+      function applyOverviewPose(pose) {
+        globeGroup.rotation.set(pose.x, pose.y, pose.z);
+        camera.position.z = clampCameraZ(pose.cameraZ);
+        targetRotation.x = pose.x;
+        targetRotation.y = pose.y;
+        targetRotation.z = pose.z;
+        targetCameraZ = camera.position.z;
+        earthFocusTransform.x = pose.focusX;
+        earthFocusTransform.y = pose.focusY;
+        earthFocusTransform.scale = pose.focusScale;
+        setEarthFocusTarget({
+          x: pose.focusX,
+          y: pose.focusY,
+          scale: pose.focusScale,
+        });
+      }
+
+      function playOverviewGlobeMotion() {
+        if (frame.classList.contains("monitoring-mode") || frame.classList.contains("ecosystem-mode") || frame.classList.contains("chat-mode")) return;
+
+        isDapengTransitioning = false;
+        overviewMotion = null;
+        pointer.active = false;
+        autoRotate = false;
+        hideStationTooltip();
+        frame.classList.remove("bay-focus-mode", "dapeng-focus-mode");
+        earthSlot.classList.remove("station-focus", "dragging");
+        stationGroup.visible = marineLayersVisible;
+
+        const settleY = closestEquivalentAngle(homeView.y, globeGroup.rotation.y);
+        const start = {
+          x: globeGroup.rotation.x,
+          y: globeGroup.rotation.y,
+          z: globeGroup.rotation.z,
+          cameraZ: camera.position.z,
+          focusX: earthFocusTransform.x,
+          focusY: earthFocusTransform.y,
+          focusScale: earthFocusTransform.scale,
+        };
+        const drift = {
+          x: homeView.x - 0.03,
+          y: settleY - 1.28,
+          z: homeView.z,
+          cameraZ: 6.34,
+          focusX: 0,
+          focusY: 0,
+          focusScale: 1,
+        };
+        const close = {
+          x: homeView.x - 0.006,
+          y: settleY - 0.32,
+          z: homeView.z,
+          cameraZ: 5.28,
+          focusX: 0,
+          focusY: 0,
+          focusScale: 1,
+        };
+        const end = {
+          x: homeView.x,
+          y: settleY,
+          z: homeView.z,
+          cameraZ: 5.46,
+          focusX: 0,
+          focusY: 0,
+          focusScale: 1,
+        };
+
+        overviewMotion = {
+          startedAt: performance.now(),
+          duration: 2450,
+          poses: [start, drift, close, end],
+        };
+      }
+
+      function tickOverviewMotion(now = performance.now()) {
+        if (!overviewMotion) return false;
+        const progress = Math.min(1, (now - overviewMotion.startedAt) / overviewMotion.duration);
+        const segments = overviewMotion.poses.length - 1;
+        const scaled = progress * segments;
+        const index = Math.min(segments - 1, Math.floor(scaled));
+        const localProgress = scaled - index;
+        applyOverviewPose(mixPose(overviewMotion.poses[index], overviewMotion.poses[index + 1], localProgress));
+
+        if (progress >= 1) {
+          const endPose = overviewMotion.poses[overviewMotion.poses.length - 1];
+          applyOverviewPose(endPose);
+          overviewMotion = null;
+          autoRotate = true;
+        }
+        return true;
+      }
+
       function hideStationTooltip() {
         geoTooltip?.classList.remove("visible");
+      }
+
+      function updateGeoFocusOverlay() {
+        if (!geoFocusOverlay || !geoFocusCard) return;
+        if (!earthSlot.classList.contains("station-focus") && !isDapengTransitioning) return;
+        const station = stationMeshesById.get("dapeng");
+        if (!station) return;
+
+        const frameRect = frame.getBoundingClientRect();
+        const frameScale = frameRect.width / 2085;
+        const earthRect = earthSlot.getBoundingClientRect();
+        const worldPosition = new THREE.Vector3();
+        station.getWorldPosition(worldPosition);
+        worldPosition.project(camera);
+
+        const canvasRect = dynamicGlobeCanvas.getBoundingClientRect();
+        const clientX = canvasRect.left + ((worldPosition.x + 1) / 2) * canvasRect.width;
+        const clientY = canvasRect.top + ((1 - worldPosition.y) / 2) * canvasRect.height;
+        const designX = (clientX - frameRect.left) / frameScale;
+        const designY = (clientY - frameRect.top) / frameScale;
+        const earthX = (earthRect.left - frameRect.left) / frameScale;
+        const earthY = (earthRect.top - frameRect.top) / frameScale;
+
+        geoFocusOverlay.style.setProperty("--geo-x", `${Math.max(0, designX - earthX)}px`);
+        geoFocusOverlay.style.setProperty("--geo-y", `${Math.max(0, designY - earthY)}px`);
+        geoFocusOverlay.style.setProperty("--geo-card-x", `${Math.max(0, designX - earthX)}px`);
+        geoFocusOverlay.style.setProperty("--geo-card-y", `${Math.max(0, designY - earthY)}px`);
       }
 
       function updateStationTooltip(event) {
@@ -4356,19 +5819,7 @@
           return;
         }
 
-        const canvasRect = dynamicGlobeCanvas.getBoundingClientRect();
-        pointerNdc.x = ((event.clientX - canvasRect.left) / canvasRect.width) * 2 - 1;
-        pointerNdc.y = -(((event.clientY - canvasRect.top) / canvasRect.height) * 2 - 1);
-        raycaster.setFromCamera(pointerNdc, camera);
-
-        const worldPosition = new THREE.Vector3();
-        const visibleHits = raycaster.intersectObjects(stationHitTargets, false).filter((candidate) => {
-          candidate.object.getWorldPosition(worldPosition);
-          const surfaceNormal = worldPosition.clone().normalize();
-          const cameraVector = camera.position.clone().sub(worldPosition).normalize();
-          return surfaceNormal.dot(cameraVector) > 0.08;
-        });
-        const [hit] = visibleHits;
+        const hit = getVisibleStationHit(event);
         if (!hit) {
           hideStationTooltip();
           return;
@@ -4385,18 +5836,89 @@
         geoTooltip.classList.add("visible");
       }
 
-      dynamicGlobeCanvas.addEventListener("pointerdown", (event) => {
+      function getVisibleStationHit(event) {
+        const canvasRect = dynamicGlobeCanvas.getBoundingClientRect();
+        pointerNdc.x = ((event.clientX - canvasRect.left) / canvasRect.width) * 2 - 1;
+        pointerNdc.y = -(((event.clientY - canvasRect.top) / canvasRect.height) * 2 - 1);
+        raycaster.setFromCamera(pointerNdc, camera);
+
+        const worldPosition = new THREE.Vector3();
+        const visibleHits = raycaster.intersectObjects(stationHitTargets, false).filter((candidate) => {
+          candidate.object.getWorldPosition(worldPosition);
+          const surfaceNormal = worldPosition.clone().normalize();
+          const cameraVector = camera.position.clone().sub(worldPosition).normalize();
+          return surfaceNormal.dot(cameraVector) > 0.08;
+        });
+        const [hit] = visibleHits;
+        return hit || null;
+      }
+
+      function startDapengOverviewTransition() {
+        if (isDapengTransitioning) return;
+        isDapengTransitioning = true;
+        autoRotate = false;
+        pointer.active = false;
+        hideStationTooltip();
+        frame.classList.remove("dapeng-focus-mode", "ecosystem-mode", "monitoring-mode", "chat-mode");
+        chatView?.setAttribute("aria-hidden", "true");
+        ecosystemView?.setAttribute("aria-hidden", "true");
+        monitoringView?.setAttribute("aria-hidden", "true");
+        frame.classList.add("bay-focus-mode");
+        setActiveNav(navItemByLabel("Overview"));
+        stationGroup.visible = marineLayersVisible;
+
+        targetRotation.x = homeView.x;
+        targetRotation.y = homeView.y;
+        targetRotation.z = homeView.z;
+        targetCameraZ = 5.18;
+        setEarthFocusTarget(bayFocusTransform);
+
+        window.setTimeout(() => {
+          isDapengTransitioning = false;
+        }, 1380);
+      }
+
+      function resetDapengOverviewTransition() {
+        isDapengTransitioning = false;
+        frame.classList.remove("bay-focus-mode", "dapeng-focus-mode");
+        earthSlot.classList.remove("station-focus", "dragging");
+        pointer.active = false;
+        stationGroup.visible = marineLayersVisible;
+        setEarthFocusTarget(homeFocusTransform);
+        setGlobeView(homeView);
+      }
+
+      function isPointerInsideHomeGlobe(event) {
+        if (frame.classList.contains("monitoring-mode") || frame.classList.contains("ecosystem-mode") || frame.classList.contains("dapeng-focus-mode") || frame.classList.contains("bay-focus-mode") || frame.classList.contains("chat-mode")) {
+          return false;
+        }
+        const rect = dynamicGlobeCanvas.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const radius = Math.min(rect.width, rect.height) / 2;
+        return Math.hypot(event.clientX - centerX, event.clientY - centerY) <= radius;
+      }
+
+      earthSlot.addEventListener("pointerdown", (event) => {
+        if (event.homeGlobeHandled) return;
+        if (isDapengTransitioning) return;
+        overviewMotion = null;
+        event.preventDefault();
         pointer.active = true;
         autoRotate = false;
         pointer.x = event.clientX;
         pointer.y = event.clientY;
+        clickStart.x = event.clientX;
+        clickStart.y = event.clientY;
         hideStationTooltip();
         earthSlot.classList.add("dragging");
-        dynamicGlobeCanvas.setPointerCapture(event.pointerId);
+        earthSlot.setPointerCapture(event.pointerId);
       });
-      dynamicGlobeCanvas.addEventListener("pointermove", (event) => {
+      earthSlot.addEventListener("pointermove", (event) => {
+        if (event.homeGlobeHandled) return;
         updateStationTooltip(event);
         if (!pointer.active) return;
+        event.preventDefault();
         const dx = event.clientX - pointer.x;
         const dy = event.clientY - pointer.y;
         globeGroup.rotation.y += dx * 0.006;
@@ -4405,31 +5927,85 @@
         pointer.x = event.clientX;
         pointer.y = event.clientY;
       });
-      dynamicGlobeCanvas.addEventListener("pointerup", (event) => {
+      earthSlot.addEventListener("pointerup", (event) => {
+        if (event.homeGlobeHandled) return;
         pointer.active = false;
         earthSlot.classList.remove("dragging");
-        dynamicGlobeCanvas.releasePointerCapture(event.pointerId);
-        updateStationTooltip(event);
+        if (earthSlot.hasPointerCapture(event.pointerId)) earthSlot.releasePointerCapture(event.pointerId);
+        const moved = Math.hypot(event.clientX - clickStart.x, event.clientY - clickStart.y);
+        const hit = moved < 7 ? getVisibleStationHit(event) : null;
+        if (dapengJumpEnabled && hit?.object.userData.id === "dapeng") {
+          startDapengOverviewTransition();
+        } else {
+          updateStationTooltip(event);
+        }
       });
-      dynamicGlobeCanvas.addEventListener("pointercancel", () => {
+      earthSlot.addEventListener("pointercancel", () => {
         pointer.active = false;
         earthSlot.classList.remove("dragging");
         hideStationTooltip();
       });
-      dynamicGlobeCanvas.addEventListener("pointerleave", hideStationTooltip);
-      dynamicGlobeCanvas.addEventListener("wheel", (event) => {
+      earthSlot.addEventListener("pointerleave", hideStationTooltip);
+      earthSlot.addEventListener("wheel", (event) => {
         event.preventDefault();
         hideStationTooltip();
         targetCameraZ = clampCameraZ(targetCameraZ + event.deltaY * 0.0025);
       }, { passive: false });
 
-      function render() {
-        if (!pointer.active && autoRotate) targetRotation.y += 0.0009;
-        globeGroup.rotation.x += (targetRotation.x - globeGroup.rotation.x) * 0.11;
-        globeGroup.rotation.y += (targetRotation.y - globeGroup.rotation.y) * 0.11;
-        globeGroup.rotation.z += (targetRotation.z - globeGroup.rotation.z) * 0.11;
-        camera.position.z += (targetCameraZ - camera.position.z) * 0.12;
+      document.addEventListener("pointerdown", (event) => {
+        if (pointer.active || isDapengTransitioning || !isPointerInsideHomeGlobe(event)) return;
+        event.homeGlobeHandled = true;
+        overviewMotion = null;
+        event.preventDefault();
+        pointer.active = true;
+        autoRotate = false;
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+        clickStart.x = event.clientX;
+        clickStart.y = event.clientY;
+        hideStationTooltip();
+        earthSlot.classList.add("dragging");
+      }, true);
+
+      document.addEventListener("pointermove", (event) => {
+        if (!pointer.active) return;
+        event.homeGlobeHandled = true;
+        event.preventDefault();
+        const dx = event.clientX - pointer.x;
+        const dy = event.clientY - pointer.y;
+        globeGroup.rotation.y += dx * 0.006;
+        globeGroup.rotation.x = Math.max(-0.82, Math.min(0.82, globeGroup.rotation.x + dy * 0.004));
+        syncTargetToCurrentRotation();
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+      }, true);
+
+      document.addEventListener("pointerup", (event) => {
+        if (!pointer.active) return;
+        event.homeGlobeHandled = true;
+        pointer.active = false;
+        earthSlot.classList.remove("dragging");
+        const moved = Math.hypot(event.clientX - clickStart.x, event.clientY - clickStart.y);
+        const hit = moved < 7 ? getVisibleStationHit(event) : null;
+        if (dapengJumpEnabled && hit?.object.userData.id === "dapeng") {
+          startDapengOverviewTransition();
+        } else {
+          updateStationTooltip(event);
+        }
+      }, true);
+
+      function render(now = performance.now()) {
+        const motionActive = tickOverviewMotion(now);
+        if (!motionActive) {
+          if (!pointer.active && autoRotate) targetRotation.y += 0.0009;
+          globeGroup.rotation.x += (targetRotation.x - globeGroup.rotation.x) * 0.11;
+          globeGroup.rotation.y += (targetRotation.y - globeGroup.rotation.y) * 0.11;
+          globeGroup.rotation.z += (targetRotation.z - globeGroup.rotation.z) * 0.11;
+          camera.position.z += (targetCameraZ - camera.position.z) * 0.12;
+        }
+        syncEarthFocusTransform();
         clouds.rotation.y += 0.0014;
+        updateGeoFocusOverlay();
         renderer.render(scene, camera);
         requestAnimationFrame(render);
       }
@@ -4440,12 +6016,27 @@
         globeGroup,
         renderer,
         recenter() {
-          setGlobeView(homeView);
+          resetDapengOverviewTransition();
         },
         worldView() {
+          frame.classList.remove("bay-focus-mode", "dapeng-focus-mode");
+          setEarthFocusTarget(homeFocusTransform);
+          stationGroup.visible = marineLayersVisible;
           setGlobeView(worldView);
         },
+        focusBay() {
+          playOverviewGlobeMotion();
+        },
+        playOverviewMotion() {
+          playOverviewGlobeMotion();
+        },
+        resetBayFocus() {
+          resetDapengOverviewTransition();
+        },
         zoom(delta) {
+          frame.classList.remove("bay-focus-mode", "dapeng-focus-mode");
+          setEarthFocusTarget(homeFocusTransform);
+          stationGroup.visible = marineLayersVisible;
           targetCameraZ = clampCameraZ(targetCameraZ + delta);
           hideStationTooltip();
         },
@@ -4462,6 +6053,314 @@
 
     initAdvancedGlobe().catch((error) => {
       console.warn("Advanced globe did not initialize; using fallback earth image.", error);
+    });
+
+    async function initMonitoringGlobe() {
+      if (!monitoringGlobeCanvas || !monitoringEarthStage) return;
+      await loadExternalScript("https://unpkg.com/three@0.160.0/build/three.min.js");
+
+      const THREE = window.THREE;
+      const renderer = new THREE.WebGLRenderer({
+        canvas: monitoringGlobeCanvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: "high-performance",
+      });
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer.setClearColor(0x000000, 0);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(34, 1565 / 1002, 0.1, 30);
+      camera.position.set(0, 0, 5.9);
+
+      const globeGroup = new THREE.Group();
+      globeGroup.rotation.set(0.55, 5.52, -0.04);
+      scene.add(globeGroup);
+
+      const earthSpinGroup = new THREE.Group();
+      globeGroup.add(earthSpinGroup);
+
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.crossOrigin = "anonymous";
+      const earthTexture = textureLoader.load("https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg");
+      const specularTexture = textureLoader.load("https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg");
+      const cloudTexture = textureLoader.load("https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png");
+      earthTexture.colorSpace = THREE.SRGBColorSpace;
+      cloudTexture.colorSpace = THREE.SRGBColorSpace;
+
+      const globe = new THREE.Mesh(
+        new THREE.SphereGeometry(1.74, 128, 128),
+        new THREE.MeshPhongMaterial({
+          color: new THREE.Color("#ffffff"),
+          map: earthTexture,
+          specularMap: specularTexture,
+          specular: new THREE.Color("#334252"),
+          emissive: new THREE.Color("#000000"),
+          emissiveIntensity: 0.02,
+          shininess: 12,
+        })
+      );
+      earthSpinGroup.add(globe);
+
+      const clouds = new THREE.Mesh(
+        new THREE.SphereGeometry(1.77, 128, 128),
+        new THREE.MeshLambertMaterial({
+          map: cloudTexture,
+          transparent: true,
+          opacity: 0.24,
+          depthWrite: false,
+        })
+      );
+      earthSpinGroup.add(clouds);
+      clouds.visible = false;
+
+      const atmosphere = new THREE.Mesh(
+        new THREE.SphereGeometry(1.86, 128, 128),
+        new THREE.MeshBasicMaterial({
+          color: "#fff0d7",
+          transparent: true,
+          opacity: 0.13,
+          side: THREE.BackSide,
+          blending: THREE.AdditiveBlending,
+        })
+      );
+      earthSpinGroup.add(atmosphere);
+      atmosphere.visible = false;
+
+      scene.add(new THREE.AmbientLight("#fff6ea", 1.22));
+      scene.add(new THREE.HemisphereLight("#fff6ea", "#150f09", 0.78));
+      const sun = new THREE.DirectionalLight("#fff9ef", 2.55);
+      sun.position.set(4.6, 1.8, 5.4);
+      scene.add(sun);
+      const rim = new THREE.DirectionalLight("#f1d0a7", 0.18);
+      rim.position.set(-4.2, 0.4, -2.3);
+      scene.add(rim);
+      const frontFill = new THREE.DirectionalLight("#fff2dd", 0.72);
+      frontFill.position.set(-2.4, -0.1, 4.8);
+      scene.add(frontFill);
+
+      function latLonToVector3(lat, lon, radius) {
+        const phi = (90 - lat) * Math.PI / 180;
+        const theta = (lon + 180) * Math.PI / 180;
+        return new THREE.Vector3(
+          -radius * Math.sin(phi) * Math.cos(theta),
+          radius * Math.cos(phi),
+          radius * Math.sin(phi) * Math.sin(theta)
+        );
+      }
+
+      const stationGroup = new THREE.Group();
+      const stationMaterial = new THREE.MeshBasicMaterial({ color: "#f4d486" });
+      const glowMaterial = new THREE.MeshBasicMaterial({
+        color: "#72e09a",
+        transparent: true,
+        opacity: 0.28,
+        blending: THREE.AdditiveBlending,
+      });
+      [
+        [37.8, -122.4],
+        [34.1, -118.2],
+        [47.6, -122.3],
+        [22.56, 114.42],
+        [-33.85, 151.22],
+      ].forEach(([lat, lon]) => {
+        const position = latLonToVector3(lat, lon, 1.88);
+        const station = new THREE.Mesh(new THREE.SphereGeometry(0.018, 18, 18), stationMaterial);
+        station.position.copy(position);
+        const glow = new THREE.Mesh(new THREE.SphereGeometry(0.066, 22, 22), glowMaterial);
+        glow.position.copy(position);
+        stationGroup.add(station);
+      });
+      earthSpinGroup.add(stationGroup);
+
+      const stars = new THREE.Points(
+        new THREE.BufferGeometry().setAttribute(
+          "position",
+          new THREE.Float32BufferAttribute(
+            Array.from({ length: 2100 }, () => (Math.random() - 0.5) * 11),
+            3
+          )
+        ),
+        new THREE.PointsMaterial({
+          color: "#dce8ff",
+          size: 0.009,
+          transparent: true,
+          opacity: 0.22,
+        })
+      );
+      scene.add(stars);
+
+      const homeView = { x: 0.24, y: 4.72, z: -0.04, cameraZ: 5.9 };
+      const worldView = { x: 0.18, y: 4.34, z: -0.03, cameraZ: 6.35 };
+      const targetRotation = { x: homeView.x, y: homeView.y, z: homeView.z };
+      let targetCameraZ = homeView.cameraZ;
+      const globeLocked = true;
+      let autoRotate = false;
+      let layersVisible = true;
+      const globePlacement = { x: 0, y: 0, scale: 1.08 };
+      const globeVisualYOffset = 22;
+      const globeVisualScale = 0.96;
+      const pointer = { active: false, rotating: false, x: 0, y: 0 };
+      const placementStorageKey = "MONITORING_GLOBE_PLACEMENT";
+      const placementVersionKey = "MONITORING_GLOBE_PLACEMENT_VERSION";
+      const placementVersion = "large-africa-monitoring-angle-20260501b";
+
+      function resizeMonitoringGlobe() {
+        const width = monitoringEarthStage.clientWidth || 2085;
+        const height = monitoringEarthStage.clientHeight || 1132;
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      }
+
+      function clampCamera(value) {
+        return Math.max(5.2, Math.min(7.5, value));
+      }
+
+      function clampPlacementScale(value) {
+        return Math.max(0.38, Math.min(3.2, value));
+      }
+
+      function syncMonitoringGlobePlacement() {
+        monitoringEarthStage.style.setProperty("--monitor-globe-scale", globePlacement.scale.toFixed(3));
+        globeGroup.position.x = globePlacement.x / 190;
+        globeGroup.position.y = -(globePlacement.y + globeVisualYOffset) / 190;
+        globeGroup.scale.setScalar(globePlacement.scale * globeVisualScale);
+        localStorage.setItem(placementStorageKey, JSON.stringify({
+          x: globePlacement.x,
+          y: globePlacement.y,
+          scale: globePlacement.scale,
+          rotationX: targetRotation.x,
+          rotationY: targetRotation.y,
+          rotationZ: targetRotation.z,
+        }));
+        localStorage.setItem(placementVersionKey, placementVersion);
+      }
+
+      try {
+        const savedPlacement = JSON.parse(localStorage.getItem(placementStorageKey) || "null");
+        if (savedPlacement) {
+          const savedVersionMatches = localStorage.getItem(placementVersionKey) === placementVersion;
+          if (!savedVersionMatches) {
+            globePlacement.x = 0;
+            globePlacement.y = 0;
+            globePlacement.scale = 1.08;
+            localStorage.setItem(placementVersionKey, placementVersion);
+            localStorage.removeItem(placementStorageKey);
+          } else {
+            globePlacement.x = Number(savedPlacement.x) || 0;
+            globePlacement.y = Number(savedPlacement.y) || 0;
+            globePlacement.scale = clampPlacementScale(Number(savedPlacement.scale) || 1);
+            targetRotation.x = Number(savedPlacement.rotationX) || targetRotation.x;
+            targetRotation.y = Number(savedPlacement.rotationY) || targetRotation.y;
+            targetRotation.z = Number(savedPlacement.rotationZ) || targetRotation.z;
+            globeGroup.rotation.set(targetRotation.x, targetRotation.y, targetRotation.z);
+          }
+        }
+      } catch {}
+
+      function setView(view) {
+        if (globeLocked) return;
+        targetRotation.x = view.x;
+        targetRotation.y = view.y;
+        targetRotation.z = view.z;
+        targetCameraZ = clampCamera(view.cameraZ);
+        autoRotate = true;
+      }
+
+      monitoringGlobeCanvas.addEventListener("pointerdown", (event) => {
+        if (globeLocked) return;
+        pointer.active = true;
+        pointer.rotating = true;
+        autoRotate = false;
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+        monitoringEarthStage.classList.add("dragging");
+        monitoringGlobeCanvas.setPointerCapture(event.pointerId);
+      });
+      monitoringGlobeCanvas.addEventListener("pointermove", (event) => {
+        if (!pointer.active) return;
+        const dx = event.clientX - pointer.x;
+        const dy = event.clientY - pointer.y;
+        globeGroup.rotation.y += dx * 0.006;
+        globeGroup.rotation.x = Math.max(-0.86, Math.min(0.86, globeGroup.rotation.x + dy * 0.004));
+        targetRotation.x = globeGroup.rotation.x;
+        targetRotation.y = globeGroup.rotation.y;
+        targetRotation.z = globeGroup.rotation.z;
+        syncMonitoringGlobePlacement();
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+      });
+      monitoringGlobeCanvas.addEventListener("pointerup", (event) => {
+        pointer.active = false;
+        monitoringEarthStage.classList.remove("dragging");
+        monitoringGlobeCanvas.releasePointerCapture(event.pointerId);
+      });
+      monitoringGlobeCanvas.addEventListener("pointercancel", () => {
+        pointer.active = false;
+        monitoringEarthStage.classList.remove("dragging");
+      });
+      monitoringGlobeCanvas.addEventListener("wheel", (event) => {
+        event.preventDefault();
+      }, { passive: false });
+
+      addEventListener("keydown", (event) => {
+        if (!frame.classList.contains("monitoring-mode")) return;
+        if (
+          event.key === "ArrowLeft" ||
+          event.key === "ArrowRight" ||
+          event.key === "ArrowUp" ||
+          event.key === "ArrowDown" ||
+          event.key === "+" ||
+          event.key === "=" ||
+          event.key === "-" ||
+          event.key === "_"
+        ) {
+          event.preventDefault();
+        }
+      });
+
+      function renderMonitoringGlobe() {
+        if (!pointer.active && autoRotate) targetRotation.y += 0.00062;
+        globeGroup.rotation.x += (targetRotation.x - globeGroup.rotation.x) * 0.1;
+        globeGroup.rotation.y += (targetRotation.y - globeGroup.rotation.y) * 0.1;
+        globeGroup.rotation.z += (targetRotation.z - globeGroup.rotation.z) * 0.1;
+        camera.position.z += (targetCameraZ - camera.position.z) * 0.12;
+        earthSpinGroup.rotation.y += 0.00038;
+        clouds.rotation.y += 0.001;
+        renderer.render(scene, camera);
+        requestAnimationFrame(renderMonitoringGlobe);
+      }
+
+      resizeMonitoringGlobe();
+      syncMonitoringGlobePlacement();
+      addEventListener("resize", resizeMonitoringGlobe, { passive: true });
+      monitoringGlobeApi = {
+        recenter() {
+          setView(homeView);
+          syncMonitoringGlobePlacement();
+        },
+        worldView() {
+          setView(worldView);
+        },
+        zoom(delta) {
+          syncMonitoringGlobePlacement();
+        },
+        move(dx, dy) {
+          syncMonitoringGlobePlacement();
+        },
+        toggleLayers() {
+          layersVisible = !layersVisible;
+          stationGroup.visible = layersVisible;
+          return layersVisible;
+        },
+      };
+      renderMonitoringGlobe();
+    }
+
+    initMonitoringGlobe().catch((error) => {
+      console.warn("Monitoring globe did not initialize; keeping the static monitoring export.", error);
     });
 
     function getGoogleMapsApiKey() {
