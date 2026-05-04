@@ -6074,8 +6074,9 @@
       const camera = new THREE.PerspectiveCamera(34, 1565 / 1002, 0.1, 30);
       camera.position.set(0, 0, 5.9);
 
+      const lockedMonitoringView = { x: 0.55, y: 5.52, z: -0.04, cameraZ: 5.9 };
       const globeGroup = new THREE.Group();
-      globeGroup.rotation.set(0.55, 5.52, -0.04);
+      globeGroup.rotation.set(lockedMonitoringView.x, lockedMonitoringView.y, lockedMonitoringView.z);
       scene.add(globeGroup);
 
       const earthSpinGroup = new THREE.Group();
@@ -6191,7 +6192,7 @@
       );
       scene.add(stars);
 
-      const homeView = { x: 0.24, y: 4.72, z: -0.04, cameraZ: 5.9 };
+      const homeView = { ...lockedMonitoringView };
       const worldView = { x: 0.18, y: 4.34, z: -0.03, cameraZ: 6.35 };
       const targetRotation = { x: homeView.x, y: homeView.y, z: homeView.z };
       let targetCameraZ = homeView.cameraZ;
@@ -6204,7 +6205,7 @@
       const pointer = { active: false, rotating: false, x: 0, y: 0 };
       const placementStorageKey = "MONITORING_GLOBE_PLACEMENT";
       const placementVersionKey = "MONITORING_GLOBE_PLACEMENT_VERSION";
-      const placementVersion = "large-africa-monitoring-angle-20260501b";
+      const placementVersion = "locked-monitoring-angle-20260504a";
 
       function resizeMonitoringGlobe() {
         const width = monitoringEarthStage.clientWidth || 2085;
