@@ -1388,46 +1388,12 @@
         filter 420ms ease;
     }
 
-    .frame.chat-mode .side-control,
-    .frame.chat-mode .zoom,
-    .frame.chat-mode .timeline-bg,
-    .frame.chat-mode .play,
-    .frame.chat-mode .timeline-label,
-    .frame.chat-mode .timeline-line,
-    .frame.chat-mode .timeline-hit,
-    .frame.chat-mode .tick,
-    .frame.chat-mode .now-dot,
-    .frame.chat-mode .time,
-    .frame.chat-mode .now-title,
-    .frame.chat-mode .calendar-bg,
-    .frame.chat-mode .meta,
-    .frame.chat-mode .hero,
-    .frame.chat-mode .description,
-    .frame.chat-mode .cta,
-    .frame.chat-mode .cta.one,
-    .frame.chat-mode .earth-slot,
-    .frame.chat-mode .tooltip {
+    .frame.chat-mode > .layer:not(.chat-view) {
       visibility: hidden !important;
       opacity: 0 !important;
       transform: translateY(18px) scale(0.985);
       filter: blur(3px);
       pointer-events: none !important;
-    }
-
-    .frame.chat-mode .cta.two {
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-    }
-
-    .frame.chat-mode .tooltip {
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-    }
-
-    .frame.chat-mode .earth-slot {
-      visibility: hidden !important;
     }
 
     .chat-view {
