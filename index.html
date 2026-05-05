@@ -1392,7 +1392,6 @@
     .frame.chat-mode .top-nav,
     .frame.chat-mode .bell-button,
     .frame.chat-mode .user-button,
-    .frame.chat-mode .earth-slot,
     .frame.chat-mode .tooltip,
     .frame.chat-mode .side-control,
     .frame.chat-mode .zoom,
@@ -2262,7 +2261,7 @@
 
     .chat-card {
       width: 1120px;
-      min-height: 452px;
+      min-height: 0;
       margin-left: 0;
       margin-bottom: 50px;
       padding: 38px 58px 32px;
@@ -2303,6 +2302,14 @@
       height: 46px;
       color: #5f7cff;
       filter: drop-shadow(0 0 16px rgba(95, 124, 255, 0.26));
+    }
+
+    .mimo-logo {
+      display: block;
+      width: 108px;
+      height: 14px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 16px rgba(232, 196, 142, 0.24));
     }
 
     .deepseek-brand .chevron {
@@ -2358,21 +2365,45 @@
       font-weight: 500;
     }
 
+    .chat-answer p {
+      margin: 0 0 14px;
+    }
+
+    .chat-answer p:last-child {
+      margin-bottom: 0;
+    }
+
     .chat-thumbs {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 18px;
       margin: 0 0 22px;
     }
 
+    .chat-thumbs[hidden] {
+      display: none;
+    }
+
     .chat-thumb {
-      width: 132px;
-      height: 132px;
+      min-height: 132px;
+      aspect-ratio: 1;
       border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.12);
       background-size: cover;
       background-position: center;
       overflow: hidden;
       box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28);
+    }
+
+    .chat-thumb img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .chat-action.is-active {
+      color: var(--gold);
     }
 
     .chat-thumb.map {
@@ -2747,10 +2778,11 @@
     .frame.ecosystem-mode .time,
     .frame.ecosystem-mode .now-title,
     .frame.ecosystem-mode .calendar-bg {
-      opacity: 0;
+      visibility: hidden !important;
+      opacity: 0 !important;
       transform: translateY(18px) scale(0.985);
       filter: blur(3px);
-      pointer-events: none;
+      pointer-events: none !important;
     }
 
     .frame.chat-mode .ecosystem-view {
@@ -3962,8 +3994,8 @@
           </span>
         </a>
 
-        <a class="cta two glass layer" href="#chat" data-label="Chat with DP" aria-label="Chat with DP">
-          <span>Chat with DP</span>
+        <a class="cta two glass layer" href="#chat" data-label="Chat with MiMo" aria-label="Chat with MiMo">
+          <span>Chat with MiMo</span>
           <span class="arrow" aria-hidden="true">
             <svg viewBox="0 0 22 22" stroke-width="2.2">
               <path d="M5 11h11" />
@@ -4069,7 +4101,7 @@
           </span>
         </button>
 
-        <section class="chat-view layer" id="chatView" aria-label="Chat with DP">
+        <section class="chat-view layer" id="chatView" aria-label="Chat with MiMo">
           <button class="chat-close" type="button" id="chatClose">Back to dashboard</button>
           <div class="chat-stream" id="chatStream">
             <article class="chat-user">
@@ -4079,12 +4111,7 @@
             <article class="chat-card">
               <header class="chat-card-head">
                 <div class="deepseek-brand">
-                  <svg class="deepseek-mark" viewBox="0 0 48 48" aria-hidden="true">
-                    <path fill="currentColor" d="M39.9 17.1c-2.1-5.8-8-9.6-15.1-9.6C14.6 7.5 6.5 14.3 6.5 23.1c0 8.9 8.1 16.1 18.1 16.1 7.7 0 14.3-4.2 16.9-10.3-4.2 2.8-9.2 3.1-13.6.9-4.7-2.3-7.3-6.8-7.4-11.8 3.6 4.2 8.6 6.5 14.3 6.2 2.4-.1 4.7-.8 6.9-1.9.1-1.8-.5-3.6-1.8-5.2Z" />
-                    <path fill="#10141f" d="M15.2 19.3c.9 0 1.7.7 1.7 1.7s-.8 1.7-1.7 1.7-1.7-.7-1.7-1.7.8-1.7 1.7-1.7Z" />
-                    <path fill="#10141f" d="M24.2 28.5c-3.8 0-7-1.2-9.4-3.3 1.6 3.7 5.2 6.2 9.5 6.2 3 0 5.7-1.2 7.6-3.1-2.4.4-5 .4-7.7.2Z" opacity=".65" />
-                  </svg>
-                  <span>DP Marine Expert</span>
+                  <img class="mimo-logo" src="assets/chat/xiaomi-mimo.png" alt="Xiaomi MiMo" decoding="async" />
                   <span class="chevron">⌄</span>
                 </div>
                 <button class="chat-sound" type="button" data-chat-action="Read response" aria-label="Read response aloud">
@@ -4102,12 +4129,7 @@
                 sample the Shenzhen side, while Hong Kong government/ecology sources usually call the same broader bay Mirs Bay.
               </p>
 
-              <div class="chat-thumbs" aria-label="Related marine references">
-                <div class="chat-thumb map" role="img" aria-label="Dapeng Bay map preview"></div>
-                <div class="chat-thumb bay" role="img" aria-label="Dapeng Bay coast preview"></div>
-                <div class="chat-thumb coral" role="img" aria-label="Marine coral preview"></div>
-                <div class="chat-thumb harbor" role="img" aria-label="Harbor preview"></div>
-              </div>
+              <div class="chat-thumbs" aria-label="Related marine references" hidden></div>
 
               <div class="chat-actions">
                 <button class="chat-action" type="button" data-chat-action="Helpful" aria-label="Helpful">
@@ -4137,7 +4159,7 @@
                 </button>
               </div>
 
-              <p class="chat-disclaimer">DP only answers marine, ocean and fish questions.</p>
+              <p class="chat-disclaimer">MiMo only answers marine, ocean and fish questions.</p>
             </article>
           </div>
 
@@ -4148,7 +4170,7 @@
                 <path d="m18.2 18.2 5.3 5.3" />
               </svg>
             </span>
-            <input class="chat-input" id="chatInput" autocomplete="off" placeholder="问问海洋、海域和鱼类问题 ... ..." aria-label="Ask DP marine expert" />
+            <input class="chat-input" id="chatInput" autocomplete="off" placeholder="问问海洋、海域和鱼类问题 ... ..." aria-label="Ask MiMo marine expert" />
             <button class="chat-mic" type="button" data-chat-action="Voice input" aria-label="Voice input">
               <svg viewBox="0 0 32 32">
                 <path d="M16 4a5 5 0 0 0-5 5v7a5 5 0 0 0 10 0V9a5 5 0 0 0-5-5Z" />
@@ -4916,7 +4938,7 @@
       const label = target.dataset.label || target.getAttribute("aria-label") || "Action";
       if (target.closest(".nav-item")) return;
 
-      if (label === "Chat with DP") {
+      if (label === "Chat with MiMo") {
         if (frame.classList.contains("chat-mode")) {
           exitChatMode(true);
         } else {
@@ -5322,7 +5344,7 @@
       if (playTimer) toggleTimelinePlayback();
       if (updateHash && location.hash !== "#chat") history.pushState(null, "", "#chat");
       setTimeout(() => chatInput.focus(), 360);
-      showToast("Chat with DP opened");
+      showToast("Chat with MiMo opened");
     }
 
     function exitChatMode(updateHash = true) {
@@ -5334,10 +5356,56 @@
       showToast("Back to dashboard");
     }
 
+    function extractImageRefs(text) {
+      const images = [];
+      let cleaned = text.replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, (_, alt, url) => {
+        images.push({ alt: alt || "MiMo image", url });
+        return "";
+      });
+      cleaned = cleaned.replace(/https?:\/\/[^\s)]+?\.(?:png|jpe?g|webp|gif)(?:\?[^\s)]*)?/gi, (url) => {
+        images.push({ alt: "MiMo image", url });
+        return "";
+      });
+      return { text: cleaned.trim(), images };
+    }
+
+    function renderAnswer(card, rawText) {
+      const answer = card.querySelector(".chat-answer");
+      const thumbs = card.querySelector(".chat-thumbs");
+      const { text, images } = extractImageRefs(rawText);
+      answer.textContent = "";
+      const paragraphs = (text || "MiMo returned an empty response.").split(/\n{2,}/).map((part) => part.trim()).filter(Boolean);
+      paragraphs.forEach((paragraph) => {
+        const node = document.createElement("p");
+        node.textContent = paragraph;
+        answer.appendChild(node);
+      });
+
+      thumbs.textContent = "";
+      if (images.length) {
+        images.slice(0, 4).forEach((image) => {
+          const link = document.createElement("a");
+          link.className = "chat-thumb";
+          link.href = image.url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          const img = document.createElement("img");
+          img.src = image.url;
+          img.alt = image.alt;
+          img.loading = "lazy";
+          link.appendChild(img);
+          thumbs.appendChild(link);
+        });
+        thumbs.hidden = false;
+      } else {
+        thumbs.hidden = true;
+      }
+    }
+
     function createChatCard(answerText) {
       const cardTemplate = chatStream.querySelector(".chat-card");
       const responseCard = cardTemplate.cloneNode(true);
-      responseCard.querySelector(".chat-answer").textContent = answerText;
+      renderAnswer(responseCard, answerText);
       chatTurn += 1;
       responseCard.dataset.turn = String(chatTurn);
       chatStream.appendChild(responseCard);
@@ -5355,7 +5423,7 @@
     function appendLoadingTurn() {
       const cardTemplate = chatStream.querySelector(".chat-card");
       const responseCard = cardTemplate.cloneNode(true);
-      responseCard.querySelector(".chat-answer").textContent = "Thinking with DP...";
+      renderAnswer(responseCard, "Thinking with MiMo...");
       responseCard.querySelector(".chat-disclaimer").textContent = "Connecting to your API key on Vercel.";
       chatTurn += 1;
       responseCard.dataset.turn = String(chatTurn);
@@ -5378,7 +5446,7 @@
       if (!response.ok) {
         throw new Error(data.error || "Chat request failed.");
       }
-      return data.answer || "DP returned an empty response.";
+      return data.answer || "MiMo returned an empty response.";
     }
 
     chatClose.addEventListener("click", () => exitChatMode(true));
@@ -5392,14 +5460,14 @@
       appendUserTurn(prompt);
       chatInput.value = "";
       const loadingCard = appendLoadingTurn();
-      showToast("Sending to DP");
+      showToast("Sending to MiMo");
       fetchDpReply(prompt)
         .then((answer) => {
-          loadingCard.querySelector(".chat-answer").textContent = answer;
-          loadingCard.querySelector(".chat-disclaimer").textContent = "Answered by DP via your Vercel API key.";
+          renderAnswer(loadingCard, answer);
+          loadingCard.querySelector(".chat-disclaimer").textContent = "Answered by MiMo via your Vercel API key.";
         })
         .catch((error) => {
-          loadingCard.querySelector(".chat-answer").textContent = "Chat is temporarily unavailable.";
+          renderAnswer(loadingCard, "Chat is temporarily unavailable.");
           loadingCard.querySelector(".chat-disclaimer").textContent = error?.message || "Please check your API settings.";
         })
         .finally(() => {
@@ -5423,15 +5491,65 @@
       if (!actionButton) return;
 
       const action = actionButton.dataset.chatAction;
+      const card = actionButton.closest(".chat-card");
+      const text = card?.querySelector(".chat-answer")?.textContent?.trim() || "";
       if (action === "Copy") {
-        const card = actionButton.closest(".chat-card");
-        const text = card?.querySelector(".chat-answer")?.textContent?.trim() || "";
         try {
           await navigator.clipboard.writeText(text);
           showToast("Answer copied");
         } catch {
           showToast("Copy unavailable in this browser");
         }
+        return;
+      }
+
+      if (action === "Read response") {
+        if (!text || !("speechSynthesis" in window)) {
+          showToast("Read aloud unavailable");
+          return;
+        }
+        speechSynthesis.cancel();
+        speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+        showToast("Reading response");
+        return;
+      }
+
+      if (action === "Share") {
+        try {
+          if (navigator.share) {
+            await navigator.share({ title: "MiMo Marine Expert", text });
+          } else {
+            await navigator.clipboard.writeText(text);
+            showToast("Share text copied");
+          }
+        } catch {
+          showToast("Share cancelled");
+        }
+        return;
+      }
+
+      if (action === "Helpful" || action === "Not helpful") {
+        card?.querySelectorAll(".chat-action").forEach((button) => button.classList.remove("is-active"));
+        actionButton.classList.add("is-active");
+        card.querySelector(".chat-disclaimer").textContent = action === "Helpful" ? "Marked helpful." : "Marked for review.";
+        showToast(action === "Helpful" ? "Thanks for the feedback" : "Feedback noted");
+        return;
+      }
+
+      if (action === "Voice input") {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          showToast("Voice input unavailable");
+          return;
+        }
+        const recognition = new SpeechRecognition();
+        recognition.lang = "zh-CN";
+        recognition.onresult = (voiceEvent) => {
+          chatInput.value = voiceEvent.results?.[0]?.[0]?.transcript || "";
+          chatInput.focus();
+        };
+        recognition.start();
+        showToast("Listening");
         return;
       }
 
