@@ -1399,7 +1399,13 @@
     .frame.chat-mode .now-dot,
     .frame.chat-mode .time,
     .frame.chat-mode .now-title,
-    .frame.chat-mode .calendar-bg {
+    .frame.chat-mode .calendar-bg,
+    .frame.chat-mode .meta,
+    .frame.chat-mode .hero,
+    .frame.chat-mode .description,
+    .frame.chat-mode .cta.one,
+    .frame.chat-mode .earth-slot,
+    .frame.chat-mode .tooltip {
       opacity: 0;
       transform: translateY(18px) scale(0.985);
       filter: blur(3px);
@@ -1418,6 +1424,10 @@
     .frame.chat-mode .tooltip {
       opacity: 0;
       pointer-events: none;
+    }
+
+    .frame.chat-mode .earth-slot {
+      visibility: hidden;
     }
 
     .chat-view {

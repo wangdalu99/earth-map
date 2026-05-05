@@ -65,9 +65,12 @@ async function handler(request, response) {
     "When facts are uncertain, say so plainly and suggest what monitoring data would confirm it.",
   ].join(" ");
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 22000);
   try {
     const upstream = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
+      signal: controller.signal,
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "api-key": apiKey,
@@ -108,8 +111,12 @@ async function handler(request, response) {
     });
   } catch (error) {
     sendJson(response, 500, {
-      error: error instanceof Error ? error.message : "Failed to reach MiMo API.",
+      error: error?.name === "AbortError"
+        ? "MiMo API request timed out. Please try again in a moment."
+        : error instanceof Error ? error.message : "Failed to reach MiMo API.",
     });
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
