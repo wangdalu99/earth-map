@@ -6074,7 +6074,12 @@
       const camera = new THREE.PerspectiveCamera(34, 1565 / 1002, 0.1, 30);
       camera.position.set(0, 0, 5.9);
 
-      const lockedMonitoringView = { x: 0.55, y: 5.52, z: -0.04, cameraZ: 5.9 };
+      const lockedMonitoringView = {
+        x: 0.09240624999999959,
+        y: 21.390861746287673,
+        z: -0.039999999999999966,
+        cameraZ: 5.9,
+      };
       const globeGroup = new THREE.Group();
       globeGroup.rotation.set(lockedMonitoringView.x, lockedMonitoringView.y, lockedMonitoringView.z);
       scene.add(globeGroup);
@@ -6199,13 +6204,13 @@
       const globeLocked = true;
       let autoRotate = false;
       let layersVisible = true;
-      const globePlacement = { x: 0, y: 0, scale: 1.08 };
+      const globePlacement = { x: 240, y: 220, scale: 1.667923450687243 };
       const globeVisualYOffset = 22;
       const globeVisualScale = 0.96;
       const pointer = { active: false, rotating: false, x: 0, y: 0 };
       const placementStorageKey = "MONITORING_GLOBE_PLACEMENT";
       const placementVersionKey = "MONITORING_GLOBE_PLACEMENT_VERSION";
-      const placementVersion = "locked-monitoring-angle-20260504a";
+      const placementVersion = "manual-monitoring-placement-20260505a";
 
       function resizeMonitoringGlobe() {
         const width = monitoringEarthStage.clientWidth || 2085;
@@ -6244,9 +6249,9 @@
         if (savedPlacement) {
           const savedVersionMatches = localStorage.getItem(placementVersionKey) === placementVersion;
           if (!savedVersionMatches) {
-            globePlacement.x = 0;
-            globePlacement.y = 0;
-            globePlacement.scale = 1.08;
+            globePlacement.x = 240;
+            globePlacement.y = 220;
+            globePlacement.scale = 1.667923450687243;
             localStorage.setItem(placementVersionKey, placementVersion);
             localStorage.removeItem(placementStorageKey);
           } else {
