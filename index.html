@@ -2221,6 +2221,26 @@
       padding: 0 0 38px;
       scrollbar-width: thin;
       scrollbar-color: rgba(232, 196, 142, 0.26) transparent;
+      -webkit-mask-image:
+        linear-gradient(
+          to bottom,
+          transparent 0,
+          rgba(0, 0, 0, 0.18) 22px,
+          rgba(0, 0, 0, 0.72) 58px,
+          #000 112px,
+          #000 calc(100% - 26px),
+          transparent 100%
+        );
+      mask-image:
+        linear-gradient(
+          to bottom,
+          transparent 0,
+          rgba(0, 0, 0, 0.18) 22px,
+          rgba(0, 0, 0, 0.72) 58px,
+          #000 112px,
+          #000 calc(100% - 26px),
+          transparent 100%
+        );
     }
 
     .chat-stream::-webkit-scrollbar {
@@ -2233,7 +2253,8 @@
     }
 
     .chat-user {
-      width: 600px;
+      width: fit-content;
+      max-width: 600px;
       min-height: 74px;
       margin-left: auto;
       margin-right: 0;
@@ -2253,6 +2274,9 @@
         0 18px 56px rgba(0, 0, 0, 0.34);
       backdrop-filter: blur(20px) saturate(1.2);
       -webkit-backdrop-filter: blur(20px) saturate(1.2);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .chat-card {
