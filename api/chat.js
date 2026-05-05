@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = "https://api.mimo-v2.com/v1";
+const DEFAULT_BASE_URL = "https://api.xiaomimimo.com/v1";
 const DEFAULT_MODEL = "mimo-v2-pro";
 
 function sendJson(response, status, payload) {
@@ -9,9 +9,14 @@ function sendJson(response, status, payload) {
 
 function getApiConfig() {
   const apiKey = process.env.MIMO_API_KEY || process.env.XIAOMI_API_KEY || "";
-  const baseUrl = (process.env.MIMO_BASE_URL || process.env.XIAOMI_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
+  const configuredBase = (process.env.MIMO_BASE_URL || process.env.XIAOMI_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
   const model = process.env.MIMO_MODEL || process.env.XIAOMI_MODEL || DEFAULT_MODEL;
-  return { apiKey, baseUrl, model };
+  const baseUrls = Array.from(new Set([
+    configuredBase,
+    "https://api.xiaomimimo.com/v1",
+    "https://api.mimo-v2.com/v1",
+  ]));
+  return { apiKey, baseUrls, model };
 }
 
 function normalizeMessage(message) {
@@ -42,7 +47,7 @@ async function handler(request, response) {
     return;
   }
 
-  const { apiKey, baseUrl, model } = getApiConfig();
+  const { apiKey, baseUrls, model } = getApiConfig();
   if (!apiKey) {
     sendJson(response, 500, {
       error: "Missing MIMO_API_KEY. Add it in Vercel Project Settings > Environment Variables.",
@@ -68,26 +73,39 @@ async function handler(request, response) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 22000);
   try {
-    const upstream = await fetch(`${baseUrl}/chat/completions`, {
-      method: "POST",
-      signal: controller.signal,
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "api-key": apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model,
-        temperature: 0.65,
-        top_p: 0.95,
-        max_completion_tokens: 900,
-        stream: false,
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages.slice(-10),
-        ],
-      }),
-    });
+    let upstream = null;
+    let lastFetchError = null;
+    for (const baseUrl of baseUrls) {
+      try {
+        upstream = await fetch(`${baseUrl}/chat/completions`, {
+          method: "POST",
+          signal: controller.signal,
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "api-key": apiKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model,
+            temperature: 0.65,
+            top_p: 0.95,
+            max_completion_tokens: 900,
+            stream: false,
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...messages.slice(-10),
+            ],
+          }),
+        });
+        break;
+      } catch (error) {
+        lastFetchError = error;
+      }
+    }
+
+    if (!upstream) {
+      throw lastFetchError || new Error("Failed to reach MiMo API.");
+    }
 
     const text = await upstream.text();
     let data;
