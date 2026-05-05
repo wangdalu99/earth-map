@@ -4076,7 +4076,7 @@
           </span>
         </button>
 
-        <section class="chat-view layer" id="chatView" aria-label="Chat with Deepseek">
+        <section class="chat-view layer" id="chatView" aria-label="Chat with DP">
           <button class="chat-close" type="button" id="chatClose">Back to dashboard</button>
           <div class="chat-stream" id="chatStream">
             <article class="chat-user">
@@ -4091,7 +4091,7 @@
                     <path fill="#10141f" d="M15.2 19.3c.9 0 1.7.7 1.7 1.7s-.8 1.7-1.7 1.7-1.7-.7-1.7-1.7.8-1.7 1.7-1.7Z" />
                     <path fill="#10141f" d="M24.2 28.5c-3.8 0-7-1.2-9.4-3.3 1.6 3.7 5.2 6.2 9.5 6.2 3 0 5.7-1.2 7.6-3.1-2.4.4-5 .4-7.7.2Z" opacity=".65" />
                   </svg>
-                  <span>Deepseek</span>
+                  <span>DP Marine Expert</span>
                   <span class="chevron">⌄</span>
                 </div>
                 <button class="chat-sound" type="button" data-chat-action="Read response" aria-label="Read response aloud">
@@ -4144,7 +4144,7 @@
                 </button>
               </div>
 
-              <p class="chat-disclaimer">Deepseek can make mistakes, so double-check it.</p>
+              <p class="chat-disclaimer">DP only answers marine, ocean and fish questions.</p>
             </article>
           </div>
 
@@ -4155,7 +4155,7 @@
                 <path d="m18.2 18.2 5.3 5.3" />
               </svg>
             </span>
-            <input class="chat-input" id="chatInput" autocomplete="off" placeholder="问问 AI ... ..." aria-label="Ask Deepseek" />
+            <input class="chat-input" id="chatInput" autocomplete="off" placeholder="问问海洋、海域和鱼类问题 ... ..." aria-label="Ask DP marine expert" />
             <button class="chat-mic" type="button" data-chat-action="Voice input" aria-label="Voice input">
               <svg viewBox="0 0 32 32">
                 <path d="M16 4a5 5 0 0 0-5 5v7a5 5 0 0 0 10 0V9a5 5 0 0 0-5-5Z" />
@@ -5004,6 +5004,50 @@
       });
     });
 
+    let cloudForecastSeries = null;
+    const dapengWeatherEndpoint = "https://api.open-meteo.com/v1/forecast?latitude=22.56&longitude=114.42&hourly=cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high&forecast_hours=24&timezone=Asia%2FShanghai";
+
+    function cloudSampleForProgress(progress) {
+      if (!cloudForecastSeries?.length) return null;
+      const scaled = Math.min(cloudForecastSeries.length - 1, Math.max(0, progress) * (cloudForecastSeries.length - 1));
+      const index = Math.floor(scaled);
+      const nextIndex = Math.min(cloudForecastSeries.length - 1, index + 1);
+      const mix = scaled - index;
+      const a = cloudForecastSeries[index];
+      const b = cloudForecastSeries[nextIndex];
+      const blend = (key) => (a[key] ?? 0) + ((b[key] ?? a[key] ?? 0) - (a[key] ?? 0)) * mix;
+      return {
+        cloud: blend("cloud"),
+        low: blend("low"),
+        mid: blend("mid"),
+        high: blend("high"),
+      };
+    }
+
+    async function loadDapengCloudForecast() {
+      try {
+        const response = await fetch(dapengWeatherEndpoint, { cache: "no-store" });
+        if (!response.ok) throw new Error(`Open-Meteo ${response.status}`);
+        const data = await response.json();
+        const hourly = data.hourly || {};
+        const times = hourly.time || [];
+        cloudForecastSeries = times.slice(0, 24).map((time, index) => ({
+          time,
+          cloud: Number(hourly.cloud_cover?.[index] ?? 0) / 100,
+          low: Number(hourly.cloud_cover_low?.[index] ?? 0) / 100,
+          mid: Number(hourly.cloud_cover_mid?.[index] ?? 0) / 100,
+          high: Number(hourly.cloud_cover_high?.[index] ?? 0) / 100,
+        }));
+        if (cloudForecastSeries.length) {
+          setTimeline(timelineProgress);
+          showToast("Live cloud forecast loaded");
+        }
+      } catch (error) {
+        console.warn("Open-Meteo cloud forecast unavailable; using animated cloud simulation.", error);
+        cloudForecastSeries = null;
+      }
+    }
+
     function setTimeline(progress) {
       timelineProgress = Math.min(1, Math.max(0, progress));
       const x = 375 + timelineProgress * 1461;
@@ -5017,6 +5061,7 @@
       const minutes = totalMinutes % 60;
       nowTime.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
       timelineHit.setAttribute("aria-valuenow", String(Math.round(timelineProgress * 24)));
+      advancedGlobeApi?.setTimeProgress?.(timelineProgress, cloudSampleForProgress(timelineProgress));
     }
 
     function progressFromClientX(clientX) {
@@ -5296,32 +5341,51 @@
       showToast("Back to dashboard");
     }
 
-    function generateLocalDeepseekReply(prompt) {
-      const normalized = prompt.toLowerCase();
-      if (normalized.includes("fish") || normalized.includes("鱼") || normalized.includes("marine")) {
-        return "For a future Deepseek connection, this question should call your marine data endpoint first, then ask Deepseek to summarize species, seasonal changes, catch pressure, protected-area context and source confidence. In this local prototype, I am keeping the same Dapeng Bay / Mirs Bay scope and returning a structured placeholder response.";
-      }
-
-      if (normalized.includes("water") || normalized.includes("quality") || normalized.includes("水质")) {
-        return "A Deepseek-backed version can combine monitoring station readings, turbidity, dissolved oxygen, chlorophyll-a and recent alerts, then produce an explainable water-quality summary. This prototype response is generated locally so the chat flow is already interactive.";
-      }
-
-      return `I can help analyze “${prompt}”. This is a local interactive prototype response; later you can replace this function with a Deepseek API call while keeping the current glass chat UI, message layout and action buttons.`;
-    }
-
-    function appendChatTurn(prompt) {
-      const userMessage = document.createElement("article");
-      userMessage.className = "chat-user";
-      userMessage.textContent = prompt;
-      chatStream.appendChild(userMessage);
-
+    function createChatCard(answerText) {
       const cardTemplate = chatStream.querySelector(".chat-card");
       const responseCard = cardTemplate.cloneNode(true);
-      responseCard.querySelector(".chat-answer").textContent = generateLocalDeepseekReply(prompt);
+      responseCard.querySelector(".chat-answer").textContent = answerText;
       chatTurn += 1;
       responseCard.dataset.turn = String(chatTurn);
       chatStream.appendChild(responseCard);
       chatStream.scrollTo({ top: chatStream.scrollHeight, behavior: "smooth" });
+    }
+
+    function appendUserTurn(prompt) {
+      const userMessage = document.createElement("article");
+      userMessage.className = "chat-user";
+      userMessage.textContent = prompt;
+      chatStream.appendChild(userMessage);
+      chatStream.scrollTo({ top: chatStream.scrollHeight, behavior: "smooth" });
+    }
+
+    function appendLoadingTurn() {
+      const cardTemplate = chatStream.querySelector(".chat-card");
+      const responseCard = cardTemplate.cloneNode(true);
+      responseCard.querySelector(".chat-answer").textContent = "Thinking with DP...";
+      responseCard.querySelector(".chat-disclaimer").textContent = "Connecting to your API key on Vercel.";
+      chatTurn += 1;
+      responseCard.dataset.turn = String(chatTurn);
+      responseCard.dataset.loading = "true";
+      chatStream.appendChild(responseCard);
+      chatStream.scrollTo({ top: chatStream.scrollHeight, behavior: "smooth" });
+      return responseCard;
+    }
+
+    async function fetchDpReply(prompt) {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || "Chat request failed.");
+      }
+      return data.answer || "DP returned an empty response.";
     }
 
     chatClose.addEventListener("click", () => exitChatMode(true));
@@ -5332,9 +5396,22 @@
         showToast("Type a question first");
         return;
       }
-      appendChatTurn(prompt);
+      appendUserTurn(prompt);
       chatInput.value = "";
-      showToast("Message sent");
+      const loadingCard = appendLoadingTurn();
+      showToast("Sending to DP");
+      fetchDpReply(prompt)
+        .then((answer) => {
+          loadingCard.querySelector(".chat-answer").textContent = answer;
+          loadingCard.querySelector(".chat-disclaimer").textContent = "Answered by DP via your Vercel API key.";
+        })
+        .catch((error) => {
+          loadingCard.querySelector(".chat-answer").textContent = "Chat is temporarily unavailable.";
+          loadingCard.querySelector(".chat-disclaimer").textContent = error?.message || "Please check your API settings.";
+        })
+        .finally(() => {
+          loadingCard.dataset.loading = "false";
+        });
     }
 
     chatForm.addEventListener("submit", (event) => {
@@ -5631,6 +5708,19 @@
       );
       globeGroup.add(clouds);
 
+      const cloudVeil = new THREE.Mesh(
+        new THREE.SphereGeometry(1.585, 96, 96),
+        new THREE.MeshBasicMaterial({
+          map: cloudTexture,
+          transparent: true,
+          opacity: 0.08,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+        })
+      );
+      cloudVeil.rotation.set(0.08, 1.4, -0.04);
+      globeGroup.add(cloudVeil);
+
       const atmosphere = new THREE.Mesh(
         new THREE.SphereGeometry(1.62, 96, 96),
         new THREE.MeshBasicMaterial({
@@ -5778,6 +5868,13 @@
       const clickStart = { x: 0, y: 0 };
       const raycaster = new THREE.Raycaster();
       const pointerNdc = new THREE.Vector2();
+      const cloudTime = {
+        current: timelineProgress,
+        target: timelineProgress,
+        drift: 0,
+        real: null,
+        realTarget: null,
+      };
       const homeView = { x: -0.08, y: -2.7, z: -0.05, cameraZ: 5.8 };
       const worldView = { x: -0.05, y: -0.32, z: -0.02, cameraZ: 6.9 };
       const bayFocusTransform = { x: 0, y: 0, scale: 1 };
@@ -5833,6 +5930,45 @@
         earthSlot.style.setProperty("--earth-focus-x", `${earthFocusTransform.x.toFixed(2)}px`);
         earthSlot.style.setProperty("--earth-focus-y", `${earthFocusTransform.y.toFixed(2)}px`);
         earthSlot.style.setProperty("--earth-focus-scale", earthFocusTransform.scale.toFixed(4));
+      }
+
+      function setCloudTimeProgress(progress, sample = null, immediate = false) {
+        cloudTime.target = Math.min(1, Math.max(0, progress));
+        cloudTime.realTarget = sample;
+        if (!sample && immediate) cloudTime.real = null;
+        if (immediate) cloudTime.current = cloudTime.target;
+      }
+
+      function updateTimeOfDayClouds() {
+        cloudTime.current += (cloudTime.target - cloudTime.current) * 0.085;
+        cloudTime.drift += 0.00042;
+        if (cloudTime.realTarget) {
+          const previous = cloudTime.real || cloudTime.realTarget;
+          cloudTime.real = {
+            cloud: previous.cloud + (cloudTime.realTarget.cloud - previous.cloud) * 0.08,
+            low: previous.low + (cloudTime.realTarget.low - previous.low) * 0.08,
+            mid: previous.mid + (cloudTime.realTarget.mid - previous.mid) * 0.08,
+            high: previous.high + (cloudTime.realTarget.high - previous.high) * 0.08,
+          };
+        } else {
+          cloudTime.real = null;
+        }
+        const dayAngle = cloudTime.current * Math.PI * 2;
+        const forecast = cloudTime.real;
+        const cloudAmount = forecast?.cloud ?? ((Math.sin(dayAngle - Math.PI * 0.35) + 1) * 0.5);
+        const lowCloud = forecast?.low ?? cloudAmount * 0.62;
+        const highCloud = forecast?.high ?? cloudAmount * 0.38;
+        const cloudOpacity = 0.075 + cloudAmount * 0.16;
+        clouds.rotation.y = dayAngle * 1.28 + cloudTime.drift;
+        clouds.rotation.x = Math.sin(dayAngle) * 0.045 + lowCloud * 0.025;
+        clouds.material.opacity = cloudOpacity;
+        cloudVeil.rotation.y = -dayAngle * 0.72 + cloudTime.drift * 0.55 + 1.4;
+        cloudVeil.rotation.x = 0.08 + Math.cos(dayAngle * 1.35) * 0.035 + highCloud * 0.02;
+        cloudVeil.material.opacity = 0.025 + highCloud * 0.11;
+        const sunAngle = dayAngle - Math.PI * 0.5;
+        sun.position.set(Math.cos(sunAngle) * 4.8, 1.6 + Math.sin(dayAngle) * 0.55, Math.sin(sunAngle) * 4.8);
+        frontFill.intensity = 1.22 + (Math.sin(dayAngle - Math.PI * 0.2) + 1) * 0.18 - cloudAmount * 0.16;
+        atmosphere.material.opacity = 0.02 + (Math.cos(dayAngle - Math.PI * 0.15) + 1) * 0.01;
       }
 
       function easeInOutCubic(value) {
@@ -6172,7 +6308,7 @@
           camera.position.z += (targetCameraZ - camera.position.z) * 0.12;
         }
         syncEarthFocusTransform();
-        clouds.rotation.y += 0.0014;
+        updateTimeOfDayClouds();
         updateGeoFocusOverlay();
         renderer.render(scene, camera);
         requestAnimationFrame(render);
@@ -6211,17 +6347,23 @@
         toggleLayers() {
           marineLayersVisible = !marineLayersVisible;
           clouds.visible = marineLayersVisible;
+          cloudVeil.visible = marineLayersVisible;
           stationGroup.visible = marineLayersVisible;
           hideStationTooltip();
           return marineLayersVisible;
         },
+        setTimeProgress(progress, sample) {
+          setCloudTimeProgress(progress, sample);
+        },
       };
+      setCloudTimeProgress(timelineProgress, cloudSampleForProgress(timelineProgress), true);
       render();
     }
 
     initAdvancedGlobe().catch((error) => {
       console.warn("Advanced globe did not initialize; using fallback earth image.", error);
     });
+    loadDapengCloudForecast();
 
     async function initMonitoringGlobe() {
       if (!monitoringGlobeCanvas || !monitoringEarthStage) return;
