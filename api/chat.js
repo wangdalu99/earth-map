@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = "https://api.xiaomimimo.com/v1";
+const DEFAULT_BASE_URL = "https://token-plan-cn.xiaomimimo.com/v1";
 const DEFAULT_MODEL = "mimo-v2-pro";
 
 function sendJson(response, status, payload) {
@@ -13,6 +13,7 @@ function getApiConfig() {
   const model = process.env.MIMO_MODEL || process.env.XIAOMI_MODEL || DEFAULT_MODEL;
   const baseUrls = Array.from(new Set([
     configuredBase,
+    "https://token-plan-cn.xiaomimimo.com/v1",
     "https://api.xiaomimimo.com/v1",
     "https://api.mimo-v2.com/v1",
   ]));
