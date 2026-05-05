@@ -1,4 +1,5 @@
-const DEFAULT_BASE_URL = "https://token-plan-cn.xiaomimimo.com/v1";
+const DEFAULT_OPENAI_BASE_URL = "https://token-plan-cn.xiaomimimo.com/v1";
+const DEFAULT_ANTHROPIC_BASE_URL = "https://token-plan-cn.xiaomimimo.com/anthropic";
 const DEFAULT_MODEL = "mimo-v2-pro";
 
 function sendJson(response, status, payload) {
@@ -9,15 +10,20 @@ function sendJson(response, status, payload) {
 
 function getApiConfig() {
   const apiKey = process.env.MIMO_API_KEY || process.env.XIAOMI_API_KEY || "";
-  const configuredBase = (process.env.MIMO_BASE_URL || process.env.XIAOMI_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
+  const configuredOpenAIBase = (process.env.MIMO_BASE_URL || process.env.XIAOMI_BASE_URL || DEFAULT_OPENAI_BASE_URL).replace(/\/+$/, "");
+  const configuredAnthropicBase = (process.env.MIMO_ANTHROPIC_BASE_URL || process.env.XIAOMI_ANTHROPIC_BASE_URL || DEFAULT_ANTHROPIC_BASE_URL).replace(/\/+$/, "");
   const model = process.env.MIMO_MODEL || process.env.XIAOMI_MODEL || DEFAULT_MODEL;
-  const baseUrls = Array.from(new Set([
-    configuredBase,
-    "https://token-plan-cn.xiaomimimo.com/v1",
+  const openAiBaseUrls = Array.from(new Set([
+    configuredOpenAIBase,
+    DEFAULT_OPENAI_BASE_URL,
     "https://api.xiaomimimo.com/v1",
     "https://api.mimo-v2.com/v1",
   ]));
-  return { apiKey, baseUrls, model };
+  const anthropicBaseUrls = Array.from(new Set([
+    configuredAnthropicBase,
+    DEFAULT_ANTHROPIC_BASE_URL,
+  ]));
+  return { apiKey, openAiBaseUrls, anthropicBaseUrls, model };
 }
 
 function normalizeMessage(message) {
@@ -26,6 +32,16 @@ function normalizeMessage(message) {
   const content = typeof message.content === "string" ? message.content.trim() : "";
   if (!content) return null;
   return { role, content };
+}
+
+function normalizeAnthropicContent(content) {
+  if (typeof content === "string") return content.trim();
+  if (!Array.isArray(content)) return "";
+  return content
+    .map((item) => (typeof item?.text === "string" ? item.text : ""))
+    .filter(Boolean)
+    .join("\n")
+    .trim();
 }
 
 function readJsonBody(request) {
@@ -48,7 +64,7 @@ async function handler(request, response) {
     return;
   }
 
-  const { apiKey, baseUrls, model } = getApiConfig();
+  const { apiKey, openAiBaseUrls, anthropicBaseUrls, model } = getApiConfig();
   if (!apiKey) {
     sendJson(response, 500, {
       error: "Missing MIMO_API_KEY. Add it in Vercel Project Settings > Environment Variables.",
@@ -76,7 +92,19 @@ async function handler(request, response) {
   try {
     let upstream = null;
     let lastFetchError = null;
-    for (const baseUrl of baseUrls) {
+    const openAiPayload = {
+      model,
+      temperature: 0.65,
+      top_p: 0.95,
+      max_completion_tokens: 900,
+      stream: false,
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...messages.slice(-10),
+      ],
+    };
+
+    for (const baseUrl of openAiBaseUrls) {
       try {
         upstream = await fetch(`${baseUrl}/chat/completions`, {
           method: "POST",
@@ -86,17 +114,7 @@ async function handler(request, response) {
             "api-key": apiKey,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            model,
-            temperature: 0.65,
-            top_p: 0.95,
-            max_completion_tokens: 900,
-            stream: false,
-            messages: [
-              { role: "system", content: systemPrompt },
-              ...messages.slice(-10),
-            ],
-          }),
+          body: JSON.stringify(openAiPayload),
         });
         break;
       } catch (error) {
@@ -105,7 +123,38 @@ async function handler(request, response) {
     }
 
     if (!upstream) {
-      throw lastFetchError || new Error("Failed to reach MiMo API.");
+      const anthropicMessages = messages.slice(-10).map((message) => ({
+        role: message.role,
+        content: message.content,
+      }));
+      const anthropicPayload = {
+        model,
+        max_tokens: 900,
+        system: systemPrompt,
+        messages: anthropicMessages,
+      };
+
+      for (const baseUrl of anthropicBaseUrls) {
+        try {
+          upstream = await fetch(`${baseUrl}/messages`, {
+            method: "POST",
+            signal: controller.signal,
+            headers: {
+              "x-api-key": apiKey,
+              "anthropic-version": "2023-06-01",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(anthropicPayload),
+          });
+          break;
+        } catch (error) {
+          lastFetchError = error;
+        }
+      }
+
+      if (!upstream) {
+        throw lastFetchError || new Error("Failed to reach MiMo API.");
+      }
     }
 
     const text = await upstream.text();
@@ -123,7 +172,10 @@ async function handler(request, response) {
       return;
     }
 
-    const answer = data?.choices?.[0]?.message?.content?.trim();
+    const answer =
+      data?.choices?.[0]?.message?.content?.trim() ||
+      normalizeAnthropicContent(data?.content) ||
+      "";
     sendJson(response, 200, {
       answer: answer || "MiMo returned an empty response. Please try again.",
       model,
