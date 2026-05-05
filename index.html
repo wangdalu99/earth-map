@@ -1198,6 +1198,174 @@
       transform: translateY(0);
     }
 
+    @keyframes homeGlassReveal {
+      0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.985);
+        filter: blur(10px) saturate(0.9);
+      }
+      62% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0) saturate(1);
+      }
+    }
+
+    @keyframes homeTextReveal {
+      0% {
+        opacity: 0;
+        transform: translateY(16px);
+        filter: blur(8px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes homeGlassSheen {
+      0% { transform: translateX(-150%) skewX(-18deg); opacity: 0; }
+      28% { opacity: 0.54; }
+      100% { transform: translateX(170%) skewX(-18deg); opacity: 0; }
+    }
+
+    .brand,
+    .top-nav-bg,
+    .top-nav,
+    .bell-button,
+    .user-button,
+    .meta,
+    .hero,
+    .description,
+    .cta,
+    .side-control,
+    .zoom,
+    .timeline-bg,
+    .play,
+    .timeline-label,
+    .timeline-line,
+    .tick,
+    .now-dot,
+    .time,
+    .now-title,
+    .calendar-bg {
+      animation: homeGlassReveal 880ms cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .brand,
+    .meta,
+    .hero,
+    .description {
+      animation-name: homeTextReveal;
+    }
+
+    .brand { animation-delay: 80ms; }
+    .top-nav-bg,
+    .top-nav { animation-delay: 150ms; }
+    .bell-button,
+    .user-button { animation-delay: 230ms; }
+    .meta { animation-delay: 270ms; }
+    .hero { animation-delay: 350ms; }
+    .description { animation-delay: 440ms; }
+    .cta.one { animation-delay: 540ms; }
+    .cta.two { animation-delay: 620ms; }
+    .side-control.cross { animation-delay: 650ms; }
+    .side-control.globe { animation-delay: 710ms; }
+    .side-control.layers { animation-delay: 770ms; }
+    .zoom { animation-delay: 830ms; }
+    .timeline-bg,
+    .play,
+    .timeline-label,
+    .timeline-line,
+    .tick,
+    .now-dot,
+    .time,
+    .now-title,
+    .calendar-bg { animation-delay: 900ms; }
+
+    .top-nav-bg,
+    .top-nav,
+    .bell-button,
+    .user-button,
+    .cta,
+    .side-control,
+    .zoom,
+    .timeline-bg,
+    .play,
+    .calendar-bg {
+      overflow: hidden;
+    }
+
+    .top-nav-bg::after,
+    .bell-button::after,
+    .user-button::after,
+    .cta::after,
+    .side-control::after,
+    .zoom::after,
+    .timeline-bg::after,
+    .play::after,
+    .calendar-bg::after {
+      content: "";
+      position: absolute;
+      inset: -35% auto -35% -45%;
+      width: 42%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+      pointer-events: none;
+      animation: homeGlassSheen 980ms cubic-bezier(.16, 1, .3, 1) both;
+      animation-delay: inherit;
+    }
+
+    .top-nav::after {
+      content: "";
+      position: absolute;
+      inset: -35% auto -35% -45%;
+      width: 42%;
+      z-index: 3;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.13), transparent);
+      pointer-events: none;
+      animation: homeGlassSheen 980ms cubic-bezier(.16, 1, .3, 1) both;
+      animation-delay: inherit;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .brand,
+      .top-nav-bg,
+      .top-nav,
+      .bell-button,
+      .user-button,
+      .meta,
+      .hero,
+      .description,
+      .cta,
+      .side-control,
+      .zoom,
+      .timeline-bg,
+      .play,
+      .timeline-label,
+      .timeline-line,
+      .tick,
+      .now-dot,
+      .time,
+      .now-title,
+      .calendar-bg,
+      .top-nav-bg::after,
+      .top-nav::after,
+      .bell-button::after,
+      .user-button::after,
+      .cta::after,
+      .side-control::after,
+      .zoom::after,
+      .timeline-bg::after,
+      .play::after,
+      .calendar-bg::after {
+        animation: none !important;
+      }
+    }
+
     .meta,
     .hero,
     .description,
