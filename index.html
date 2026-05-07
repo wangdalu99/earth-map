@@ -1440,6 +1440,7 @@
       width: 2085px;
       height: 1132px;
       z-index: 6;
+      visibility: hidden;
       opacity: 0;
       transform: translateY(20px);
       pointer-events: none;
@@ -1503,6 +1504,48 @@
         0 0 1px rgba(0, 0, 0, 0.85);
       pointer-events: none;
       font-variant-numeric: tabular-nums;
+    }
+
+    .monitoring-stat-value,
+    .monitoring-quick-value,
+    .monitoring-quick-note strong,
+    .eco-metric-row strong,
+    .eco-metric-row em,
+    #ecoBioValue,
+    #ecoBioGain,
+    .eco-total,
+    .eco-bar strong,
+    .eco-risk strong,
+    .eco-status-value {
+      font-variant-numeric: tabular-nums;
+      transition:
+        color 260ms ease,
+        text-shadow 260ms ease,
+        transform 260ms cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .live-tick {
+      color: #fff4c8 !important;
+      text-shadow:
+        0 0 12px rgba(255, 244, 200, 0.54),
+        0 0 26px rgba(103, 232, 255, 0.2) !important;
+      transform: translateY(-1px);
+    }
+
+    .telemetry-bar span,
+    .eco-bar-track span,
+    .eco-signal-track span,
+    .eco-ring-progress {
+      transition:
+        width 720ms cubic-bezier(.16, 1, .3, 1),
+        stroke-dasharray 720ms cubic-bezier(.16, 1, .3, 1),
+        filter 360ms ease;
+    }
+
+    .telemetry-bar span.live-tick,
+    .eco-bar-track span.live-tick,
+    .eco-signal-track span.live-tick {
+      filter: drop-shadow(0 0 12px rgba(255, 244, 200, 0.48));
     }
 
     .monitoring-quick-title {
@@ -1957,9 +2000,24 @@
     }
 
     .frame.monitoring-mode .monitoring-view {
+      visibility: visible;
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
+    }
+
+    .frame.ecosystem-mode .monitoring-view,
+    .frame.chat-mode .monitoring-view,
+    .monitoring-view[aria-hidden="true"] {
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    .frame.ecosystem-mode .monitoring-view *,
+    .frame.chat-mode .monitoring-view *,
+    .monitoring-view[aria-hidden="true"] * {
+      pointer-events: none !important;
     }
 
     .frame.monitoring-mode .brand,
@@ -2730,6 +2788,16 @@
 
     .eco-route-hit {
       display: none;
+      position: absolute;
+      z-index: 20;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .frame.ecosystem-mode .eco-route-hit {
+      display: block;
+      pointer-events: auto;
     }
 
     .eco-route-overview {
@@ -2780,6 +2848,10 @@
       border-radius: 34px;
     }
 
+    #ecosystemView button {
+      pointer-events: auto;
+    }
+
     .frame.ecosystem-mode .meta,
     .frame.ecosystem-mode .hero,
     .frame.ecosystem-mode .description,
@@ -2813,6 +2885,7 @@
     .eco-map-stage {
       position: absolute;
       inset: 0;
+      z-index: 1;
       overflow: hidden;
       background: #02080d;
       cursor: grab;
@@ -2908,6 +2981,7 @@
     .eco-card {
       position: absolute;
       z-index: 8;
+      pointer-events: auto;
       border: 1px solid rgba(229, 235, 238, 0.18);
       border-radius: 37px;
       background:
@@ -3062,6 +3136,8 @@
     }
 
     .eco-metric-row {
+      position: relative;
+      z-index: 3;
       width: 100%;
       height: 50px;
       display: grid;
@@ -3500,6 +3576,8 @@
     }
 
     .eco-risk {
+      position: relative;
+      z-index: 3;
       min-height: 121px;
       padding: 17px 15px;
       border-radius: 16px;
@@ -3687,6 +3765,7 @@
       left: 588px;
       top: 1010px;
       z-index: 12;
+      pointer-events: auto;
       display: flex;
       align-items: center;
       gap: 34px;
@@ -3865,6 +3944,11 @@
       text-align: center;
     }
 
+    .eco-stepper button.active {
+      color: var(--gold);
+      text-shadow: 0 0 14px rgba(232, 196, 142, 0.42);
+    }
+
     .eco-stepper button:first-of-type {
       left: 27px;
     }
@@ -3912,8 +3996,12 @@
     }
 
     .eco-action {
-      position: relative;
       overflow: hidden;
+    }
+
+    .eco-hotspot.eco-action,
+    .eco-scrub.eco-action {
+      position: absolute;
     }
 
     .eco-bottom-controls .eco-scrub {
@@ -3935,6 +4023,102 @@
       transform: translateX(-120%);
       opacity: 0;
       pointer-events: none;
+    }
+
+    @keyframes panelInLeft {
+      0% { opacity: 0; transform: translate3d(-42px, 14px, 0) scale(0.985); filter: blur(8px); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+    }
+
+    @keyframes panelInRight {
+      0% { opacity: 0; transform: translate3d(42px, 14px, 0) scale(0.985); filter: blur(8px); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+    }
+
+    @keyframes panelInUp {
+      0% { opacity: 0; transform: translate3d(0, 34px, 0) scale(0.985); filter: blur(8px); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+    }
+
+    @keyframes pointBloom {
+      0% { opacity: 0; transform: scale(0.7); filter: blur(6px) drop-shadow(0 0 0 rgba(232, 196, 142, 0)); }
+      70% { opacity: 1; transform: scale(1.12); filter: blur(0) drop-shadow(0 0 24px rgba(232, 196, 142, 0.42)); }
+      100% { opacity: 1; transform: scale(1); filter: blur(0) drop-shadow(0 0 14px rgba(232, 196, 142, 0.26)); }
+    }
+
+    .frame.ecosystem-mode .eco-title,
+    .frame.ecosystem-mode .eco-status-card,
+    .frame.ecosystem-mode .eco-species-card {
+      animation: panelInLeft 720ms cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .frame.ecosystem-mode .eco-status-card { animation-delay: 90ms; }
+    .frame.ecosystem-mode .eco-species-card { animation-delay: 180ms; }
+
+    .frame.ecosystem-mode .eco-composition-card,
+    .frame.ecosystem-mode .eco-bio-card,
+    .frame.ecosystem-mode .eco-signals-card {
+      animation: panelInRight 760ms cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .frame.ecosystem-mode .eco-composition-card { animation-delay: 120ms; }
+    .frame.ecosystem-mode .eco-bio-card { animation-delay: 210ms; }
+    .frame.ecosystem-mode .eco-signals-card { animation-delay: 300ms; }
+
+    .frame.ecosystem-mode .eco-bottom-controls {
+      animation: panelInUp 760ms cubic-bezier(.16, 1, .3, 1) 360ms both;
+    }
+
+    .frame.ecosystem-mode .eco-hotspot,
+    .frame.ecosystem-mode .eco-floating-card {
+      animation: pointBloom 680ms cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .frame.ecosystem-mode .eco-hotspot.north { animation-delay: 420ms; }
+    .frame.ecosystem-mode .eco-hotspot.east { animation-delay: 500ms; }
+    .frame.ecosystem-mode .eco-hotspot.south { animation-delay: 580ms; }
+    .frame.ecosystem-mode .eco-hotspot.core { animation-delay: 660ms; }
+    .frame.ecosystem-mode .eco-floating-card { animation-delay: 720ms; }
+    .frame.ecosystem-mode .eco-floating-card.secondary { animation-delay: 780ms; }
+
+    .frame.monitoring-mode .monitoring-widget-title,
+    .frame.monitoring-mode .monitoring-stats-card,
+    .frame.monitoring-mode .monitoring-alert-card {
+      animation: panelInLeft 720ms cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .frame.monitoring-mode .monitoring-widget-title { animation-delay: 60ms; }
+    .frame.monitoring-mode .monitoring-stats-card { animation-delay: 140ms; }
+    .frame.monitoring-mode .monitoring-alert-card { animation-delay: 240ms; }
+
+    .frame.monitoring-mode .monitoring-quick-heading,
+    .frame.monitoring-mode .monitoring-quick-card {
+      animation: panelInUp 760ms cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .frame.monitoring-mode .monitoring-quick-heading { animation-delay: 320ms; }
+    .frame.monitoring-mode .monitoring-quick-card { animation-delay: 390ms; }
+
+    .frame.monitoring-mode .monitoring-map-control {
+      animation: pointBloom 620ms cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .frame.monitoring-mode .monitoring-map-control.recenter { animation-delay: 420ms; }
+    .frame.monitoring-mode .monitoring-map-control.world { animation-delay: 500ms; }
+    .frame.monitoring-mode .monitoring-map-control.layers { animation-delay: 580ms; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .frame.ecosystem-mode .eco-title,
+      .frame.ecosystem-mode .eco-card,
+      .frame.ecosystem-mode .eco-bottom-controls,
+      .frame.ecosystem-mode .eco-hotspot,
+      .frame.ecosystem-mode .eco-floating-card,
+      .frame.monitoring-mode .monitoring-widget-title,
+      .frame.monitoring-mode .monitoring-glass-card,
+      .frame.monitoring-mode .monitoring-quick-heading,
+      .frame.monitoring-mode .monitoring-map-control {
+        animation: none !important;
+      }
     }
 
     @media (max-width: 900px) {
@@ -4213,22 +4397,22 @@
             <section class="monitoring-glass-card monitoring-stats-card">
               <div class="monitoring-stat">
                 <span class="monitoring-stat-label">Monitoring Stations</span>
-                <strong class="monitoring-stat-value">1,248</strong>
+                    <strong class="monitoring-stat-value" data-live="stations">1,248</strong>
                 <span class="monitoring-stat-status">Active</span>
               </div>
               <div class="monitoring-stat">
                 <span class="monitoring-stat-label">Protected Areas</span>
-                <strong class="monitoring-stat-value">286</strong>
+                    <strong class="monitoring-stat-value" data-live="areas">286</strong>
                 <span class="monitoring-stat-status">Total</span>
               </div>
               <div class="monitoring-stat">
                 <span class="monitoring-stat-label">Alerts (24h)</span>
-                <strong class="monitoring-stat-value">12</strong>
+                    <strong class="monitoring-stat-value" data-live="alerts">12</strong>
                 <span class="monitoring-stat-status">New</span>
               </div>
               <div class="monitoring-stat">
                 <span class="monitoring-stat-label">Coverage</span>
-                <strong class="monitoring-stat-value">64%</strong>
+                    <strong class="monitoring-stat-value" data-live="coverage">64%</strong>
                 <span class="monitoring-stat-status">Ocean Area</span>
               </div>
             </section>
@@ -4288,12 +4472,12 @@
                 <span class="monitoring-quick-name">Water Quality Index</span>
                 <div class="monitoring-quick-body">
                   <span>
-                    <strong class="monitoring-quick-value">92</strong>
-                    <span class="monitoring-quick-status">Good</span>
+                    <strong class="monitoring-quick-value" data-live="wqi">92</strong>
+                    <span class="monitoring-quick-status" data-live="wqiStatus">Good</span>
                   </span>
                   <span>
                     <svg class="monitoring-spark" viewBox="0 0 176 75" aria-hidden="true"><path d="M0 61 L24 52 L51 47 L76 34 L96 25 L119 37 L138 19 L163 27 L176 8"/></svg>
-                    <p class="monitoring-quick-note"><strong>↑ 8%</strong> vs last 30 days</p>
+                    <p class="monitoring-quick-note"><strong data-live="trendShort">↑ 8%</strong> vs last 30 days</p>
                   </span>
                 </div>
               </article>
@@ -4301,8 +4485,8 @@
                 <span class="monitoring-quick-name">Marine Biodiversity</span>
                 <div class="monitoring-quick-body">
                   <span>
-                    <strong class="monitoring-quick-value">87</strong>
-                    <span class="monitoring-quick-status">High</span>
+                    <strong class="monitoring-quick-value" data-live="biodiversity">87</strong>
+                    <span class="monitoring-quick-status" data-live="bioStatus">High</span>
                   </span>
                   <span>
                     <svg class="monitoring-spark" viewBox="0 0 176 75" aria-hidden="true"><path d="M0 57 L26 50 L51 42 L78 29 L101 25 L120 31 L142 28 L176 13"/></svg>
@@ -4314,8 +4498,8 @@
                 <span class="monitoring-quick-name">Protected Area Coverage</span>
                 <div class="monitoring-quick-body">
                   <span>
-                    <strong class="monitoring-quick-value">64%</strong>
-                    <span class="monitoring-quick-status">Stable</span>
+                    <strong class="monitoring-quick-value" data-live="protectedCoverage">64%</strong>
+                    <span class="monitoring-quick-status" data-live="coverageStatus">Stable</span>
                   </span>
                   <span>
                     <svg class="monitoring-spark" viewBox="0 0 176 75" aria-hidden="true"><path d="M0 62 L22 59 L48 51 L71 55 L91 44 L112 48 L132 34 L153 38 L176 25"/></svg>
@@ -4488,13 +4672,13 @@
               <span class="eco-live">Live</span>
             </header>
             <div class="eco-bars">
-              <div class="eco-bar"><span>Coral Reef</span><span class="eco-bar-track"><span style="--value:28%"></span></span><strong>28%</strong></div>
-              <div class="eco-bar"><span>Seagrass Beds</span><span class="eco-bar-track"><span style="--value:34%"></span></span><strong>34%</strong></div>
-              <div class="eco-bar"><span>Mangroves</span><span class="eco-bar-track"><span style="--value:18%"></span></span><strong>18%</strong></div>
-              <div class="eco-bar"><span>Others</span><span class="eco-bar-track"><span style="--value:20%; background:linear-gradient(90deg,#8fa5bf,#d8b879)"></span></span><strong>20%</strong></div>
+              <div class="eco-bar"><span>Coral Reef</span><span class="eco-bar-track"><span data-eco-bar="coral" style="--value:28%"></span></span><strong data-eco-value="coral">28%</strong></div>
+              <div class="eco-bar"><span>Seagrass Beds</span><span class="eco-bar-track"><span data-eco-bar="seagrass" style="--value:34%"></span></span><strong data-eco-value="seagrass">34%</strong></div>
+              <div class="eco-bar"><span>Mangroves</span><span class="eco-bar-track"><span data-eco-bar="mangroves" style="--value:18%"></span></span><strong data-eco-value="mangroves">18%</strong></div>
+              <div class="eco-bar"><span>Others</span><span class="eco-bar-track"><span data-eco-bar="others" style="--value:20%; background:linear-gradient(90deg,#8fa5bf,#d8b879)"></span></span><strong data-eco-value="others">20%</strong></div>
             </div>
             <span class="eco-total-label">Total Coverage</span>
-            <strong class="eco-total">64%</strong>
+            <strong class="eco-total" id="ecoTotalCoverage">64%</strong>
           </article>
 
           <article class="eco-card eco-bio-card">
@@ -4608,11 +4792,16 @@
     const ecoFloatMeta = document.querySelector("#ecoFloatMeta");
     const ecoFloatSub = document.querySelector("#ecoFloatSub");
     const ecoCoreCount = document.querySelector("#ecoCoreCount");
-    const ecoLiveBioValue = document.querySelector("#ecoBioValue");
-    const ecoLiveBioStatus = document.querySelector("#ecoBioStatus");
-    const ecoLiveBioGain = document.querySelector("#ecoBioGain");
-    const ecoLiveChartPath = document.querySelector("#ecoBioChartPath");
-    const ecoLiveChartDot = document.querySelector("#ecoBioChartDot");
+    const ecoBioValue = document.querySelector("#ecoBioValue");
+    const ecoBioStatus = document.querySelector("#ecoBioStatus");
+    const ecoBioGain = document.querySelector("#ecoBioGain");
+    const ecoBioChartPath = document.querySelector("#ecoBioChartPath");
+    const ecoBioChartDot = document.querySelector("#ecoBioChartDot");
+    const ecoLiveBioValue = document.querySelector("#ecoLiveBioValue");
+    const ecoLiveBioStatus = document.querySelector("#ecoLiveBioStatus");
+    const ecoLiveBioGain = document.querySelector("#ecoLiveBioGain");
+    const ecoLiveChartPath = document.querySelector("#ecoLiveChartPath");
+    const ecoLiveChartDot = document.querySelector("#ecoLiveChartDot");
     const ecoBrightnessControl = document.querySelector('[data-eco-action="scrub"]');
     const monitoringPanelTag = document.querySelector("#monitoringPanelTag");
     const monitoringPanelTitle = document.querySelector("#monitoringPanelTitle");
@@ -4784,6 +4973,27 @@
       monitoringPanelMeta.textContent = data.meta;
     }
 
+    function pulseNode(node) {
+      if (!node) return;
+      node.classList.remove("live-tick");
+      void node.offsetWidth;
+      node.classList.add("live-tick");
+      window.setTimeout(() => node.classList.remove("live-tick"), 420);
+    }
+
+    function setTextWithPulse(node, value) {
+      if (!node) return;
+      const next = String(value);
+      if (node.textContent !== next) {
+        node.textContent = next;
+        pulseNode(node);
+      }
+    }
+
+    function formatPercent(value) {
+      return `${Math.round(value)}%`;
+    }
+
     function handleMonitoringAction(target) {
       const action = target.dataset.monitorAction;
       if (!action) return;
@@ -4799,21 +5009,21 @@
 
     function setLiveMonitoringValue(key, value) {
       document.querySelectorAll(`[data-live="${key}"]`).forEach((node) => {
-        node.textContent = value;
+        setTextWithPulse(node, value);
       });
     }
 
     function updateMonitoringLiveMetrics() {
       const now = Date.now();
-      const wave = Math.sin(now / 4800);
-      const pulse = Math.cos(now / 7200);
-      const stationCount = 1248 + Math.round(wave * 7);
-      const protectedAreas = 286 + Math.round(Math.max(0, pulse) * 2);
-      const alerts = 12 + Math.max(0, Math.round(Math.sin(now / 5600) * 3));
-      const coverage = 64 + Math.max(0, Math.round(Math.sin(now / 9600) * 2));
-      const wqi = 92 + Math.round(Math.sin(now / 4100) * 2);
-      const bio = 87 + Math.round(Math.cos(now / 5200) * 2);
-      const trend = 8 + Math.max(0, Math.round(Math.sin(now / 6900) * 2));
+      const wave = Math.sin(now / 1800);
+      const pulse = Math.cos(now / 2500);
+      const stationCount = 1248 + Math.round(wave * 18);
+      const protectedAreas = 286 + Math.round(Math.max(0, pulse) * 6);
+      const alerts = 12 + Math.max(0, Math.round(Math.sin(now / 2200) * 6));
+      const coverage = 64 + Math.max(0, Math.round(Math.sin(now / 3600) * 4));
+      const wqi = 92 + Math.round(Math.sin(now / 1800) * 4);
+      const bio = 87 + Math.round(Math.cos(now / 2200) * 4);
+      const trend = 8 + Math.max(0, Math.round(Math.sin(now / 2500) * 4));
       const clock = new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 
       setLiveMonitoringValue("stations", stationCount.toLocaleString("en-US"));
@@ -4828,10 +5038,11 @@
       setLiveMonitoringValue("coverageStatus", coverage >= 65 ? "Rising" : "Stable");
       setLiveMonitoringValue("clock", clock);
       setLiveMonitoringValue("trend", `+${trend}% vs last 30 days`);
+      setLiveMonitoringValue("trendShort", `↑ ${trend}%`);
     }
 
     updateMonitoringLiveMetrics();
-    setInterval(updateMonitoringLiveMetrics, 1800);
+    setInterval(updateMonitoringLiveMetrics, 750);
 
     function handleMonitoringControl(target) {
       const control = target.dataset.monitorControl;
@@ -5160,11 +5371,12 @@
       ecoMapScale = Math.min(4, Math.max(0.92, ecoMapScale));
       ecoMapX = Math.min(260, Math.max(-260, ecoMapX));
       ecoMapY = Math.min(190, Math.max(-190, ecoMapY));
+      const origin = ecoHotspotData[ecoActiveHotspot] || ecoHotspotData.core;
       ecoMapStage?.style.setProperty("--eco-map-scale", ecoMapScale.toFixed(3));
       ecoMapStage?.style.setProperty("--eco-map-x", `${ecoMapX.toFixed(1)}px`);
       ecoMapStage?.style.setProperty("--eco-map-y", `${ecoMapY.toFixed(1)}px`);
-      ecoMapStage?.style.setProperty("--eco-map-origin-x", `${ecoHotspotData.core.left}px`);
-      ecoMapStage?.style.setProperty("--eco-map-origin-y", `${ecoHotspotData.core.top}px`);
+      ecoMapStage?.style.setProperty("--eco-map-origin-x", `${origin.left}px`);
+      ecoMapStage?.style.setProperty("--eco-map-origin-y", `${origin.top}px`);
       ecosystemView?.style.setProperty("--eco-visual-scale", ecoMapScale.toFixed(3));
       ecosystemView?.style.setProperty("--eco-visual-x", `${(ecoMapX * 0.35).toFixed(1)}px`);
       ecosystemView?.style.setProperty("--eco-visual-y", `${(ecoMapY * 0.35).toFixed(1)}px`);
@@ -5186,14 +5398,81 @@
       ecoBrightnessControl.style.setProperty("--scrub-x", `${(progress * 81).toFixed(1)}px`);
     }
 
+    function applyEcoBioData(data) {
+      setTextWithPulse(ecoBioValue, data.value);
+      setTextWithPulse(ecoBioStatus, data.ringStatus);
+      setTextWithPulse(ecoBioGain, data.gain);
+      ecoBioChartPath?.setAttribute("d", data.chart);
+      ecoBioChartDot?.setAttribute("cx", data.dot.x);
+      ecoBioChartDot?.setAttribute("cy", data.dot.y);
+      setTextWithPulse(ecoLiveBioValue, data.value);
+      setTextWithPulse(ecoLiveBioStatus, data.ringStatus);
+      setTextWithPulse(ecoLiveBioGain, data.gain);
+      ecoLiveChartPath?.setAttribute("d", data.chart);
+      ecoLiveChartDot?.setAttribute("cx", data.dot.x);
+      ecoLiveChartDot?.setAttribute("cy", data.dot.y);
+    }
+
+    function applyEcoMetricRows(metricName, value, gain) {
+      const activeValue = metricName === "Biodiversity Index" ? value.toFixed(2) : String(Math.round(value * 100));
+      document.querySelectorAll(".eco-metric-row").forEach((row) => {
+        const base = ecoMetricData[row.dataset.metric];
+        if (!base) return;
+        const isActive = row.dataset.metric === metricName;
+        setTextWithPulse(row.querySelector("strong"), isActive ? activeValue : base.value);
+        setTextWithPulse(row.querySelector("em"), isActive ? `${gain >= 0 ? "↑" : "↓"} ${Math.abs(gain)}%` : (base.gain === "0%" ? "→ 0%" : `↑ ${base.gain}`));
+      });
+    }
+
+    function updateEcoHabitatTelemetry(phase) {
+      const coral = 28 + Math.round(Math.sin(phase * 0.9) * 3);
+      const seagrass = 34 + Math.round(Math.cos(phase * 0.76) * 3);
+      const mangroves = 18 + Math.round(Math.sin(phase * 1.05 + 1.4) * 2);
+      const others = Math.max(16, 100 - coral - seagrass - mangroves - 20);
+      const values = { coral, seagrass, mangroves, others };
+      Object.entries(values).forEach(([key, value]) => {
+        const label = document.querySelector(`[data-eco-value="${key}"]`);
+        const bar = document.querySelector(`[data-eco-bar="${key}"]`);
+        setTextWithPulse(label, formatPercent(value));
+        if (bar) {
+          bar.style.setProperty("--value", formatPercent(value));
+          pulseNode(bar);
+        }
+      });
+      setTextWithPulse(document.querySelector("#ecoTotalCoverage"), formatPercent(coral + seagrass + mangroves));
+    }
+
+    function updateEcoRiskTelemetry(phase) {
+      document.querySelectorAll(".eco-risk").forEach((risk, index) => {
+        const base = [130, 150, 180][index] || 130;
+        const value = base + Math.round(Math.sin(phase * (0.82 + index * 0.16) + index) * (index + 3));
+        setTextWithPulse(risk.querySelector("strong"), value);
+      });
+      document.querySelectorAll(".eco-signal-track span").forEach((bar, index) => {
+        const current = parseFloat(bar.style.getPropertyValue("--value")) || [84, 62, 91, 48][index] || 50;
+        const next = Math.min(96, Math.max(36, current + Math.sin(phase * 0.95 + index * 0.8) * 2.4));
+        bar.style.setProperty("--value", `${next.toFixed(1)}%`);
+      });
+    }
+
     function updateEcoLiveData() {
       if (!frame.classList.contains("ecosystem-mode") && !frame.classList.contains("dapeng-focus-mode")) return;
-      ecoLiveBioValue.textContent = "0.82";
-      ecoLiveBioStatus.textContent = "Good";
-      ecoLiveBioGain.textContent = "6%";
-      ecoLiveChartPath?.setAttribute("d", "M0 39 C18 40 31 36 43 28 C55 20 63 20 71 24 C78 28 86 37 95 36 C107 30 119 14 130 1 C141 9 151 35 164 32 C171 31 174 22 180 21 C184 21 184 26 190 25 C198 22 200 13 206.5 8");
-      ecoLiveChartDot?.setAttribute("cx", "206.5");
-      ecoLiveChartDot?.setAttribute("cy", "8");
+      const phase = Date.now() / 850;
+      const activeMetric = document.querySelector(".eco-metric-row.active")?.dataset.metric || "Biodiversity Index";
+      const base = ecoMetricData[activeMetric] || ecoMetricData["Biodiversity Index"];
+      const baseValue = Number(base.value);
+      const liveValue = Math.min(0.98, Math.max(0.68, baseValue + Math.sin(phase) * 0.028));
+      const liveGain = Math.max(-1, Math.round(Number.parseFloat(base.gain) + Math.cos(phase * 0.8) * 2));
+      const liveData = {
+        ...base,
+        value: liveValue.toFixed(2),
+        gain: `${liveGain}%`,
+        ringStatus: liveValue >= 0.88 ? "Clear" : liveValue >= 0.78 ? base.ringStatus : "Watch",
+      };
+      applyEcoBioData(liveData);
+      applyEcoMetricRows(activeMetric, liveValue, liveGain);
+      updateEcoHabitatTelemetry(phase);
+      updateEcoRiskTelemetry(phase);
     }
 
     function enterEcosystemMode(updateHash = true) {
@@ -5284,19 +5563,109 @@
       },
     };
 
+    const ecoHotspotOrder = ["north", "east", "south", "core"];
+    let ecoActiveHotspot = "core";
+
+    const ecoMetricData = {
+      "Biodiversity Index": {
+        status: "Stable",
+        value: "0.82",
+        ringStatus: "Good",
+        gain: "6%",
+        hotspot: "north",
+        chart: "M0 39 C18 40 31 36 43 28 C55 20 63 20 71 24 C78 28 86 37 95 36 C107 30 119 14 130 1 C141 9 151 35 164 32 C171 31 174 22 180 21 C184 21 184 26 190 25 C198 22 200 13 206.5 8",
+        dot: { x: "206.5", y: "8" },
+      },
+      "Water Quality Index": {
+        status: "Clean",
+        value: "0.91",
+        ringStatus: "Clear",
+        gain: "8%",
+        hotspot: "core",
+        chart: "M0 35 C19 32 32 31 48 24 C62 18 75 12 91 15 C108 18 118 28 134 22 C152 15 170 9 206.5 4",
+        dot: { x: "206.5", y: "4" },
+      },
+      "Habitat Integrity": {
+        status: "Stable",
+        value: "0.78",
+        ringStatus: "Stable",
+        gain: "0%",
+        hotspot: "east",
+        chart: "M0 30 C18 32 34 29 49 31 C68 34 83 27 100 29 C118 31 136 23 151 25 C170 28 187 20 206.5 22",
+        dot: { x: "206.5", y: "22" },
+      },
+    };
+
+    const ecoRiskData = {
+      "Behavioural Avoidance": {
+        status: "Low impact",
+        brightness: 0.96,
+        hotspot: "south",
+        signals: ["84%", "62%", "91%", "48%"],
+      },
+      "Physiological Stress": {
+        status: "Watch zone",
+        brightness: 0.9,
+        hotspot: "core",
+        signals: ["58%", "82%", "76%", "69%"],
+      },
+      "Otolith Damage Risk": {
+        status: "High risk",
+        brightness: 0.84,
+        hotspot: "east",
+        signals: ["42%", "74%", "88%", "93%"],
+      },
+    };
+
     function setEcoHotspot(name, announce = true) {
       const data = ecoHotspotData[name] || ecoHotspotData.core;
+      ecoActiveHotspot = ecoHotspotData[name] ? name : "core";
       document.querySelectorAll(".eco-hotspot").forEach((node) => {
-        node.classList.toggle("active", node.dataset.hotspot === name);
+        node.classList.toggle("active", node.dataset.hotspot === ecoActiveHotspot);
       });
       if (ecoFloatingCard) {
         ecoFloatingCard.style.left = `${data.left}px`;
         ecoFloatingCard.style.top = `${data.top}px`;
       }
+      ecoMapStage?.style.setProperty("--eco-map-origin-x", `${data.left}px`);
+      ecoMapStage?.style.setProperty("--eco-map-origin-y", `${data.top}px`);
       ecoFloatTitle.textContent = data.title;
       ecoFloatMeta.textContent = data.meta;
       ecoFloatSub.textContent = data.sub;
       if (announce) showToast(data.title);
+    }
+
+    function setEcoMetric(target) {
+      const metricName = target.dataset.metric;
+      const data = ecoMetricData[metricName];
+      if (!data) return;
+      document.querySelectorAll(".eco-metric-row").forEach((row) => row.classList.remove("active"));
+      target.classList.add("active");
+      document.querySelector("#ecoStatusValue").textContent = data.status;
+      applyEcoBioData(data);
+      setEcoHotspot(data.hotspot, false);
+      showToast(`${metricName}: ${target.dataset.value}`);
+    }
+
+    function setEcoRisk(target) {
+      const riskName = target.dataset.risk;
+      const data = ecoRiskData[riskName];
+      if (!data) return;
+      document.querySelectorAll(".eco-risk").forEach((row) => row.classList.remove("active"));
+      target.classList.add("active");
+      document.querySelector("#ecoStatusValue").textContent = data.status;
+      document.querySelectorAll(".eco-signal-track span").forEach((bar, index) => {
+        bar.style.setProperty("--value", data.signals[index] || "50%");
+      });
+      setEcoBrightness(data.brightness);
+      setEcoHotspot(data.hotspot, false);
+      showToast(riskName);
+    }
+
+    function stepEcoHotspot(direction) {
+      const currentIndex = ecoHotspotOrder.indexOf(ecoActiveHotspot);
+      const nextIndex = (currentIndex + direction + ecoHotspotOrder.length) % ecoHotspotOrder.length;
+      setEcoHotspot(ecoHotspotOrder[nextIndex]);
     }
 
     function handleEcoAction(target) {
@@ -5309,17 +5678,12 @@
       }
 
       if (action === "metric") {
-        document.querySelectorAll(".eco-metric-row").forEach((row) => row.classList.remove("active"));
-        target.classList.add("active");
-        document.querySelector("#ecoStatusValue").textContent = target.dataset.metric === "Water Quality Index" ? "Clean" : "Stable";
-        showToast(`${target.dataset.metric}: ${target.dataset.value}`);
+        setEcoMetric(target);
         return;
       }
 
       if (action === "risk") {
-        document.querySelectorAll(".eco-risk").forEach((row) => row.classList.remove("active"));
-        target.classList.add("active");
-        showToast(target.dataset.risk);
+        setEcoRisk(target);
         return;
       }
 
@@ -5338,12 +5702,18 @@
       }
 
       if (action === "prev" || action === "next") {
-        setEcoHotspot(action === "next" ? "east" : "north");
+        stepEcoHotspot(action === "next" ? 1 : -1);
         return;
       }
 
       if (action === "set-count") {
         ecoCoreCount.textContent = target.dataset.count;
+        document.querySelectorAll('[data-eco-action="set-count"]').forEach((button) => {
+          button.classList.toggle("active", button === target);
+        });
+        ecoMapScale = target.dataset.count === "18" ? 1.16 : 0.96;
+        setEcoMapTransform();
+        setEcoHotspot("core", false);
         showToast(`${target.dataset.count} layer selected`);
         return;
       }
@@ -5675,7 +6045,7 @@
       isDraggingEcoBrightness = false;
     });
 
-    setInterval(updateEcoLiveData, 1600);
+    setInterval(updateEcoLiveData, 900);
 
     ecoMapStage?.addEventListener("pointerdown", (event) => {
       if (!frame.classList.contains("ecosystem-mode")) return;
@@ -5832,8 +6202,9 @@
         new THREE.SphereGeometry(1.57, 96, 96),
         new THREE.MeshBasicMaterial({
           map: cloudTexture,
+          color: "#f4fbff",
           transparent: true,
-          opacity: 0.18,
+          opacity: 0.24,
           depthWrite: false,
         })
       );
@@ -5843,8 +6214,9 @@
         new THREE.SphereGeometry(1.585, 96, 96),
         new THREE.MeshBasicMaterial({
           map: cloudTexture,
+          color: "#d8f1ff",
           transparent: true,
-          opacity: 0.08,
+          opacity: 0.12,
           depthWrite: false,
           blending: THREE.AdditiveBlending,
         })
@@ -6089,13 +6461,14 @@
         const cloudAmount = forecast?.cloud ?? ((Math.sin(dayAngle - Math.PI * 0.35) + 1) * 0.5);
         const lowCloud = forecast?.low ?? cloudAmount * 0.62;
         const highCloud = forecast?.high ?? cloudAmount * 0.38;
-        const cloudOpacity = 0.075 + cloudAmount * 0.16;
+        const cloudPresence = Math.max(cloudAmount, lowCloud * 0.72, highCloud * 0.58, 0.42);
+        const cloudOpacity = 0.2 + cloudPresence * 0.2;
         clouds.rotation.y = dayAngle * 1.28 + cloudTime.drift;
         clouds.rotation.x = Math.sin(dayAngle) * 0.045 + lowCloud * 0.025;
         clouds.material.opacity = cloudOpacity;
         cloudVeil.rotation.y = -dayAngle * 0.72 + cloudTime.drift * 0.55 + 1.4;
         cloudVeil.rotation.x = 0.08 + Math.cos(dayAngle * 1.35) * 0.035 + highCloud * 0.02;
-        cloudVeil.material.opacity = 0.025 + highCloud * 0.11;
+        cloudVeil.material.opacity = 0.105 + Math.max(highCloud, cloudAmount * 0.45, 0.35) * 0.12;
         const sunAngle = dayAngle - Math.PI * 0.5;
         sun.position.set(Math.cos(sunAngle) * 4.8, 1.6 + Math.sin(dayAngle) * 0.55, Math.sin(sunAngle) * 4.8);
         frontFill.intensity = 1.22 + (Math.sin(dayAngle - Math.PI * 0.2) + 1) * 0.18 - cloudAmount * 0.16;
